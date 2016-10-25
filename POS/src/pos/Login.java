@@ -19,6 +19,9 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import java.sql.*;
+import java.sql.Connection;
+
 
 public class Login {
 
@@ -126,7 +129,28 @@ public class Login {
 		   if(!username.isEmpty() && !password.isEmpty())
 		   { 
 			  //Connect to Mysql
-			   
+			  try {
+				  //get a connection to the database
+				  Connection myConn = DriverManager.getConnection("jdbc:mysql://Atomic-PC:3306/test", "root", "cybertronic");
+				  
+				  //Create a statament
+				  Statement myStmt = myConn.createStatement();
+				  
+				  //create a result set
+				  ResultSet rs = myStmt.executeQuery("show tables");
+				  
+				  //proces the result set
+				  int i =1;
+				  while(rs.next())
+				  { 
+				     System.out.println(i);
+				     i++;
+				  }	  
+			  }
+			  catch(Exception e)
+			  { 
+				  e.printStackTrace();
+			  }
 			   
 		   }
 		   else
