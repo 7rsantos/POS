@@ -131,7 +131,7 @@ public class Login {
 			  //Connect to Mysql
 			  try {
 				  //get a connection to the database
-				  Connection myConn = DriverManager.getConnection("jdbc:mysql://Atomic-PC:3306/test", "root", "cybertronic");
+				  Connection myConn = DriverManager.getConnection("jdbc:mysql://Atomic-PC:3306/test?autoReconnect=true&useSSL=false", "root", "cybertronic");
 				  
 				  //Create a statament
 				  Statement myStmt = myConn.createStatement();
@@ -139,7 +139,7 @@ public class Login {
 				  //create a result set
 				  ResultSet rs = myStmt.executeQuery("show tables");
 				  
-				  //proces the result set
+				  //process the result set
 				  int i =1;
 				  while(rs.next())
 				  { 
@@ -150,6 +150,7 @@ public class Login {
 			  catch(Exception e)
 			  { 
 				  e.printStackTrace();
+				  AlertBox.display("Connection Error", "Could not connect to the database, check your connection settings.");
 			  }
 			   
 		   }
