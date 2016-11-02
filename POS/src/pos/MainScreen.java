@@ -4,10 +4,14 @@ import javafx.geometry.Insets;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -16,6 +20,7 @@ public class MainScreen {
 	public static void displayMainScreen(Stage stage)
 	{ 
 		Stage window = stage;
+		
 		
 		
 		//set the size of the window
@@ -34,7 +39,17 @@ public class MainScreen {
 		
         //create a new border pane
 		BorderPane border = new BorderPane();
-		border.setPadding(new Insets(20,100, 100, 100));
+		
+		//create left border pane
+		BorderPane left = new BorderPane();
+		Button b = new Button("Click me");
+		left.setCenter(b);
+		border.setLeft(left);
+
+		//create a gridpane
+		GridPane root = new GridPane();
+		root.setPadding(new Insets(75,5, 75,175));
+		root.setVgap(8);
 		
 		//create table view
 		TableView table = new TableView();
@@ -48,7 +63,7 @@ public class MainScreen {
 		
 		name.setPrefWidth(500);
 		quantity.setPrefWidth(55);
-		price.setPrefWidth(120);
+		price.setPrefWidth(110);
 		subtotal.setPrefWidth(120);
 		
 		
@@ -56,9 +71,17 @@ public class MainScreen {
 		table.getColumns().addAll(name, quantity, price, subtotal);
 		
 		//add table to the center of the border layout
-		border.setCenter(table);
+		root.getChildren().add(table);
+		border.setCenter(root);
+		
+		//create menu bar and added to the border layout
+		MenuBar menuBar = MainScreen.createMenu();
+	    menuBar.prefWidthProperty().bind(stage.widthProperty());
+		border.setTop(menuBar);
+		
 		//set ids
 		border.setId("border");
+		root.setId("root");
         
 		//Create the scene
 		Scene scene = new Scene(border);
@@ -70,5 +93,20 @@ public class MainScreen {
 		window.setScene(scene);
 		window.show();
 		
+	}
+	
+	public static MenuBar createMenu()
+	{ 
+		MenuBar menu = new MenuBar();
+		
+		Menu actions = new Menu("Actions");
+		Menu inventory = new Menu("Inventory");
+		Menu reports = new Menu("Reports");
+		Menu settings = new Menu("Settings");
+		Menu end_of_day = new Menu("End of Day");
+		Menu help = new Menu("Help");
+		menu.getMenus().addAll(actions, inventory, reports, end_of_day, settings, help);
+		
+		return menu;
 	}
 }

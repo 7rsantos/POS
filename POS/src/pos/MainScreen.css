@@ -2,3 +2,12 @@
  -fx-background-color:  #5c6161;
  
 }
+
+#root {
+ -fx-background-color:  #aaaaaa;
+ -fx-border-color: white;
+ -fx-border-radius: 100;
+ -fx-padding: 100 5 100 175;
+ -fx-background-radius: 100;
+ 
+}
