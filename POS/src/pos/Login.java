@@ -4,6 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -18,6 +19,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import java.sql.*;
 import java.sql.Connection;
@@ -25,13 +27,13 @@ import java.sql.Connection;
 
 public class Login {
 
-	   public void displayLogin()
+	   public static void displayLogin()
 	   {
 		  //setup the login window 
 		  Stage window = new Stage();
 		  window.setTitle("FASS Nova");
 		  window.setResizable(false);
-		  window.centerOnScreen();
+		  window.centerOnScreen();		 
 		  
 		  //create a border pane and set insets
 		  BorderPane border = new BorderPane();		  
@@ -67,8 +69,13 @@ public class Login {
 		  root.add(clear, 1, 2);
 		  root.insetsProperty();
 		  
+		  //debugging
+		  username.setText("admin");
+		  password.setText("changeme");
+		  
+		  
 		  //set action listener
-		  loginButton.setOnAction(e -> login(username.getText(), password.getText()));
+		  loginButton.setOnAction(e -> login(username.getText(), password.getText(), window));
 		  clear.setOnAction(new EventHandler<ActionEvent>() { 
 			@Override
 			public void handle(ActionEvent event) {
@@ -110,7 +117,7 @@ public class Login {
 		  
 		  //setup the scene
 		  Scene login = new Scene(border);
-		  login.getStylesheets().add(getClass().getResource("login.css").toExternalForm());
+		  login.getStylesheets().add(Login.class.getResource("login.css").toExternalForm());
 		  
 		  //add the scene to window
 		  window.setScene(login);
@@ -124,7 +131,7 @@ public class Login {
 	   }
 	   
 
-	public void login(String username, String password)
+	public static void login(String username, String password, Stage stage)
 	   { 
 		   if(!username.isEmpty() && !password.isEmpty())
 		   { 
@@ -133,19 +140,28 @@ public class Login {
 				  //get a connection to the database
 				  Connection myConn = DriverManager.getConnection("jdbc:mysql://Atomic-PC:3306/test?autoReconnect=true&useSSL=false", "root", "cybertronic");
 				  
-				  //Create a statament
+				  //Create a statement
 				  Statement myStmt = myConn.createStatement();
 				  
 				  //create a result set
-				  ResultSet rs = myStmt.executeQuery("show tables");
+				  ResultSet rs = myStmt.executeQuery("SELECT Login(" + "'" + username + "'" + "," + "'" + password + "'" + ")");
+				  
+				  
 				  
 				  //process the result set
-				  int i =1;
-				  while(rs.next())
-				  { 
-				     System.out.println(i);
-				     i++;
-				  }	  
+				  while (rs.next())
+				  {	  
+					  
+                     if(rs.getString(1).equals("1"))
+                     {
+                        MainScreen.displayMainScreen(stage);  	  
+                     }	  
+                     else
+                     { 
+                	    AlertBox.display("Login Error", "Wrong username or password");
+                     }
+				  }  
+				  
 			  }
 			  catch(Exception e)
 			  { 

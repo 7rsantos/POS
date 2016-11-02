@@ -12,8 +12,7 @@ public class Main extends Application {
 	@Override
 	public void start(Stage window) throws Exception {
 		//display the login window
-		Login login = new Login();
-		login.displayLogin();
+		Login.displayLogin();
 		
 	}
 
