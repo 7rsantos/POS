@@ -53,19 +53,15 @@ public class MainScreen {
 		left.setPadding(new Insets(50, 80, 50, 5));
 		border.setLeft(left);
 
-		//create a gridpane
+		//create a gridpane that will hold the table
 		GridPane root = new GridPane();
-		root.setPadding(new Insets(75,5, 75,175));
+		//root.setPadding(new Insets(75,5, 75,175));
 		root.setVgap(8);
 		
 
 		//create table
 		TableView table = createTable();
 		
-		//add table to the center of the border layout
-		root.setAlignment(Pos.TOP_CENTER);
-		root.getChildren().add(table);
-		border.setCenter(root);
 		
 		//create menu bar and added to the border layout
 		MenuBar menuBar = MainScreen.createMenu();
@@ -81,10 +77,16 @@ public class MainScreen {
 		//add vbox to the top of border
 		border.setTop(top);
 		
-		//create a box
+		//create a box and add it to root
 		GridPane box = createBoxes();
-		box.setPadding(new Insets(15, 5, 5, 325));
-		box.setAlignment(Pos.BOTTOM_RIGHT);
+		box.setPadding(new Insets(15, 5, 5, 215));
+		//box.setAlignment(Pos.BOTTOM_CENTER);
+		
+		
+		//add table to the center of the border layout
+		root.setAlignment(Pos.TOP_CENTER);
+		root.getChildren().add(table);
+		border.setCenter(root);
 		
 		//add box to border
 		border.setBottom(box);
@@ -128,30 +130,49 @@ public class MainScreen {
 		Label subtotal = new Label("Subtotal");
 		Label tax = new Label("Tax");
 		Label total =new Label("Total");
-		
+		Label discount = new Label("Discount");
 		
 		//create text fields and set editable to false
+		TextField Discount = new TextField();
+		Discount.setEditable(false);
+		
 		TextField subTotal = new TextField();
 		subTotal.setEditable(false);
+		
 		TextField Tax = new TextField();
 		Tax.setEditable(false);
+		
 		TextField Total = new TextField();
 		Total.setEditable(false);
+		
+		//create pay and cancel buttons
+		Button pay = new Button("Pay");
+		Button cancel = new Button("Cancel");
+		Button remove = new Button("Remove Item");
+		
+		//change size of pay button
+		pay.setMaxWidth(75);
 		
 		//create grid pane and set vgaps and hgaps 
 		GridPane grid = new GridPane();
 		grid.setVgap(2);
-		grid.setHgap(5);
+		grid.setHgap(12);
 		
 		//add nodes to the grid pane
-		grid.add(subtotal, 0, 0);
-		grid.add(subTotal, 1, 0);
-		grid.add(tax, 0, 1);
-		grid.add(Tax, 1, 1);
-		grid.add(total, 0, 2);
-		grid.add(Total, 1, 2);
+		grid.add(remove, 0, 0);
+		grid.add(pay, 11, 1);
+		grid.add(cancel, 10, 1);
+		grid.add(discount, 5, 0);
+		grid.add(Discount, 6, 0);
+		grid.add(subtotal, 5, 1);
+		grid.add(subTotal, 6, 1);
+		grid.add(tax, 8, 0);
+		grid.add(Tax, 9, 0);
+		grid.add(total, 8, 1);
+		grid.add(Total, 9, 1);
 		
 		Tax.setText("9.45%");
+		Discount.setText("0.00%");
 		
 		return grid;
 	}
@@ -184,18 +205,20 @@ public class MainScreen {
 		
 		//create columns
 		TableColumn name = new TableColumn("Name");
+		TableColumn unit = new TableColumn("Unit Size");		
 		TableColumn quantity = new TableColumn("Quantity");
 		TableColumn unitPrice = new TableColumn("Unit Price");
 		TableColumn price = new TableColumn("Price");
 		
-		name.setPrefWidth(400);
+		name.setPrefWidth(240);
+		unit.setPrefWidth(55);
 		quantity.setPrefWidth(55);
 		unitPrice.setPrefWidth(110);
 		price.setPrefWidth(120);
 		
 		
 		//add columns to the table view
-		table.getColumns().addAll(name, quantity, unitPrice, price);
+		table.getColumns().addAll(name, unit, quantity, unitPrice, price);
 		
 		return table;
 	}
