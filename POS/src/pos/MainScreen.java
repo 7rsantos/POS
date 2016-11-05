@@ -14,8 +14,10 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Screen;
@@ -25,6 +27,7 @@ public class MainScreen {
 
 	public static void displayMainScreen(Stage stage)
 	{ 
+		stage.setScene(null);
 		Stage window = stage;
 		
 		
@@ -91,6 +94,15 @@ public class MainScreen {
 		//add box to border
 		border.setBottom(box);
 		
+		//create a tool bar for the actions
+		ToolBar actions = ActionsTable.createActionsTable();
+		VBox actionsLayout = new VBox();
+		
+		//add actions tool bar to the layout
+		actionsLayout.getChildren().add(actions);
+		
+		//set action to the left of the border layout
+		border.setLeft(actions);
 		
 		//set ids
 		border.setId("border");
