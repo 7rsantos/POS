@@ -24,13 +24,21 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class MainScreen {
+	
+	private Stage stage;
 
-	public static void displayMainScreen(Stage stage)
+	public MainScreen(Stage stage)
 	{ 
-		stage.setScene(null);
+		this.stage = stage;
+		setWindowSize(this.stage);
+		Scene scene = buildMainScreen(this.stage);
+		this.stage.setScene(scene);
+		this.stage.show();
+	}
+	
+	public static Stage setWindowSize(Stage stage)
+	{ 
 		Stage window = stage;
-		
-		
 		
 		//set the size of the window
         window.setWidth(1010);
@@ -39,20 +47,27 @@ public class MainScreen {
         
         //position stage at the center of the screen
         Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-        stage.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
-        stage.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
+        window.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
+        window.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
         
         //set minimum sizes
-        stage.setMinHeight(525);
-        stage.setMinWidth(750);
+        window.setMinHeight(525);
+        window.setMinWidth(750);    
+        
+        return window;
+	}
+	
+
+	public static Scene buildMainScreen(Stage stage)
+	{ 						
 		
         //create a new border pane
 		BorderPane border = new BorderPane();
 		
 		//create left border pane
 		BorderPane left = new BorderPane();
-		Button b = new Button("Click me");
-		left.setCenter(b);
+		//Button b = new Button("Click me");
+		//left.setCenter(b);
 		left.setPadding(new Insets(50, 80, 50, 5));
 		border.setLeft(left);
 
@@ -81,7 +96,7 @@ public class MainScreen {
 		border.setTop(top);
 		
 		//create a box and add it to root
-		GridPane box = createBoxes();
+		GridPane box = createSouthArea();
 		box.setPadding(new Insets(15, 5, 5, 215));
 		//box.setAlignment(Pos.BOTTOM_CENTER);
 		
@@ -115,10 +130,7 @@ public class MainScreen {
 		//get the resources
 		scene.getStylesheets().add(MainScreen.class.getResource("MainScreen.css").toExternalForm());
 		
-		//set the scene and show
-		window.setScene(scene);
-		window.show();
-		
+		return scene;
 	}
 	
 	public static MenuBar createMenu()
@@ -136,7 +148,7 @@ public class MainScreen {
 		return menu;
 	}
 	
-	public static GridPane createBoxes()
+	public static GridPane createSouthArea()
 	{ 
 		//create box labels
 		Label subtotal = new Label("Subtotal");

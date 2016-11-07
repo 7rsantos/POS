@@ -154,7 +154,7 @@ public class Login {
 					  
                      if(rs.getString(1).equals("1"))
                      {
-                        MainScreen.displayMainScreen(stage);  	  
+                        MainScreen ms = new MainScreen(stage);  	  
                      }	  
                      else
                      { 
