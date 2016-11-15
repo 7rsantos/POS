@@ -1,13 +1,18 @@
 package pos;
 
+import java.time.LocalDate;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -18,6 +23,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -64,9 +70,9 @@ public class MainScreen {
 		
 		//create left border pane
 		BorderPane left = new BorderPane();
-		//Button b = new Button("Click me");
-		//left.setCenter(b);
-		left.setPadding(new Insets(50, 80, 50, 5));
+
+		
+		left.setPadding(new Insets(0, 80, 10, 7));
 		border.setLeft(left);
 
 		//create a gridpane that will hold the table
@@ -80,7 +86,7 @@ public class MainScreen {
 		
 		
 		//create menu bar and added to the border layout
-		MenuBar menuBar = MainScreen.createMenu();
+		MenuBar menuBar = CustomMenu.createMenu();
 	    menuBar.prefWidthProperty().bind(stage.widthProperty());
 		
 		//create options section
@@ -94,9 +100,11 @@ public class MainScreen {
 		border.setTop(top);
 		
 		//create a box and add it to root
-		GridPane box = createSouthArea();
-		box.setPadding(new Insets(15, 5, 5, 215));
-		//box.setAlignment(Pos.BOTTOM_CENTER);
+		GridPane bottom = createSouthArea();
+		
+		
+		bottom.setPadding(new Insets(0, 5, 5, 5));
+		bottom.setAlignment(Pos.BOTTOM_LEFT);
 		
 		
 		//add table to the center of the border layout
@@ -105,7 +113,7 @@ public class MainScreen {
 		border.setCenter(root);
 		
 		//add box to border
-		border.setBottom(box);
+		border.setBottom(bottom);
 		
 		//create a tool bar for the actions
 		ToolBar actions = ActionsTable.createActionsTable();
@@ -120,7 +128,7 @@ public class MainScreen {
 		//set ids
 		border.setId("border");
 		root.setId("root");
-		box.setId("box");
+		bottom.setId("box");
 		actions.setId("actions");
 		left.setId("id");
         
@@ -133,20 +141,6 @@ public class MainScreen {
 		return scene;
 	}
 	
-	public static MenuBar createMenu()
-	{ 
-		MenuBar menu = new MenuBar();
-		
-		Menu actions = new Menu("Actions");
-		Menu inventory = new Menu("Inventory");
-		Menu reports = new Menu("Reports");
-		Menu settings = new Menu("Settings");
-		Menu end_of_day = new Menu("End of Day");
-		Menu help = new Menu("Help");
-		menu.getMenus().addAll(actions, inventory, reports, end_of_day, settings, help);
-		
-		return menu;
-	}
 	
 	public static GridPane createSouthArea()
 	{ 
@@ -155,6 +149,8 @@ public class MainScreen {
 		Label tax = new Label("Tax");
 		Label total =new Label("Total");
 		Label discount = new Label("Discount");
+		
+		VBox date = DateBox.createDateBox();
 		
 		//create text fields and set editable to false
 		TextField Discount = new TextField();
@@ -188,17 +184,18 @@ public class MainScreen {
 		grid.setHgap(12);
 		
 		//add nodes to the grid pane
-		grid.add(remove, 0, 0);
-		grid.add(pay, 11, 1);
-		grid.add(cancel, 10, 1);
-		grid.add(discount, 5, 0);
-		grid.add(Discount, 6, 0);
-		grid.add(subtotal, 5, 1);
-		grid.add(subTotal, 6, 1);
-		grid.add(tax, 8, 0);
-		grid.add(Tax, 9, 0);
-		grid.add(total, 8, 1);
-		grid.add(Total, 9, 1);
+		grid.add(date, 0, 1);
+		grid.add(remove, 4, 1);
+		grid.add(pay, 13, 1);
+		grid.add(cancel, 12, 1);
+		grid.add(discount, 6, 0);
+		grid.add(Discount, 7, 0);
+		grid.add(subtotal, 6, 1);
+		grid.add(subTotal, 7, 1);
+		grid.add(tax, 9, 0);
+		grid.add(Tax, 10, 0);
+		grid.add(total, 9, 1);
+		grid.add(Total, 10, 1);
 		
 		Tax.setText("9.25%");
 		Discount.setText("0.00%");
@@ -211,16 +208,39 @@ public class MainScreen {
 		GridPane options = new GridPane();
 		
 		VBox search = Icon.createIcon("Product Search", "/res/search.png");
-		//VBox moneyWire = Icon.createIcon("Money Wire", "/res/moneyWire.png");
+		VBox moneyWire = Icon.createIcon("Money Wire", "/res/moneyWire.png");
+		VBox checkCashing = Icon.createIcon("Check Cashing", "/res/check.PNG");
 		
-		//create buttons
-		//Button search =  new Button("Product Search");
-		//Button money = new Button("Money Wire");
-		Button check = new Button("Check Cashing");
+		Image image = new Image(ActionsTable.class.getResourceAsStream("/res/Carnet.jpg"));
+		ImageView carnetIcon = new ImageView(image);
+		carnetIcon.setFitWidth(80);
+		carnetIcon.setFitHeight(50);
 		
-		options.add(search, 1, 1);
-		//options.add(moneyWire, 3, 1);
-		options.add(check, 5, 1);
+		//add context menu
+		 ContextMenu contextMenu = new ContextMenu();
+		 
+	     MenuItem item1 = new MenuItem("Logout");
+	     item1.setOnAction(e -> System.out.println("Logout!"));
+		 carnetIcon.setOnContextMenuRequested(
+		    e -> contextMenu.show(carnetIcon, e.getScreenX(), e.getScreenY()+10));
+		
+	     //add context menu to the image
+	     contextMenu.getItems().add(item1);
+	     
+		//create cashier info section
+		Label cashier = new Label("Cashier:");
+		Label cashierName = new Label("Admin");		
+		
+		//change label color
+		cashier.setTextFill(Color.WHITE);
+		cashierName.setTextFill(Color.WHITE);
+		
+		options.add(cashier, 32, 1);
+		options.add(cashierName, 33, 1);
+		options.add(carnetIcon, 36, 1);
+		options.add(search, 16, 1);
+		options.add(moneyWire, 18, 1);
+		options.add(checkCashing, 20, 1);
 	
         options.setHgap(15); 
 		options.setAlignment(Pos.CENTER);
@@ -242,7 +262,7 @@ public class MainScreen {
 		TableColumn unitPrice = new TableColumn("Unit Price");
 		TableColumn price = new TableColumn("Price");
 		
-		name.setPrefWidth(330);
+		name.setPrefWidth(365);
 		unit.setPrefWidth(55);
 		quantity.setPrefWidth(55);
 		unitPrice.setPrefWidth(110);
