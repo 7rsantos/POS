@@ -1,11 +1,8 @@
 package pos;
 
-import java.awt.Font;
-
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -15,11 +12,12 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.FontWeight;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -73,7 +71,7 @@ public class MainScreen {
 
 		//create a gridpane that will hold the table
 		GridPane root = new GridPane();
-		//root.setPadding(new Insets(75,5, 75,175));
+		root.setPadding(new Insets(3,5, 10, 30));
 		root.setVgap(8);
 		
 
@@ -122,7 +120,9 @@ public class MainScreen {
 		//set ids
 		border.setId("border");
 		root.setId("root");
-		box.setId("box");;
+		box.setId("box");
+		actions.setId("actions");
+		left.setId("id");
         
 		//Create the scene
 		Scene scene = new Scene(border);
@@ -169,10 +169,15 @@ public class MainScreen {
 		TextField Total = new TextField();
 		Total.setEditable(false);
 		
-		//create pay and cancel buttons
-		Button pay = new Button("Pay");
-		Button cancel = new Button("Cancel");
-		Button remove = new Button("Remove Item");
+		//create pay, cancel, and remove buttons and set their icons
+		Image payIcon = new Image(MainScreen.class.getResourceAsStream("/res/Buy.png"));
+		Button pay = new Button("Pay", new ImageView(payIcon));
+		
+		Image cancelIcon = new Image(MainScreen.class.getResourceAsStream("/res/Cancel.png"));		
+		Button cancel = new Button("Cancel", new ImageView(cancelIcon));
+		
+		Image removeIcon = new Image(MainScreen.class.getResourceAsStream("/res/Erase.png"));				
+		Button remove = new Button("Remove Item", new ImageView(removeIcon));
 		
 		//change size of pay button
 		pay.setMaxWidth(75);
@@ -195,7 +200,7 @@ public class MainScreen {
 		grid.add(total, 8, 1);
 		grid.add(Total, 9, 1);
 		
-		Tax.setText("9.45%");
+		Tax.setText("9.25%");
 		Discount.setText("0.00%");
 		
 		return grid;
@@ -205,14 +210,17 @@ public class MainScreen {
 	{ 
 		GridPane options = new GridPane();
 		
+		VBox search = Icon.createIcon("Product Search", "/res/search.png");
+		//VBox moneyWire = Icon.createIcon("Money Wire", "/res/moneyWire.png");
+		
 		//create buttons
-		Button search =  new Button("Product Search");
-		Button money = new Button("Money Wire");
+		//Button search =  new Button("Product Search");
+		//Button money = new Button("Money Wire");
 		Button check = new Button("Check Cashing");
 		
-		options.add(search, 1, 20);
-		options.add(money, 2, 20);
-		options.add(check, 3, 20);
+		options.add(search, 1, 1);
+		//options.add(moneyWire, 3, 1);
+		options.add(check, 5, 1);
 	
         options.setHgap(15); 
 		options.setAlignment(Pos.CENTER);
@@ -234,11 +242,11 @@ public class MainScreen {
 		TableColumn unitPrice = new TableColumn("Unit Price");
 		TableColumn price = new TableColumn("Price");
 		
-		name.setPrefWidth(240);
+		name.setPrefWidth(330);
 		unit.setPrefWidth(55);
 		quantity.setPrefWidth(55);
 		unitPrice.setPrefWidth(110);
-		price.setPrefWidth(120);
+		price.setPrefWidth(140);
 		
 		
 		//add columns to the table view
