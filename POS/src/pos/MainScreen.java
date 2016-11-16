@@ -79,7 +79,6 @@ public class MainScreen {
 		GridPane root = new GridPane();
 		root.setPadding(new Insets(3,5, 10, 30));
 		root.setVgap(8);
-		
 
 		//create table
 		TableView table = createTable();
@@ -210,6 +209,7 @@ public class MainScreen {
 		VBox search = Icon.createIcon("Product Search", "/res/search.png");
 		VBox moneyWire = Icon.createIcon("Money Wire", "/res/moneyWire.png");
 		VBox checkCashing = Icon.createIcon("Check Cashing", "/res/check.PNG");
+		VBox customer = Icon.createIcon("Customer", "/res/customer.png");
 		
 		Image image = new Image(ActionsTable.class.getResourceAsStream("/res/Carnet.jpg"));
 		ImageView carnetIcon = new ImageView(image);
@@ -235,12 +235,16 @@ public class MainScreen {
 		cashier.setTextFill(Color.WHITE);
 		cashierName.setTextFill(Color.WHITE);
 		
-		options.add(cashier, 32, 1);
-		options.add(cashierName, 33, 1);
-		options.add(carnetIcon, 36, 1);
-		options.add(search, 16, 1);
-		options.add(moneyWire, 18, 1);
-		options.add(checkCashing, 20, 1);
+		
+		//add nodes to the grid pane
+		//options.add(customer, 15, 0);
+		options.add(customer, 14, 1);
+		options.add(cashier, 26, 1);
+		options.add(cashierName, 27, 1);
+		options.add(carnetIcon, 30, 1);
+		options.add(search, 18, 1);
+		options.add(moneyWire, 20, 1);
+		options.add(checkCashing, 22, 1);
 	
         options.setHgap(15); 
 		options.setAlignment(Pos.CENTER);
