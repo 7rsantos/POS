@@ -106,6 +106,10 @@ public class CustomMenu {
 		MenuItem updateProductInfo = new MenuItem("Update Product Info");
 		MenuItem registerProduct = new MenuItem("Register New Product");
 		
+		//set actions when triggered
+		registerProduct.setOnAction(e -> Inventory.display_AddInventory());
+		
+		
 		//add menu items to inventory
 		inventory.getItems().addAll(productSearch, new SeparatorMenuItem(), addInventory,
 				registerProduct,damagedInventory, new SeparatorMenuItem(), updateProductInfo);

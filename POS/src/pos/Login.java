@@ -141,10 +141,11 @@ public class Login {
 				  Connection myConn = DriverManager.getConnection("jdbc:mysql://Atomic-PC:3306/test?autoReconnect=true&useSSL=false", "root", "cybertronic");
 				  
 				  //Create a statement
-				  Statement myStmt = myConn.createStatement();
+				  CallableStatement myStmt = myConn.prepareCall("SELECT Login(" + "'" + username + "'" + "," + "'" + password + "'" + ")");
+				  				  
 				  
 				  //create a result set
-				  ResultSet rs = myStmt.executeQuery("SELECT Login(" + "'" + username + "'" + "," + "'" + password + "'" + ")");
+				  ResultSet rs = myStmt.executeQuery();
 				  
 				  
 				  
@@ -154,7 +155,10 @@ public class Login {
 					  
                      if(rs.getString(1).equals("1"))
                      {
-                        MainScreen ms = new MainScreen(stage);  	  
+                        //MainScreen ms = new MainScreen(stage);
+                    	 Scene mainScreen = MainScreen.displayMainScreen(stage);
+                    	 stage.setScene(mainScreen);
+                    	 stage.show();
                      }	  
                      else
                      { 

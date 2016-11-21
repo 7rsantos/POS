@@ -2,6 +2,7 @@ package pos;
 
 import java.time.LocalDate;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
@@ -30,14 +31,20 @@ import javafx.stage.Stage;
 public class MainScreen {
 	
 	private Stage stage;
-
-	public MainScreen(Stage stage)
+    private static Button checkCashing;
+    private static Button customers;
+    private static Button moneyWire;
+	private static Button search;
+    
+	public static Scene displayMainScreen(Stage stage)
 	{ 
-		this.stage = stage;
-		setWindowSize(this.stage);
-		Scene scene = buildMainScreen(this.stage);
-		this.stage.setScene(scene);
-		this.stage.show();
+		//stage = stage;
+		setWindowSize(stage);
+		Scene scene = buildMainScreen(stage);
+		//this.stage.setScene(scene);
+		//this.stage.show();
+		
+		return scene;
 	}
 	
 	public static Stage setWindowSize(Stage stage)
@@ -206,10 +213,12 @@ public class MainScreen {
 	{ 
 		GridPane options = new GridPane();
 		
-		VBox search = Icon.createIcon("Product Search", "/res/search.png");
-		VBox moneyWire = Icon.createIcon("Money Wire", "/res/moneyWire.png");
-		VBox checkCashing = Icon.createIcon("Check Cashing", "/res/check.PNG");
-		VBox customer = Icon.createIcon("Customer", "/res/customer.png");
+		
+		
+		search = Icon.createButtonIcon("Product Search", "/res/search.png");
+	    moneyWire = Icon.createButtonIcon("Money Wire", "/res/moneyWire.png");
+		checkCashing = Icon.createButtonIcon("Check Cashing", "/res/check.PNG");
+		customers = Icon.createButtonIcon("Customer", "/res/customer.png");
 		
 		Image image = new Image(ActionsTable.class.getResourceAsStream("/res/Carnet.jpg"));
 		ImageView carnetIcon = new ImageView(image);
@@ -220,7 +229,7 @@ public class MainScreen {
 		 ContextMenu contextMenu = new ContextMenu();
 		 
 	     MenuItem item1 = new MenuItem("Logout");
-	     item1.setOnAction(e -> System.out.println("Logout!"));
+	     item1.setOnAction(e -> Platform.exit());
 		 carnetIcon.setOnContextMenuRequested(
 		    e -> contextMenu.show(carnetIcon, e.getScreenX(), e.getScreenY()+10));
 		
@@ -238,7 +247,7 @@ public class MainScreen {
 		
 		//add nodes to the grid pane
 		//options.add(customer, 15, 0);
-		options.add(customer, 14, 1);
+		options.add(customers, 14, 1);
 		options.add(cashier, 26, 1);
 		options.add(cashierName, 27, 1);
 		options.add(carnetIcon, 30, 1);
