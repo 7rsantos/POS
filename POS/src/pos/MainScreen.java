@@ -2,7 +2,10 @@ package pos;
 
 import java.time.LocalDate;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
@@ -20,6 +23,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -27,29 +32,30 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class MainScreen {
 	
-	private Stage stage;
+	static Stage window;
     private static Button checkCashing;
     private static Button customers;
     private static Button moneyWire;
 	private static Button search;
+	private static Label customer;
+	private static String barcode = "";
+	private static boolean active = false;
     
 	public static Scene displayMainScreen(Stage stage)
 	{ 
-		//stage = stage;
 		setWindowSize(stage);
 		Scene scene = buildMainScreen(stage);
-		//this.stage.setScene(scene);
-		//this.stage.show();
 		
 		return scene;
 	}
 	
 	public static Stage setWindowSize(Stage stage)
 	{ 
-		Stage window = stage;
+		window = stage;
 		
 		//set the size of the window
         window.setWidth(1010);
@@ -141,13 +147,81 @@ public class MainScreen {
 		//Create the scene
 		Scene scene = new Scene(border);
 		
+		//setup key listener for the scene
+		scene.setOnKeyPressed(new EventHandler<KeyEvent>()
+		{
+			
+			@Override
+			public void handle(KeyEvent event) {
+				  
+			   activateTimer();
+			   switch(event.getText())
+			   { 
+			      case "1":
+			    	  barcode = barcode + 1;
+			    	  break;
+			      case "2":
+			    	  barcode = barcode + 2;
+			    	  break;
+			      case "3":
+			    	  barcode = barcode + 3;
+			    	  break;
+			      case "4":
+			    	  barcode = barcode + 4;
+			    	  break;
+			      case "5":
+			    	  barcode = barcode + 5;
+			    	  break;
+			      case "6":
+			    	  barcode = barcode + 6;
+			    	  break;
+			      case "7":
+			    	  barcode = barcode + 7;
+			    	  break;
+			      case "8":
+			    	  barcode = barcode + 8;
+			    	  break;	
+			      case "9":
+			    	  barcode = barcode + 9;
+			    	  break;			    	  
+			      default:
+			    	  //event.consume();
+			    	  break;
+			   }
+			}	
+		});
+		
 		//get the resources
 		scene.getStylesheets().add(MainScreen.class.getResource("MainScreen.css").toExternalForm());
 		
 		return scene;
 	}
-	
-	
+
+	private static void activateTimer() 
+	{			
+		
+		// TODO Auto-generated method stub
+		if(!active)
+		{ 
+			KeyFrame key = new KeyFrame(
+					   Duration.millis(250),
+					   ae -> processBarcode());	
+		
+			//setup timer to search for barcode after 3 seconds
+		   Timeline timeline = new Timeline(key);
+		   timeline.play();	
+		   active = true;
+		}			
+		
+	}
+
+	private static void processBarcode() {
+		
+	   System.out.println(barcode);
+	   barcode = "";
+	   active = false;
+	}
+
 	public static GridPane createSouthArea()
 	{ 
 		//create box labels
@@ -181,6 +255,9 @@ public class MainScreen {
 		Image removeIcon = new Image(MainScreen.class.getResourceAsStream("/res/Erase.png"));				
 		Button remove = new Button("Remove Item", new ImageView(removeIcon));
 		
+		//implement actions
+		cancel.setOnAction(e -> Session.logout(window));
+		
 		//change size of pay button
 		pay.setMaxWidth(75);
 		
@@ -211,25 +288,26 @@ public class MainScreen {
 	
 	public static GridPane createOptionSection()
 	{ 
+		//layout for options section
 		GridPane options = new GridPane();
 		
-		
-		
+		//create icons
 		search = Icon.createButtonIcon("Product Search", "/res/search.png");
 	    moneyWire = Icon.createButtonIcon("Money Wire", "/res/moneyWire.png");
 		checkCashing = Icon.createButtonIcon("Check Cashing", "/res/check.PNG");
 		customers = Icon.createButtonIcon("Customer", "/res/customer.png");
 		
+		//create user icon
 		Image image = new Image(ActionsTable.class.getResourceAsStream("/res/Carnet.jpg"));
 		ImageView carnetIcon = new ImageView(image);
-		carnetIcon.setFitWidth(80);
+		carnetIcon.setFitWidth(70);
 		carnetIcon.setFitHeight(50);
 		
 		//add context menu
 		 ContextMenu contextMenu = new ContextMenu();
 		 
 	     MenuItem item1 = new MenuItem("Logout");
-	     item1.setOnAction(e -> Platform.exit());
+	     item1.setOnAction(e -> Session.logout(window));
 		 carnetIcon.setOnContextMenuRequested(
 		    e -> contextMenu.show(carnetIcon, e.getScreenX(), e.getScreenY()+10));
 		
@@ -240,24 +318,36 @@ public class MainScreen {
 		Label cashier = new Label("Cashier:");
 		Label cashierName = new Label("Admin");		
 		
+		customer = new Label("Customer");
+		Label check = new Label("Check Cashing");
+		Label productSearch = new Label("Product Search");
+		Label money = new Label("Money Wire");
+		
 		//change label color
+		customer.setTextFill(Color.WHITE);
+		check.setTextFill(Color.WHITE);
+		productSearch.setTextFill(Color.WHITE);
+		money.setTextFill(Color.WHITE);
 		cashier.setTextFill(Color.WHITE);
 		cashierName.setTextFill(Color.WHITE);
 		
 		
 		//add nodes to the grid pane
-		//options.add(customer, 15, 0);
 		options.add(customers, 14, 1);
+		options.add(customer, 14, 2);
 		options.add(cashier, 26, 1);
 		options.add(cashierName, 27, 1);
 		options.add(carnetIcon, 30, 1);
 		options.add(search, 18, 1);
+		options.add(productSearch, 18, 2);
 		options.add(moneyWire, 20, 1);
+		options.add(money, 20, 2);
 		options.add(checkCashing, 22, 1);
+		options.add(check, 22, 2);	
 	
         options.setHgap(15); 
 		options.setAlignment(Pos.CENTER);
-		options.setPadding(new Insets(30, 30, 15, 30));
+		options.setPadding(new Insets(8, 30, 3, 30));
 		
 		return options;
 	}

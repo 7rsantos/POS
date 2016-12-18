@@ -1,5 +1,6 @@
 package pos;
 
+import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -19,16 +20,17 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import pos.Inventory;
 
 public class PhotoScreen {
 	
 	private static Button start;
 	private static Button previous;
 	private static Button takePicture;
+	private static Button ok;
 	private static ImageView imageview;
 	Mat frame;
 	
@@ -41,7 +43,10 @@ public class PhotoScreen {
 	// the id of the camera to be used
 	private static int cameraId = 0;
 
-	public static void initComponents()   {
+	public static void initComponents(int caller)   {
+	   //create stage
+	   Stage photoScreen = new Stage();
+		
 	   //create border pane that will hold all nodes
  	   BorderPane root = new BorderPane();
 	
@@ -54,13 +59,56 @@ public class PhotoScreen {
 	
 	   //create buttons
 	   previous = new Button("Go back");
-	   start = new Button("Pause");
+	   start = new Button("Start Camera");
 	   takePicture = new Button("Take Snapshot");
+	   ok = new Button("Ok");
 	   
 	   //set on action events
 	   PhotoScreen jc = new PhotoScreen();
+	   ok.setDisable(true);
 	   start.setOnAction(e -> jc.startCamera(e));
-	   takePicture.setOnAction(e -> jc.takePicture());
+	   takePicture.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+			// TODO Auto-generated method stub
+			jc.takePicture();
+			start.setText("Try Again");
+			jc.cameraActive = false;
+			jc.setClosed();
+			//photoScreen.close();
+		}
+		   
+	   });
+	   previous.setOnAction( new EventHandler<ActionEvent>()   {
+
+		@Override
+		public void handle(ActionEvent event) {
+			// TODO Auto-generated method stub
+			jc.setClosed();
+			photoScreen.close();
+			
+		} 
+			   
+	   });
+	   
+	   ok.setOnAction(new EventHandler<ActionEvent>() {
+
+		@Override
+		public void handle(ActionEvent event) {
+			// TODO Auto-generated method stub
+			if(caller == 1)
+			{ 
+			   jc.preparePicturePath(1);	
+			}	
+			if(caller == 2)
+			{ 	
+			   jc.preparePicturePath(2);
+			}   
+			photoScreen.close();
+		} 
+		   
+	   });
 	
 	   //create VBox that hold buttons
 	   HBox bottom = new HBox();
@@ -75,7 +123,7 @@ public class PhotoScreen {
 	   bottom.setPadding(new Insets(0, 0, 10, 0));
 	   
 	   //add nodes to the layout
-	   bottom.getChildren().addAll(previous, start, takePicture);
+	   bottom.getChildren().addAll(previous, start, takePicture, ok);
 	   
 	   //add nodes to root
 	   root.setBottom(bottom);
@@ -85,7 +133,6 @@ public class PhotoScreen {
 	   Scene scene = new Scene(root);
 	   
 	   //setup the stage and show
-	   Stage photoScreen = new Stage();
 	   photoScreen.setWidth(400);
 	   photoScreen.setHeight(400);
 	   photoScreen.setResizable(false);
@@ -114,9 +161,9 @@ public class PhotoScreen {
 	
 	}
 	
-	public static void displayPhotoScreen()
+	public static void displayPhotoScreen(int caller)
 	{ 
-		initComponents();
+		initComponents(caller);
 		
 	}
 	
@@ -128,8 +175,7 @@ public class PhotoScreen {
 	 */
 	public void startCamera(ActionEvent event)
 	{
-		//currentFrame.setFitHeight(300);
-		//currentFrame.setFitWidth(300);
+        ok.setDisable(true);
 		if (!this.cameraActive)
 		{
 			// start the video capture
@@ -198,14 +244,7 @@ public class PhotoScreen {
 			try
 			{
 				// read the current frame
-				this.capture.read(frame);
-				
-				// if the frame is not empty, process it
-				//if (!frame.empty())
-				//{
-					//Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
-				//}
-				
+				this.capture.read(frame);				
 			}
 			catch (Exception e)
 			{
@@ -267,13 +306,24 @@ public class PhotoScreen {
 	
 	public void takePicture()
 	{ 
-		
-	    //FileChooser fileChooser = new FileChooser(); 
-        //File file = fileChooser.showOpenDialog(null);
-        //if (file != null) {
-        //Highgui.imwrite(file.getPath(), frame);	
+			
 		Imgcodecs.imwrite("C:/Users/Atomic/Downloads/example.jpg", frame);
-		
+		ok.setDisable(false);
 	}
+	
+	public void preparePicturePath(int caller)
+	{ 
+		File file = new File("C:/Users/Atomic/Downloads/example.jpg");
+		if (caller == 1)
+		{ 
+		   UserDisplay.setPicturePath(file);
+		   System.out.print("Got here");
+		}	
+		if (caller == 2)
+		{	
+		   Inventory.setPicturePath(file);
+		}   
+	}
+	
 	
 }

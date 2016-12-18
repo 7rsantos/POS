@@ -24,13 +24,16 @@ import javafx.stage.Stage;
 import java.sql.*;
 import java.sql.Connection;
 
+import pos.Session;
 
 public class Login {
 
+public static Stage window;	
+	
 	   public static void displayLogin()
 	   {
 		  //setup the login window 
-		  Stage window = new Stage();
+		  window = new Stage();
 		  window.setTitle("FASS Nova");
 		  window.setResizable(false);
 		  window.centerOnScreen();		 
@@ -138,11 +141,10 @@ public class Login {
 			  //Connect to Mysql
 			  try {
 				  //get a connection to the database
-				  Connection myConn = DriverManager.getConnection("jdbc:mysql://Atomic-PC:3306/test?autoReconnect=true&useSSL=false", "root", "cybertronic");
+				  Connection myConn = Session.openDatabase();
 				  
 				  //Create a statement
-				  CallableStatement myStmt = myConn.prepareCall("SELECT Login(" + "'" + username + "'" + "," + "'" + password + "'" + ")");
-				  				  
+				  CallableStatement myStmt = myConn.prepareCall("SELECT Login(" + "'" + username + "'" + "," + "'" + password + "'" + ")");				  				  
 				  
 				  //create a result set
 				  ResultSet rs = myStmt.executeQuery();
@@ -156,6 +158,7 @@ public class Login {
                      if(rs.getString(1).equals("1"))
                      {
                         //MainScreen ms = new MainScreen(stage);
+                    	 window.close();
                     	 Scene mainScreen = MainScreen.displayMainScreen(stage);
                     	 stage.setScene(mainScreen);
                     	 stage.show();

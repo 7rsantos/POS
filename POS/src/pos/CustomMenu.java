@@ -80,12 +80,18 @@ public class CustomMenu {
 		MenuItem listUsers = new MenuItem("List Users");
 		MenuItem getUserInfo = new MenuItem("Get User Info");
 		MenuItem timeClock = new MenuItem("Time Clock");
+		MenuItem createUser = new MenuItem("Create New User");
 		MenuItem updateUserInfo = new MenuItem("Update User Info");
 		MenuItem updatePassword = new MenuItem("Update User Password");		
 		MenuItem logout = new MenuItem("Logout");
 		
+		//do something when triggered
+		createUser.setOnAction(e -> UserDisplay.addUserDisplay());
+		logout.setOnAction(e->Session.logout(MainScreen.window));
+		
 		//add menu items to the user menu
 		user.getItems().addAll(listUsers, getUserInfo, new SeparatorMenuItem(), updateUserInfo,
+				createUser, 
 				updatePassword, new SeparatorMenuItem(), timeClock, new SeparatorMenuItem(),
 				logout);
 		
@@ -107,7 +113,7 @@ public class CustomMenu {
 		MenuItem registerProduct = new MenuItem("Register New Product");
 		
 		//set actions when triggered
-		registerProduct.setOnAction(e -> Inventory.display_AddInventory());
+		registerProduct.setOnAction(e -> Inventory.displayAddInventory());
 		
 		
 		//add menu items to inventory
