@@ -1,7 +1,12 @@
 package pos;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -25,9 +30,22 @@ import javafx.stage.Stage;
 
 public class Inventory {
 
-	public static void display_AddInventory()
+private static TextField photoPath;
+private static ImageView productPicture;
+private static TextField name;
+private static TextField barcode;
+private static TextField brand;
+private static TextField unitSize;
+private static TextField category;
+private static TextField unitNumber;
+private static TextField originalPrice;
+private static TextField salesPrice;
+private static File f;
+private static Stage window;
+	
+	public static void displayAddInventory()
 	{ 
-		   Stage window = new Stage();
+		   window = new Stage();
 		   
 		   window.setTitle("FASS Nova - Register New Product");
 		   window.initModality(Modality.APPLICATION_MODAL);
@@ -64,7 +82,6 @@ public class Inventory {
 		   Label unitNumberLb = new Label("Number of Units");
 		   Label originalPriceLb = new Label("Original Price per unit");
 		   Label salesPriceLb = new Label("Sales Price per unit");
-		   //Label photoPathLb = new Label("Photo Path");
 		   
 		   //set label colors
 		   nameLb.setTextFill(Color.WHITE);
@@ -79,15 +96,15 @@ public class Inventory {
 		   unitNumberLb.setTextFill(Color.WHITE);
 		   
 		   //create text fields
-		   TextField name = new TextField();
-		   TextField barcode = new TextField();
-		   TextField brand = new TextField();
-		   TextField unitSize = new TextField();
-		   TextField category = new TextField();
-		   TextField unitNumber = new TextField();
-		   TextField originalPrice = new TextField();
-		   TextField salesPrice = new TextField();
-		   TextField photoPath = new TextField();
+	       name = new TextField();
+		   barcode = new TextField();
+		   brand = new TextField();
+		   unitSize = new TextField();
+		   category = new TextField();
+		   unitNumber = new TextField();
+		   originalPrice = new TextField();
+		   salesPrice = new TextField();
+		   photoPath = new TextField();
 		   
 		   //create images
 		   Image cancelIcon = new Image(Inventory.class.getResourceAsStream("/res/Cancel.png"));
@@ -104,11 +121,13 @@ public class Inventory {
 		   Image image = new Image(Inventory.class.getResourceAsStream("/res/photo.png"));
 		   
 		   //create image view for product
-		   ImageView productPicture = new ImageView(image);
+		   productPicture = new ImageView(image);
 		   
-           //implement select's functionality
+           //implement buttons functionalities
 		   select.setOnAction(e -> selectImageFile(photoPath, productPicture));
-		   takePhoto.setOnAction(e -> PhotoScreen.displayPhotoScreen());
+		   takePhoto.setOnAction(e -> PhotoScreen.displayPhotoScreen(2));
+		   cancel.setOnAction(e -> window.close());
+		   add.setOnAction(e -> addProduct());
 		   
 		   //create VBox Layout that will hold image options
 		   VBox photoLayout = new VBox();
@@ -189,6 +208,55 @@ public class Inventory {
 		   window.showAndWait();  
 	}
 	
+	private static void addProduct() {
+		
+		String productName = name.getText();
+		String productBrand = brand.getText();
+		String productSize = unitSize.getText();
+	    String productCategory = category.getText();
+	    double productUnits = Double.parseDouble(unitNumber.getText());
+	    double productPrice = Double.parseDouble(salesPrice.getText());
+	    double productOriginal = Double.parseDouble(originalPrice.getText());
+        String query = "CALL createProduct(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
+        String productBarcode = barcode.getText();
+
+		try   {
+		   // TODO Auto-generated method stub
+		   Connection myConn = Session.openDatabase();
+		   
+		   //prepare statement
+		   PreparedStatement ps = myConn.prepareStatement(query);
+		   FileInputStream input = new FileInputStream(f);
+		   
+		   //set parameters
+		   ps.setString(1, productName);
+		   ps.setString(2, productBarcode);
+		   ps.setString(3, productBrand);
+		   ps.setString(4, productSize);
+		   ps.setString(5, productCategory);
+		   ps.setDouble(6, productUnits);
+		   ps.setDouble(7, productOriginal);
+		   ps.setDouble(8, productPrice);
+		   ps.setString(9, "admin");
+		   ps.setString(10, "Bee1");
+		   ps.setBlob(11, input);
+		
+		   //execute query
+		   ps.executeQuery();
+		  
+		   //report success
+		   AlertBox.display("FASS Nova", "Product registered succesfully!");
+		   
+		   //close the window
+		   window.close();
+		}
+		catch(Exception e)
+		{ 
+			AlertBox.display("FASS Nova - Error", "Could not add product, try again");
+			e.printStackTrace();
+		}
+	}
+
 	public static void selectImageFile(TextField path, ImageView product)
 	{ 
 		
@@ -206,10 +274,10 @@ public class Inventory {
 		   try {
 			  imageUrl = selectedFile.toURI().toURL().toExternalForm();
 		   } catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			AlertBox.display("FASS NOVA - Error", "Could not select image");
-			e.printStackTrace();
-		    }
+			   // TODO Auto-generated catch block
+			   AlertBox.display("FASS NOVA - Error", "Could not select image");
+			   e.printStackTrace();
+		   }
 		   Image image = new Image(imageUrl);
 		   
 		   //set image view dimensions
@@ -222,6 +290,27 @@ public class Inventory {
 		{ 
 			AlertBox.display("FASS Nova - Selection Error", "No File Selected"); 			
         }	  		
+	}
+	
+	public static void setPicturePath(File path)
+	{ 
+	   	
+	   f = path;	
+	   photoPath.setText(path.getAbsolutePath());
+	   String url = ""; 
+	   try
+	   {
+		  url = path.toURI().toURL().toExternalForm(); 
+		  Image photo = new Image(url); 
+	      productPicture.setImage(photo);
+	   }   
+	   catch(MalformedURLException e)
+	   { 
+		   AlertBox.display("FASS Nova - Error", "Could not upload image");
+		   e.printStackTrace();
+	   }
+	   productPicture.setFitHeight(250);
+	   productPicture.setFitWidth(200);
 	}
 	
 }

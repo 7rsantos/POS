@@ -1,10 +1,18 @@
 package pos;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -21,6 +29,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -37,14 +46,28 @@ import javafx.util.Duration;
 public class MainScreen {
 	
 	static Stage window;
+	public static TableView<Product> table;
+	
     private static Button checkCashing;
     private static Button customers;
     private static Button moneyWire;
 	private static Button search;
+	
 	private static Label customer;
+	
 	private static String barcode = "";
 	private static boolean active = false;
-    
+	
+	public static ObservableList<Product> products = FXCollections.observableArrayList();
+	public static ArrayList<String> productList = new ArrayList<String>();
+	
+	private static Button pay;
+	private static Button remove;
+	private static TextField subTotal;
+	private static TextField Total;	
+	private static TextField Tax;
+	private static TextField Discount;
+	
 	public static Scene displayMainScreen(Stage stage)
 	{ 
 		setWindowSize(stage);
@@ -94,7 +117,7 @@ public class MainScreen {
 		root.setVgap(8);
 
 		//create table
-		TableView table = createTable();
+		table = createTable();
 		
 		
 		//create menu bar and added to the border layout
@@ -157,6 +180,9 @@ public class MainScreen {
 			   activateTimer();
 			   switch(event.getText())
 			   { 
+			      case "0":
+			    	  barcode = barcode + 0;
+			    	  break;
 			      case "1":
 			    	  barcode = barcode + 1;
 			    	  break;
@@ -185,7 +211,7 @@ public class MainScreen {
 			    	  barcode = barcode + 9;
 			    	  break;			    	  
 			      default:
-			    	  //event.consume();
+			    	  event.consume();
 			    	  break;
 			   }
 			}	
@@ -216,10 +242,99 @@ public class MainScreen {
 	}
 
 	private static void processBarcode() {
-		
-	   System.out.println(barcode);
-	   barcode = "";
-	   active = false;
+	
+	   String query = "CALL searchProduct(?)";
+	   int quantity= 1;
+	   String name = " ", unitSize = " ";
+	   double unitPrice = 0.00;
+	   	   
+	   try
+	   {
+		   
+		   //create the connection
+		   Connection conn = Session.openDatabase();
+		   
+		   //create prepared statement
+		   PreparedStatement ps = conn.prepareCall(query);
+		   
+		   //set parameter
+		   ps.setString(1, barcode);
+		   
+		   //execute the query
+		   ResultSet rs = ps.executeQuery();
+		   
+		   if(!rs.next())
+		   {	   
+              AlertBox.displayDialog("FASS Nova - Error", "Could not find product");
+		   }
+		   else
+		   { 
+			  //process the result set
+			  do
+			  { 
+			     name = rs.getString(1);
+			     unitSize = rs.getString(2);
+			     unitPrice = Double.parseDouble(rs.getString(3));
+			     
+			  }	while(rs.next());
+			  
+			  if(!productList.contains(name))
+			  {	  
+				 //add name to product list
+				 productList.add(name);
+				  
+			     //add items to products observable list
+			     products.add(new Product(name, unitSize, quantity, unitPrice));	   
+				   
+			     //put items in the table
+			     table.setItems(products);
+			     
+			     //activate pay button
+			     pay.setDisable(false);
+			     
+			     //activate remove item button
+			     remove.setDisable(false);
+			     
+			  }   
+			  else
+			  { 				  
+				 //get product index
+				 int index = productList.indexOf(name);
+				 
+				 //get product quantity
+				 int productQuantity = table.getItems().get(index).getQuantity();
+				 
+				 //update product quantity
+                 table.getItems().get(index).setQuantity(productQuantity + 1 );
+                 
+                 //load table
+                 table.refresh();
+			  }	  
+				  
+		   }	   
+		   
+		   //reset the value of barcode
+		   barcode = "";
+		   
+		   //deactivate the timer
+		   active = false;
+		   
+		   //create decimal format
+		   DecimalFormat df = new DecimalFormat("#.##");
+		   
+		   //compute subtotal 
+		   subTotal.setText(df.format(Product.computeSubTotal(products, Discount.getText())));
+		   
+		   //compute total
+		   Total.setText(df.format(Product.computeTotal(subTotal.getText(), Tax.getText())));
+	   }
+	   catch(Exception e)
+	   { 
+		   e.printStackTrace();
+		   
+		   AlertBox.display("FASS Nova - Error", "Could not connect to the database");
+	   }	   
+
 	}
 
 	public static GridPane createSouthArea()
@@ -233,30 +348,35 @@ public class MainScreen {
 		VBox date = DateBox.createDateBox();
 		
 		//create text fields and set editable to false
-		TextField Discount = new TextField();
+		Discount = new TextField();
 		Discount.setEditable(false);
 		
-		TextField subTotal = new TextField();
+		subTotal = new TextField();
 		subTotal.setEditable(false);
+		subTotal.setText("0.00");
 		
-		TextField Tax = new TextField();
+		Tax = new TextField();
 		Tax.setEditable(false);
 		
-		TextField Total = new TextField();
+		Total = new TextField();
 		Total.setEditable(false);
 		
 		//create pay, cancel, and remove buttons and set their icons
 		Image payIcon = new Image(MainScreen.class.getResourceAsStream("/res/Buy.png"));
-		Button pay = new Button("Pay", new ImageView(payIcon));
+		pay = new Button("Pay", new ImageView(payIcon));
+		pay.setDisable(true);
 		
 		Image cancelIcon = new Image(MainScreen.class.getResourceAsStream("/res/Cancel.png"));		
 		Button cancel = new Button("Cancel", new ImageView(cancelIcon));
 		
 		Image removeIcon = new Image(MainScreen.class.getResourceAsStream("/res/Erase.png"));				
-		Button remove = new Button("Remove Item", new ImageView(removeIcon));
+		remove = new Button("Remove Item", new ImageView(removeIcon));
+		remove.setDisable(true);
 		
 		//implement actions
-		cancel.setOnAction(e -> Session.logout(window));
+		cancel.setOnAction(e -> AlertBox.displayOptionDialog("FASS Nova", "Do you want to cancel ticket?"));
+	    remove.setOnAction(e -> deleteItem());
+	    pay.setOnAction(e -> pay());
 		
 		//change size of pay button
 		pay.setMaxWidth(75);
@@ -311,6 +431,9 @@ public class MainScreen {
 		 carnetIcon.setOnContextMenuRequested(
 		    e -> contextMenu.show(carnetIcon, e.getScreenX(), e.getScreenY()+10));
 		
+		 //implement actions
+		 customers.setOnAction(e -> Customers.displayCustomerList(window));
+		 
 	     //add context menu to the image
 	     contextMenu.getItems().add(item1);
 	     
@@ -352,29 +475,151 @@ public class MainScreen {
 		return options;
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static TableView createTable()
 	{ 
 		//create table view
-		TableView table = new TableView();
+		table = new TableView<>();
 		table.setEditable(false);
 		
 		//create columns
-		TableColumn name = new TableColumn("Name");
-		TableColumn unit = new TableColumn("Unit Size");		
-		TableColumn quantity = new TableColumn("Quantity");
-		TableColumn unitPrice = new TableColumn("Unit Price");
-		TableColumn price = new TableColumn("Price");
+		TableColumn<Product, String> Name = new TableColumn<Product, String>("Name");
+		Name.setCellValueFactory(new PropertyValueFactory<>("name"));
 		
-		name.setPrefWidth(365);
-		unit.setPrefWidth(55);
+		TableColumn<Product, String> unitSize = new TableColumn<Product, String>("Unit Size");
+		unitSize.setCellValueFactory(new PropertyValueFactory<>("unitSize"));
+		
+	    TableColumn<Product, String> quantity = new TableColumn <Product, String>("Quantity");
+		quantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
+		
+		TableColumn<Product, String> salesPrice = new TableColumn<Product, String>("Unit Price");
+		salesPrice.setCellValueFactory(new PropertyValueFactory<>("unitPrice"));
+		
+		TableColumn<Product, String> price = new TableColumn<Product, String>("Price");
+		price.setCellValueFactory(new PropertyValueFactory<>("price"));	
+		
+		//set sizes
+		Name.setPrefWidth(350);
+		unitSize.setPrefWidth(70);
 		quantity.setPrefWidth(55);
-		unitPrice.setPrefWidth(110);
+		salesPrice.setPrefWidth(110);
 		price.setPrefWidth(140);
 		
 		
 		//add columns to the table view
-		table.getColumns().addAll(name, unit, quantity, unitPrice, price);
+        table.getColumns().addAll(Name, unitSize, quantity, salesPrice, price);		
 		
 		return table;
 	}
+	
+    public static void deleteItem()
+    { 
+        ObservableList<Product> productSelected, allProducts = FXCollections.observableArrayList();
+        
+        //get items
+        allProducts = table.getItems();
+        
+        //get selection model
+        productSelected = table.getSelectionModel().getSelectedItems();
+        
+        if(!products.isEmpty())
+        {	
+           //get name of product
+           String name = table.getSelectionModel().getSelectedItem().getName();
+     
+        
+           //remove all instances from observable list
+           productSelected.forEach(products::remove);
+        
+           //remove instance from products list
+           productList.remove(name);  
+        
+           //create double format
+           DecimalFormat df = new DecimalFormat("#.##");
+        
+           //recompute the subtotal
+           subTotal.setText(df.format(Product.computeSubTotal(products, Discount.getText())));
+        
+           //recompute the total
+           Total.setText(df.format(Product.computeTotal(subTotal.getText(), Tax.getText())));
+        }
+        if(products.isEmpty())
+        {	
+           //disable buttons
+           pay.setDisable(true);
+           remove.setDisable(true);
+        }
+    }
+    
+    public static void cancelTicket(boolean performAction)
+    { 
+       if(performAction)
+       { 
+    	   //clear observable list
+    	   products.clear();
+    	   
+    	   //clear products list
+    	   productList.clear();
+    	   
+    	   //recompute subtotal
+    	   subTotal.setText("0.00");
+    	   
+    	   //recompute total
+    	   Total.setText("0.00");
+    	   
+    	   //logout 
+    	   Session.logout(window);   
+       }	   
+    }
+    
+    public static void pay()
+    { 
+       //get the items from the table	
+       ObservableList<Product> allProducts = table.getItems();
+       
+       //close the window display payment screen
+       window.close();
+       Scene scene = PaymentScreen.displayPaymentScreen(allProducts, Double.parseDouble(Total.getText()), window);
+       window.setScene(scene);
+       window.show();
+    }
+    
+    //set table items
+    public static void setTableItems(ObservableList<Product> allProducts)
+    { 
+       table.setItems(allProducts); 
+       
+       //copy items of all products to products
+       products = allProducts;
+       
+       //populate product list array
+       for(Product p : products)
+       { 
+            productList .add(p.getName());	   
+       }	   
+       
+	   //create decimal format
+	   DecimalFormat df = new DecimalFormat("#.##");
+	   
+	   //compute subtotal 
+	   subTotal.setText(df.format(Product.computeSubTotal(products, Discount.getText())));
+	   
+	   //compute total
+	   Total.setText(df.format(Product.computeTotal(subTotal.getText(), Tax.getText())));
+	   
+	   //enable pay and remove buttons
+	   pay.setDisable(false);
+	   remove.setDisable(false);
+    }
+    
+    public static void resetProductList()
+    { 
+       productList.clear();
+       products.clear();
+       
+       //disable buttons
+       remove.setDisable(true);
+       pay.setDisable(true);
+    }
+    
 }

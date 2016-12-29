@@ -42,13 +42,40 @@ public class Icon {
 		
 		//create image 
 		Image image = new Image(Icon.class.getResourceAsStream(path));
-			
+		
+		//create imageview
+		ImageView imageview = new ImageView(image);
+		
+		//set imageview size
+		imageview.setFitWidth(30);
+		imageview.setFitHeight(30);
+		
 		//create icon
-		Button icon = new Button("", new ImageView(image));
+		Button icon = new Button("", imageview);
 		
 		
 		return icon;
 	}
+	
+	public static Button createPaymentButtonIcon(String name, String path)
+	{ 
+		
+		//create image 
+		Image image = new Image(Icon.class.getResourceAsStream(path));
+		
+		//create imageview
+		ImageView imageview = new ImageView(image);
+		
+		//set imageview size
+		imageview.setFitWidth(185);
+		imageview.setFitHeight(150);
+		
+		//create icon
+		Button icon = new Button("", imageview);
+		
+		
+		return icon;
+	}	
 	
 	public static FileChooser createImageChooser()
 	{ 

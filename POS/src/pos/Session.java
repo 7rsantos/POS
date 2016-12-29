@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import javafx.collections.ObservableList;
 import javafx.stage.Stage;
 import pos.UserDisplay;
 
@@ -27,6 +28,11 @@ public class Session {
 		
 		//close the stage
 		stage.close();
+		
+		//reset product list
+		MainScreen.resetProductList();
+		
+		//reset observable list
 		
 		//display the login
 		Login.displayLogin();

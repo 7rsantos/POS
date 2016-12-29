@@ -3,15 +3,18 @@
  
 }
 
-#root {
- -fx-background-color:  #aaaaaa;
- -fx-border-color: white;
- -fx-border-radius: 100;
- -fx-padding: 50 45 50 100;
- -fx-background-radius: 100;
- 
+
+
+#actions  {
+	
+ -fx-padding: 5 50 5 5;	
 }
 
 #box  { 
 	-fx-font-weight: bold;
+}
+
+#left   { 
+   -fx-background-radius: 10, 10, 10, 10;	
+	
 }
