@@ -9,7 +9,7 @@ public class Configs {
 
 	public static Properties prop = new Properties();
 	
-	public void saveProperty(String title, String value)
+	public static void saveProperty(String title, String value)
 	{ 
 	   try  {
 		  
@@ -24,7 +24,7 @@ public class Configs {
 	   }
 	}
 	
-	public String getProperty(String title)
+	public static String getProperty(String title)
 	{ 
 		
 		String value = "";

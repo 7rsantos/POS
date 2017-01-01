@@ -144,7 +144,8 @@ public static Stage window;
 				  Connection myConn = Session.openDatabase();
 				  
 				  //Create a statement
-				  CallableStatement myStmt = myConn.prepareCall("SELECT Login(" + "'" + username + "'" + "," + "'" + password + "'" + ")");				  				  
+				  CallableStatement myStmt = myConn.prepareCall("SELECT Login(" + "'" + username + "'" + "," + "'" + password + 
+						  "'" + ", " + "'" + Configs.getProperty("StoreCode") + "'" + ")");				  				  
 				  
 				  //create a result set
 				  ResultSet rs = myStmt.executeQuery();
@@ -157,6 +158,12 @@ public static Stage window;
 					  
                      if(rs.getString(1).equals("1"))
                      {
+                    	 //set current user
+                    	 Configs.saveProperty("CurrentUser", username);
+                    	 
+                    	 //set priority level
+                    	 Session.getPrivilegeLevel();
+                    	 
                         //MainScreen ms = new MainScreen(stage);
                     	 window.close();
                     	 Scene mainScreen = MainScreen.displayMainScreen(stage);

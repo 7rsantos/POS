@@ -417,11 +417,11 @@ private static Stage primary;
 	   {
 		   if(receiptTotal == cashReceived)
 		   {	   
-		      changeScreen(0.00, isCashPayment);
+		      changeScreen(0.00, isCashPayment, allProducts);
 		   }
 		   if(receiptTotal < cashReceived)
 		   { 
-			  changeScreen(receiptTotal - cashReceived, isCashPayment); 
+			  changeScreen(receiptTotal - cashReceived, isCashPayment, allProducts); 
 		   }	   
 		   else
 		   { 
@@ -442,12 +442,12 @@ private static Stage primary;
 	   { 
 	       if(receiptTotal == cashReceived)
 	       { 
-	    	  changeScreen(0.00, isCashPayment);
+	    	  changeScreen(0.00, isCashPayment, allProducts);
 	    	  
 	       }	   
 	       if(receiptTotal < cashReceived)
 	       { 
-	    	  changeScreen(cashReceived - receiptTotal, isCashPayment);	       
+	    	  changeScreen(cashReceived - receiptTotal, isCashPayment, allProducts);	       
 	       }	
 	       else
 	       { 
@@ -468,7 +468,7 @@ private static Stage primary;
 	   }	    
 	}
 
-	private static void changeScreen(double amount, boolean cashPayment) 
+	private static void changeScreen(double amount, boolean cashPayment, ObservableList<Product> productList) 
 	{
 		//create root layout
 		VBox root = new VBox();
@@ -536,6 +536,7 @@ private static Stage primary;
 		Button print = new Button("Accept & Print", new ImageView(image));
 			
 		//implement action
+		//print.setOnAction(e -> Receipt.setupReceipt("Bob", receiptTotal));
 		
 		//set spacing in top
 		top.setHgap(7);
@@ -602,14 +603,18 @@ private static Stage primary;
 			@Override
 			public void handle(ActionEvent event) {
 				// TODO Auto-generated method stub
-				MainScreen.resetProductList();
+				
+				//setup ticket
+				//BorderPane ticket = SalesTicket.buildSalesTicket(allProducts);
 				
 				//close the stage
-				secondary.close();
+				secondary.close();				
 				
-				//print receipt
-				System.out.println("Printing receipt..");
+				//setup receipt
+                Receipt.setupReceipt("Bob");  
 				
+				MainScreen.resetProductList();
+                
 				//back to main screen
 			    backToMainScreen(stage);
 			    
@@ -772,5 +777,14 @@ private static Stage primary;
 		
 		//show stage
 		secondary.show();
-	}	
+	}
+	
+	public static ObservableList<Product> getList()
+	{ 
+	   ObservableList<Product> result = allProducts;
+	   
+	   System.out.println(result.size());
+	   
+	   return result;
+	}
 }

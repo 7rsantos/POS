@@ -237,8 +237,8 @@ private static Stage window;
 		   ps.setDouble(6, productUnits);
 		   ps.setDouble(7, productOriginal);
 		   ps.setDouble(8, productPrice);
-		   ps.setString(9, "admin");
-		   ps.setString(10, "Bee1");
+		   ps.setString(9, Configs.getProperty("CurrentUser"));
+		   ps.setString(10, Configs.getProperty("StoreCode"));
 		   ps.setBlob(11, input);
 		
 		   //execute query
