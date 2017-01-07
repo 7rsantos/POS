@@ -17,8 +17,28 @@ import javax.print.PrintServiceLookup;
 import javax.print.SimpleDoc;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
  
+   
 public class PrinterService implements Printable {
+	
+	private static String Name;	
+	
+	public PrinterService()
+	{ 
+		this.Name = "";
+	}	
+	public PrinterService(String name)
+	{ 
+		this.Name = name;
+	}
+	
+	public String getName()
+	{ 
+		return this.Name;
+	}
 	
 	public List<String> getPrinters(){
 		
@@ -35,7 +55,23 @@ public class PrinterService implements Printable {
 		
 		return printerList;
 	}
- 
+
+	public ObservableList<String> getPrinterList(){
+		
+		DocFlavor flavor = DocFlavor.BYTE_ARRAY.AUTOSENSE;
+		PrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
+		
+		PrintService printServices[] = PrintServiceLookup.lookupPrintServices(
+				flavor, pras);
+		
+		ObservableList<String> printerList = FXCollections.observableArrayList();
+		for(PrintService printerService: printServices){
+			printerList.add( printerService.getName());
+		}
+		
+		return printerList;
+	}	
+	
 	@Override
 	public int print(Graphics g, PageFormat pf, int page)
 			throws PrinterException {

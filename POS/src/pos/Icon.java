@@ -94,4 +94,21 @@ public class Icon {
 		
 		return selectedFile;
 	} 
+	
+	public static DirectoryChooser buildDirectory()
+	{ 
+		//build new directory
+		DirectoryChooser directoryChooser = new DirectoryChooser();
+		directoryChooser.setTitle("Select Directory");
+		
+		return directoryChooser;
+	}
+	
+	public static File selectDirectory(DirectoryChooser directoryChooser)
+	{
+		File selectedFile = directoryChooser.showDialog(null);
+		
+		return selectedFile;
+	} 
+	
 }

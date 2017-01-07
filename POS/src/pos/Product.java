@@ -67,7 +67,7 @@ public class Product {
     
     public double getUnitPrice()
     { 
-    	return unitPrice;
+    	return Receipt.setPrecision(unitPrice);
     }
     
     public void setUnitPrice(double unitPrice)
@@ -77,7 +77,7 @@ public class Product {
     
     public double getPrice()
     { 
-    	return quantity * unitPrice;
+    	return this.quantity * Receipt.setPrecision(this.unitPrice);
     }
     
     public void setPrice(double price)
@@ -92,9 +92,9 @@ public class Product {
     	
     	//convert to doubles
     	double subtotal = Double.parseDouble(s);
-    	double tax = Double.parseDouble(t);
+    	double tax = Double.parseDouble(t); 	
     	
-    	return subtotal * (tax / 100) + subtotal;
+    	return Receipt.setPrecision(subtotal * (tax / 100) + subtotal);
     }
     
     public static double computeSubTotal(ObservableList<Product> products, String d)

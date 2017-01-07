@@ -612,7 +612,6 @@ private static Stage primary;
 			@Override
 			public void handle(ActionEvent event) {
 				
-				
 				//close the stage
 				secondary.close();				
 				

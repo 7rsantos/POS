@@ -17,9 +17,17 @@ public class Main extends Application {
 
 	@Override
 	public void start(Stage window) throws Exception {
-		//display the login window
-		Login.displayLogin();
 		
+		if(!Configs.getProperty("StoreName").isEmpty())
+		{	
+		   //display the login window
+		   Login.displayLogin();
+		}
+		else
+		{ 
+			//setup the program
+			Setup.initSetup();
+		}	
 	}
 
 }

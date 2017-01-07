@@ -59,6 +59,8 @@ public class PrinterDemo extends Application {
 		{ 
 		   jobStatus.textProperty().bind(job.jobStatusProperty().asString());
 		   
+		   System.out.println(new java.io.File("configuration.txt").getAbsolutePath());
+		   
 		   boolean printed = job.printPage(node);
 		   if(printed)
 		   { 
