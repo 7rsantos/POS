@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -41,7 +42,7 @@ private static Stage primary;
 	public static Scene displayPaymentScreen(ObservableList<Product> products, double total, Stage window)
 	{ 
 		//make a copy of products observable list
-		allProducts = products;
+		allProducts = FXCollections.observableArrayList(products);
 		
 		//set balance due
 		receiptTotal = total;
@@ -204,7 +205,7 @@ private static Stage primary;
 		Button previous = new Button("Previous", new ImageView(image));
 		
 		//implement actions
-		previous.setOnAction(e -> backToMainScreen(stage));
+		previous.setOnAction(e -> backToMainScreen(stage, 1));
 		
 		//create bottom area
 		HBox bottom = new HBox();
@@ -231,7 +232,7 @@ private static Stage primary;
 		return scene;
 	}
 	
-	public static void backToMainScreen(Stage stage) {
+	public static void backToMainScreen(Stage stage, int caller) {
 	   
 	    
 		// TODO Auto-generated method stub
@@ -246,9 +247,11 @@ private static Stage primary;
 	    //reset lists
 	    MainScreen.resetProductList();
 	    
-	    //build the main screen
-	    MainScreen.setTableItems(allProducts);
-	    
+	    if(caller == 1)
+	    {	
+	       //build the main screen
+	       MainScreen.setTableItems(allProducts);
+	    }
 	    //display the new window
 	    window.setScene(mainScreen);
 	    window.show();	    
@@ -384,7 +387,7 @@ private static Stage primary;
 		
 		//implement actions
 		cancel.setOnAction(e -> secondary.close());		
-		accept.setOnAction(e -> processPayment(true, Double.parseDouble(cashReceived.getText()), secondary));
+		accept.setOnAction(e -> processPayment(true, Double.parseDouble(cashReceived.getText()), secondary, 0 , cash.getText(), "Completed"));
 		
 		//set sizes
 		secondary.setMinWidth(300);
@@ -407,7 +410,9 @@ private static Stage primary;
 
 	
 	
-	private static void processPayment(boolean isCashPayment, double cashReceived, Stage stage) {
+	private static void processPayment(boolean isCashPayment, double cashReceived, Stage stage,			
+			int discount, String paymentMethod, String status) 
+	{
 		
 		//close the stage
 		stage.close();
@@ -417,11 +422,11 @@ private static Stage primary;
 	   {
 		   if(receiptTotal == cashReceived)
 		   {	   
-		      changeScreen(0.00, isCashPayment, allProducts);
+		      changeScreen(0.00, isCashPayment, allProducts, cashReceived, discount, paymentMethod, status);
 		   }
 		   if(receiptTotal < cashReceived)
 		   { 
-			  changeScreen(receiptTotal - cashReceived, isCashPayment, allProducts); 
+			  changeScreen(receiptTotal - cashReceived, isCashPayment, allProducts, cashReceived, discount, paymentMethod, status); 
 		   }	   
 		   else
 		   { 
@@ -442,12 +447,12 @@ private static Stage primary;
 	   { 
 	       if(receiptTotal == cashReceived)
 	       { 
-	    	  changeScreen(0.00, isCashPayment, allProducts);
+	    	  changeScreen(0.00, isCashPayment, allProducts, cashReceived, discount, paymentMethod, status);
 	    	  
 	       }	   
 	       if(receiptTotal < cashReceived)
 	       { 
-	    	  changeScreen(cashReceived - receiptTotal, isCashPayment, allProducts);	       
+	    	  changeScreen(cashReceived - receiptTotal, isCashPayment, allProducts, cashReceived, discount, paymentMethod, status);	       
 	       }	
 	       else
 	       { 
@@ -468,7 +473,8 @@ private static Stage primary;
 	   }	    
 	}
 
-	private static void changeScreen(double amount, boolean cashPayment, ObservableList<Product> productList) 
+	private static void changeScreen(double amount, boolean cashPayment, ObservableList<Product> productList, 
+			             double receivedCash, int discout, String paymentMethod, String status) 
 	{
 		//create root layout
 		VBox root = new VBox();
@@ -524,7 +530,7 @@ private static Stage primary;
 	    DecimalFormat df = new DecimalFormat("#.##");
 	    
 		//set balance
-		cashReceived.setText("$ " + df.format(receiptTotal));
+		cashReceived.setText("$ " + df.format(Receipt.setPrecision(receivedCash)));
 		change.setText("$" + df.format(amount));
 			
 		//images for buttons
@@ -589,10 +595,13 @@ private static Stage primary;
 				
 				secondary.close();
 				
+				//setup receipt
+                Receipt.setupReceipt("Bob", change.getText(), cashReceived.getText(), 0, "Cash", "Completed", 1);				
+				
 				//reset product list
 				MainScreen.resetProductList();
 				
-			    backToMainScreen(stage);
+			    backToMainScreen(stage, 0);
 			} 		
 			
 		});		
@@ -602,21 +611,18 @@ private static Stage primary;
 
 			@Override
 			public void handle(ActionEvent event) {
-				// TODO Auto-generated method stub
 				
-				//setup ticket
-				//BorderPane ticket = SalesTicket.buildSalesTicket(allProducts);
 				
 				//close the stage
 				secondary.close();				
 				
 				//setup receipt
-                Receipt.setupReceipt("Bob");  
+                Receipt.setupReceipt("Bob", change.getText(), cashReceived.getText(), 0, "Cash", "Completed", 0);  
 				
 				MainScreen.resetProductList();
                 
 				//back to main screen
-			    backToMainScreen(stage);
+			    backToMainScreen(stage, 0);
 			    
 			} 		
 			
@@ -758,7 +764,7 @@ private static Stage primary;
 		
 		//implement actions
 		cancel.setOnAction(e -> secondary.close());
-		accept.setOnAction(e -> processPayment(false, Double.parseDouble(cashReceived.getText()), secondary));
+		accept.setOnAction(e -> processPayment(false, Double.parseDouble(cashReceived.getText()), secondary, 0, cash.getText(), "Completed"));
 		
 		//set sizes
 		secondary.setMinWidth(300);
@@ -782,8 +788,6 @@ private static Stage primary;
 	public static ObservableList<Product> getList()
 	{ 
 	   ObservableList<Product> result = allProducts;
-	   
-	   System.out.println(result.size());
 	   
 	   return result;
 	}
