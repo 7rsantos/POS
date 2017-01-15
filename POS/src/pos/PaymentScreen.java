@@ -596,7 +596,7 @@ private static Stage primary;
 				secondary.close();
 				
 				//setup receipt
-                Receipt.setupReceipt("Bob", change.getText(), cashReceived.getText(), 0, "Cash", "Completed", 1);				
+                Receipt.setupReceipt("Bob", change.getText(), cashReceived.getText(), 0, "Cash", "Completed", 0);				
 				
 				//reset product list
 				MainScreen.resetProductList();
@@ -616,8 +616,9 @@ private static Stage primary;
 				secondary.close();				
 				
 				//setup receipt
-                Receipt.setupReceipt("Bob", change.getText(), cashReceived.getText(), 0, "Cash", "Completed", 0);  
+                Receipt.setupReceipt("Bob", change.getText(), cashReceived.getText(), 0, "Cash", "Completed", 1);  
 				
+                //reset the product list
 				MainScreen.resetProductList();
                 
 				//back to main screen

@@ -1,5 +1,8 @@
 package pos;
 
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
@@ -12,6 +15,7 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 
 public class ActionsTable  {
 
@@ -57,7 +61,19 @@ public class ActionsTable  {
 				new Separator(), transferProduct);
 
 		//perform an action when clicked
-		sales.setOnMouseClicked(e -> System.out.println("Works"));
+		sales.setOnMouseClicked(new EventHandler<MouseEvent>()  {
+
+			@Override
+			public void handle(MouseEvent event) {
+            
+				//close the stage
+				MainScreen.closeStage();
+				
+				//display sales history screen
+				SalesHistory.displaySalesHistory();
+			} 
+
+		});
 		discount.setOnMouseClicked(e -> System.out.println("Works"));
 		manage.setOnMouseClicked(e -> System.out.println("Works"));
 		clear.setOnMouseClicked(e -> System.out.println("Works"));

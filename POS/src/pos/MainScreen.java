@@ -70,9 +70,11 @@ public class MainScreen {
 	
 	public static Scene displayMainScreen(Stage stage)
 	{ 
-		setWindowSize(stage);
-		Scene scene = buildMainScreen(stage);
 		
+		setWindowSize(stage);
+		
+		Scene scene = buildMainScreen(stage);
+				
 		return scene;
 	}
 	
@@ -84,6 +86,8 @@ public class MainScreen {
         window.setWidth(1010);
         window.setHeight(555);
         window.setResizable(true);
+                
+        window.setTitle("FASS Nova - Main Screen");
         
         //position stage at the center of the screen
         Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
@@ -612,6 +616,9 @@ public class MainScreen {
 	   remove.setDisable(false);
     }
     
+    /*
+     * Reset the observable list containing the list of products
+     */
     public static void resetProductList()
     { 
        productList.clear();
@@ -620,6 +627,14 @@ public class MainScreen {
        //disable buttons
        remove.setDisable(true);
        pay.setDisable(true);
+    }
+    
+    /*
+     * Close the stage
+     */
+    public static void closeStage()
+    { 
+       window.close();	
     }
     
 }

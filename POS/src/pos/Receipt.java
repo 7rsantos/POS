@@ -3,7 +3,7 @@ package pos;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Time;
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -58,6 +58,9 @@ public class Receipt {
 	    
 	    //store receipt in the database
 	    String transaction = createReceipt(date, total, paymentMethod, discount, status);
+	     
+	    //store items of the receipt in the database
+	    saveItems(products, transaction);
 	    
 	    if(caller == 1)
 	    {	
@@ -212,7 +215,64 @@ public class Receipt {
 		//return ticket number
 		return ticketno;
 	}
-
+	
+	/*
+	 *  Save items of a receipt in the database
+	 */
+    public static void saveItems(ObservableList<Product> products, String ticketno) 
+    { 
+	
+       
+       try
+       {
+          String query = "CALL createItem(?, ?, ?, ?, ?)"; 
+    	   
+          Connection conn = Session.openDatabase();
+          
+          PreparedStatement pst = conn.prepareStatement(query);
+    		           
+    	
+          conn.setAutoCommit(false);
+ 
+    	   final int batchSize = 1000;
+    	   int count = 0;
+    	   
+          for(Product p : products)
+          {	 
+        	   
+             //set parameters
+             pst.setString(1, p.getName());
+             pst.setString(2, ticketno);
+             pst.setInt(3, p.getQuantity());
+             pst.setDouble(4, p.getUnitPrice());
+             pst.setString(5, p.getUnitSize());
+              
+             //add batch
+             pst.addBatch();
+             count++;
+             pst.clearParameters();
+            
+             if(count % batchSize == 0)
+             {	 
+                //execute batch
+                pst.executeBatch();
+             }   
+          }  
+          
+          //execute query
+          pst.executeBatch();
+                        
+          //close the connection
+          pst.close();
+          conn.commit();
+          conn.close();
+       }
+       catch(SQLException e)
+       { 
+    	   e.printStackTrace();   
+       }
+    }
+	
 	/*
 	 * Print the receipt
 	 * @param products the list of the products and quantities
@@ -224,10 +284,9 @@ public class Receipt {
 			int count, String change, String cashReceived, String transaction) 
 	{
 		
-		// TODO Auto-generated method stub
 		PrinterService printerService = new PrinterService();
 		
-		System.out.println(printerService.getPrinters());
+		//System.out.println(printerService.getPrinters());
         //String transaction = "1.1.17.1";
 		
         //String format = String.format("%.2f", taxDollars);
