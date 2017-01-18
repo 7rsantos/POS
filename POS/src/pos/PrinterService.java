@@ -124,7 +124,7 @@ public class PrinterService implements Printable {
  
 	}
  
-	public void printBytes(String printerName, byte[] bytes) {
+	public static void printBytes(String printerName, byte[] bytes) {
 		
 		DocFlavor flavor = DocFlavor.BYTE_ARRAY.AUTOSENSE;
 		PrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
@@ -146,7 +146,7 @@ public class PrinterService implements Printable {
 		}
 	}
 	
-	private PrintService findPrintService(String printerName,
+	private static PrintService findPrintService(String printerName,
 			PrintService[] services) {
 		for (PrintService service : services) {
 			if (service.getName().equalsIgnoreCase(printerName)) {

@@ -279,7 +279,7 @@ private static ChoiceBox<String> storeLocations;
         		  
         		  //set parameters
         		  ps.setString(1, user);
-        		  ps.setString(2, pass);
+        		  ps.setString(2, Session.encrypt(pass));
         		  ps.setString(3, email);
         		  ps.setString(4, phone);
         		  ps.setString(5, first);

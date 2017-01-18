@@ -1,10 +1,8 @@
 package pos;
 
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -19,7 +17,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import java.sql.*;
 import java.sql.Connection;
@@ -144,7 +141,7 @@ public static Stage window;
 				  Connection myConn = Session.openDatabase();
 				  
 				  //Create a statement
-				  CallableStatement myStmt = myConn.prepareCall("SELECT Login(" + "'" + username + "'" + "," + "'" + password + 
+				  CallableStatement myStmt = myConn.prepareCall("SELECT Login(" + "'" + username + "'" + "," + "'" + Session.encrypt(password) + 
 						  "'" + ", " + "'" + Configs.getProperty("StoreCode") + "'" + ")");				  				  
 				  
 				  //create a result set

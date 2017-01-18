@@ -1,12 +1,15 @@
 package pos;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -20,10 +23,15 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.image.*;
-import pos.UserDisplay;
+import javax.crypto.*;
+import javax.imageio.ImageIO;
+import javax.security.*;
+import java.util.Base64;
 
 public class Session {
 
+	private static Cipher ecipher;
+	private static Cipher dcipher;
 	
 	public static Connection openDatabase()
 	{ 
@@ -32,7 +40,7 @@ public class Session {
 		 myConn = DriverManager.getConnection(Configs.getProperty("DatabaseURL"));
 	     return myConn;
 	   } catch (SQLException e) {
-		  // TODO Auto-generated catch block
+		   
 		  e.printStackTrace();
 	   }
 	  
@@ -146,7 +154,7 @@ public class Session {
 			   
 			   //set parameters
 			   ps.setString(1, Configs.getProperty("CurrentUser"));
-			   ps.setString(2, pass);
+			   ps.setString(2, Session.encrypt(pass));
 			   ps.setString(3, Configs.getProperty("StoreCode"));
 			   
 			   //execute query
@@ -178,7 +186,7 @@ public class Session {
 			
 	}
 	
-	public static void passwordValidation()
+	public static void passwordValidation(int caller)
 	{ 
 		//root layout
 		GridPane root = new GridPane();			
@@ -251,7 +259,7 @@ public class Session {
 				    
 				    //set parameters
 				    ps.setString(1, userName);
-				    ps.setString(2, passWord);
+				    ps.setString(2, Session.encrypt(passWord));
 				    ps.setString(3, Configs.getProperty("StoreCode"));
 				    
 				    //execute query
@@ -264,8 +272,17 @@ public class Session {
 				    	   //close current screen
 				    	   stage.close();
 				    	
-				          //go to the next screen	
-					      displayUpdatePasswordScreen();
+				    	  if(caller ==1)
+				    	  {	  
+				             //go to the next screen	
+					         displayUpdatePasswordScreen();
+				    	  }
+				    	  if (caller == 2)
+				    	  { 
+				    		  
+				    		  //open the cash drawer
+				    		  openCashDrawer();
+				    	  }		  
 				       }					    
 				       else
 				       {
@@ -321,5 +338,149 @@ public class Session {
 		{ 
 			e.printStackTrace();
 		}
+	}
+	
+	/*
+	 *  Password encryption using Java 8 inbuilt decoder 64
+	 */
+	public static String encrypt(String password)
+	{
+	   	
+	   try
+	   { 		  
+		  String result =  Base64.getUrlEncoder().encodeToString(password.getBytes("utf-8"));	  
+		  return result;
+	   }
+	   catch(Exception e)
+	   { 
+		  e.printStackTrace();  
+	   }
+	   
+	   return null;
+	}
+	
+	/*
+	 *  Decrypt passwords using Java 8 inbuilt decryption
+	 */
+	public static String decrypt(String password)
+	{ 
+	   String result;	
+	   try
+	   { 
+		  result =  java.net.URLDecoder.decode(password, "utf-8");
+		  return result;
+	   }
+	   catch(Exception e)
+	   { 
+	      e.printStackTrace();	   
+	   }
+	   return null;	
+	}
+	
+	/*
+	 *  Get the current user's picture
+	 */
+	public static ImageView getUserPicture()
+	{ 
+		
+	    //byte array
+	    byte[] imageArray = null;
+	    Image image = null;
+		
+		String query = "SELECT Photo FROM Employee WHERE Employee.Username = ?"
+				+ " AND employeeStoreCode = ?";
+		
+		try
+		{ 
+		   Connection conn = Session.openDatabase();
+		   
+		   PreparedStatement ps = conn.prepareStatement(query);
+		   
+		   //set parameters
+		   ps.setString(1, Configs.getProperty("CurrentUser"));
+		   ps.setString(2, Configs.getProperty("StoreCode"));
+		   
+		   //execute query
+		   ResultSet rs = ps.executeQuery();
+		   
+		   while(rs.next())
+		   { 
+	    	   imageArray= rs.getBytes(1);			     
+		   }	   
+		   
+		   //get image
+	       InputStream in = new ByteArrayInputStream(imageArray);    	  
+	       BufferedImage bufferedImage = ImageIO.read(in);    	  
+	       image = SwingFXUtils.toFXImage(bufferedImage, null);
+		   
+		   conn.close();
+		}
+		catch(Exception e)
+		{ 
+		   e.printStackTrace();  	
+		}
+		
+		ImageView profilePicture = new ImageView(image);
+		
+		//set fit width and height
+		profilePicture.setFitHeight(50);
+		profilePicture.setFitWidth(70);
+		
+		return profilePicture;
+	}
+	
+	/*
+	 *  Get current user's first name and initial
+	 */
+	public static String getUserFirstName()
+	{ 
+		String query = "Select firstName, lastName from Employee WHERE Employee.username = ?"
+				+ " AND Employee.employeeStoreCode = ?";
+		
+		String result = "";
+		
+		try
+		{ 
+		   Connection conn = openDatabase();
+		   
+		   PreparedStatement ps = conn.prepareStatement(query);
+		   
+		   //set parameters
+		   ps.setString(1, Configs.getProperty("CurrentUser"));
+		   ps.setString(2, Configs.getProperty("StoreCode"));
+		   
+		   //execute query
+		   ResultSet rs = ps.executeQuery();
+		   
+		   while(rs.next())
+		   { 
+			  result = rs.getString(1) + "  " + rs.getString(2).substring(0, 1) + ".";   
+		   }	   
+		}
+		catch(Exception e)
+		{ 
+		   e.printStackTrace();	
+		}
+		
+		return result;
+	}
+	
+	/*
+	 * Open the cash drawer
+	 */
+	public static void openCashDrawer()
+	{ 
+	   if(Integer.parseInt(Configs.getProperty("Privilege")) >= 2)
+	   { 
+	      //bytes to open cash drawer
+		  byte[] open = new byte[] {0x1B, 0x70, 0x30, 0x37, 0x79};	 
+		  
+		  //open the cash drawer
+		  PrinterService.printBytes(Configs.getProperty("Printer"), open);
+	   }
+	   else
+	   { 
+		  AlertBox.display("FASS Nova", "You do not have enough privileges to perform this action");   
+	   }	   
 	}
 }

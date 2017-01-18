@@ -422,18 +422,16 @@ public class MainScreen {
 		customers = Icon.createButtonIcon("Customer", "/res/customer.png");
 		
 		//create user icon
-		Image image = new Image(ActionsTable.class.getResourceAsStream("/res/Carnet.jpg"));
-		ImageView carnetIcon = new ImageView(image);
-		carnetIcon.setFitWidth(70);
-		carnetIcon.setFitHeight(50);
+		ImageView carnetIcon = new ImageView();
+		carnetIcon = Session.getUserPicture();
 		
 		//add context menu
 		 ContextMenu contextMenu = new ContextMenu();
 		 
 	     MenuItem item1 = new MenuItem("Logout");
 	     item1.setOnAction(e -> Session.logout(window));
-		 carnetIcon.setOnContextMenuRequested(
-		    e -> contextMenu.show(carnetIcon, e.getScreenX(), e.getScreenY()+10));
+		 //carnetIcon.setOnContextMenuRequested(
+		    //e -> contextMenu.show(carnetIcon, e.getScreenX(), e.getScreenY()+10));
 		
 		 //implement actions
 		 customers.setOnAction(e -> Customers.displayCustomerList(window));
@@ -443,7 +441,7 @@ public class MainScreen {
 	     
 		//create cashier info section
 		Label cashier = new Label("Cashier:");
-		Label cashierName = new Label("Admin");		
+		Label cashierName = new Label(Session.getUserFirstName());		
 		
 		customer = new Label("Customer");
 		Label check = new Label("Check Cashing");

@@ -88,7 +88,7 @@ public class CustomMenu {
 		//do something when triggered
 		createUser.setOnAction(e -> UserDisplay.addUserDisplay());
 		logout.setOnAction(e->Session.logout(MainScreen.window));
-		updatePassword.setOnAction(e -> Session.passwordValidation());
+		updatePassword.setOnAction(e -> Session.passwordValidation(1));
 		listUsers.setOnAction(e -> User.displayUsers());
 		
 		//add menu items to the user menu

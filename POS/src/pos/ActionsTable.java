@@ -77,7 +77,7 @@ public class ActionsTable  {
 		discount.setOnMouseClicked(e -> System.out.println("Works"));
 		manage.setOnMouseClicked(e -> System.out.println("Works"));
 		clear.setOnMouseClicked(e -> System.out.println("Works"));
-		open.setOnMouseClicked(e -> System.out.println("Works"));
+		open.setOnMouseClicked(e -> Session.passwordValidation(2));
 		receive.setOnMouseClicked(e -> System.out.println("Works"));
 		remove.setOnMouseClicked(e -> System.out.println("Works"));
 		holdTicket.setOnMouseClicked(e -> System.out.println("Works"));
