@@ -1,16 +1,13 @@
 package pos;
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.DecimalFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -22,7 +19,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
@@ -32,22 +28,21 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+
 public class MainScreen {
 	
 	static Stage window;
 	public static TableView<Product> table;
-	
+	public static ImageView carnetIcon;
     private static Button checkCashing;
     private static Button customers;
     private static Button moneyWire;
@@ -66,7 +61,15 @@ public class MainScreen {
 	private static TextField subTotal;
 	private static TextField Total;	
 	private static TextField Tax;
-	private static TextField Discount;
+	public static TextField Discount;
+	
+	/*
+	 * get total of receipt
+	 */
+	public static double getTotal()
+	{ 
+		return Receipt.setPrecision(Double.parseDouble(Total.getText()));
+	}
 	
 	public static Scene displayMainScreen(Stage stage)
 	{ 
@@ -422,7 +425,7 @@ public class MainScreen {
 		customers = Icon.createButtonIcon("Customer", "/res/customer.png");
 		
 		//create user icon
-		ImageView carnetIcon = new ImageView();
+		carnetIcon = new ImageView();
 		carnetIcon = Session.getUserPicture();
 		
 		//add context menu
@@ -430,8 +433,8 @@ public class MainScreen {
 		 
 	     MenuItem item1 = new MenuItem("Logout");
 	     item1.setOnAction(e -> Session.logout(window));
-		 //carnetIcon.setOnContextMenuRequested(
-		    //e -> contextMenu.show(carnetIcon, e.getScreenX(), e.getScreenY()+10));
+		 carnetIcon.setOnContextMenuRequested(
+		    e -> contextMenu.show(carnetIcon, e.getScreenX(), e.getScreenY()+10));
 		
 		 //implement actions
 		 customers.setOnAction(e -> Customers.displayCustomerList(window));

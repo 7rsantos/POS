@@ -293,7 +293,7 @@ private static ChoiceBox<String> storeLocations;
         		  ps.executeQuery();
         		  
         		  //report success
-        		  AlertBox.display("FASS Nova", "User created registered successfully!");
+        		  AlertBox.display("FASS Nova", "User created successfully!");
         		  
         		  //close the window
         		  window.close();
@@ -345,7 +345,6 @@ private static ChoiceBox<String> storeLocations;
 			  file = selectedFile;
 		      
 		   } catch (MalformedURLException e) {
-		      // TODO Auto-generated catch block
 			  AlertBox.display("FASS NOVA - Error", "Could not select image");
 			  e.printStackTrace();
 		   }

@@ -74,9 +74,9 @@ public class ActionsTable  {
 			} 
 
 		});
-		discount.setOnMouseClicked(e -> System.out.println("Works"));
+		discount.setOnMouseClicked(e -> Discount.displayDiscountScreen());
 		manage.setOnMouseClicked(e -> System.out.println("Works"));
-		clear.setOnMouseClicked(e -> System.out.println("Works"));
+		clear.setOnMouseClicked(e -> MainScreen.resetProductList());
 		open.setOnMouseClicked(e -> Session.passwordValidation(2));
 		receive.setOnMouseClicked(e -> System.out.println("Works"));
 		remove.setOnMouseClicked(e -> System.out.println("Works"));

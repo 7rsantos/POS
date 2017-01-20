@@ -596,7 +596,7 @@ private static Stage primary;
 				secondary.close();
 				
 				//setup receipt
-                Receipt.setupReceipt("Bob", change.getText(), cashReceived.getText(), 0, "Cash", "Completed", 0);				
+                Receipt.setupReceipt(Session.getUserFirstName(), change.getText(), "Cash", 0, paymentMethod, "Completed", 0);				
 				
 				//reset product list
 				MainScreen.resetProductList();
@@ -616,7 +616,7 @@ private static Stage primary;
 				secondary.close();				
 				
 				//setup receipt
-                Receipt.setupReceipt("Bob", change.getText(), cashReceived.getText(), 0, "Cash", "Completed", 1);  
+                Receipt.setupReceipt(Session.getUserFirstName(), change.getText(), cashReceived.getText(), 0, paymentMethod, "Completed", 1);  
 				
                 //reset the product list
 				MainScreen.resetProductList();
@@ -764,7 +764,7 @@ private static Stage primary;
 		
 		//implement actions
 		cancel.setOnAction(e -> secondary.close());
-		accept.setOnAction(e -> processPayment(false, Double.parseDouble(cashReceived.getText()), secondary, 0, cash.getText(), "Completed"));
+		accept.setOnAction(e -> processPayment(false, Double.parseDouble(cashReceived.getText()), secondary, 0, card, "Completed"));
 		
 		//set sizes
 		secondary.setMinWidth(300);

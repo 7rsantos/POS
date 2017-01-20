@@ -285,8 +285,7 @@ public class Session {
 				    	  }		  
 				       }					    
 				       else
-				       {
-				    	   
+				       {				    	   
 				    	   AlertBox.display("FASS Nova", "The password provided is incorrect");
 				    	
 				       }	

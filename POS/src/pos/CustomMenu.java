@@ -1,23 +1,18 @@
 package pos;
 
-import java.awt.Desktop;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.Separator;
 import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
+
 
 public class CustomMenu {
-
+	
+    public static MenuItem payment;
+	
 	public static MenuBar createMenu()
 	{ 
 		MenuBar menu = new MenuBar();
@@ -30,12 +25,12 @@ public class CustomMenu {
 		Menu settings = createSettingsMenu();
 		Menu end_of_day = createEndofDayMenu();
 		Menu about = createAboutMenu();
-		Menu externalTools = createExternalToolsMenu();
+		//Menu externalTools = createExternalToolsMenu();
 		
 		
 		//add menus to the menu bar
 		menu.getMenus().addAll(user, actions, inventory, customers, reports, end_of_day, 
-				settings, about, externalTools);
+				settings, about);
 		
 		return menu;
 	}	
@@ -45,7 +40,7 @@ public class CustomMenu {
 		Menu actions = new Menu("Actions");
 		
 		//Create Menu Items
-		MenuItem payment = new MenuItem("Receive Payment");
+		payment = new MenuItem("Receive Payment");
 		MenuItem cancel = new MenuItem("Cancel Ticket");
 		MenuItem hold = new MenuItem("Hold Receipt");
 		MenuItem holdPrint = new MenuItem("Hold and Print Receipt");
@@ -59,6 +54,12 @@ public class CustomMenu {
 		MenuItem removeCash = new MenuItem("Remove Cash");
 		MenuItem transferCash = new MenuItem("Transfer Cash");
 		MenuItem transferInventory = new MenuItem("Transfer Product");
+		
+		//implement actions
+		open.setOnAction(e -> Session.openCashDrawer());
+		clear.setOnAction(e -> MainScreen.resetProductList());
+		cancel.setOnAction(e -> Session.logout(MainScreen.window));
+		payment.setOnAction(e -> PaymentScreen.displayPaymentScreen(MainScreen.products, MainScreen.getTotal(), MainScreen.window));
 		
 		//add items to actions
 		actions.getItems().addAll(payment, cancel, new SeparatorMenuItem(), hold, holdPrint,

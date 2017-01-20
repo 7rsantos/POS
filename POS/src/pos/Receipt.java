@@ -99,6 +99,9 @@ public class Receipt {
 		     count++;	 
 		  }	  
 		  
+		  //close the connection
+		  conn.close();
+		  
 		  if(count == 0)
 		  { 
 		     return false;	  
@@ -107,6 +110,7 @@ public class Receipt {
 		  { 
 			 return true; 
 		  }	  
+		  
 		  
 	   }
 	   catch(Exception e)
@@ -204,6 +208,8 @@ public class Receipt {
 			
 			//execute query
 			rs = ps2.executeQuery();
+			
+			conn.close();
 
 		}
 		catch(Exception e)
@@ -285,11 +291,6 @@ public class Receipt {
 	{
 		
 		PrinterService printerService = new PrinterService();
-		
-		//System.out.println(printerService.getPrinters());
-        //String transaction = "1.1.17.1";
-		
-        //String format = String.format("%.2f", taxDollars);
         
 		//print the header
 		printerService.printString(Configs.getProperty("Printer"), " \n \n \n \t \t" + "   " + Configs.getProperty("StoreName"));
@@ -304,7 +305,7 @@ public class Receipt {
 		printerService.printString(Configs.getProperty("Printer"), "\n" + "Manager:" + "\t\t" + Configs.getProperty("Manager"));		
 		printerService.printString(Configs.getProperty("Printer"), " \n" + "Date: " + "\t\t\t" + date);
 		printerService.printString(Configs.getProperty("Printer"), " \n" + "Time: " + "\t\t\t" + timeStamp);
-		printerService.printString(Configs.getProperty("Printer"), " \n" + "Cashier: " + "\t\t" + "Bill");
+		printerService.printString(Configs.getProperty("Printer"), " \n" + "Cashier: " + "\t\t" + Session.getUserFirstName());
 		printerService.printString(Configs.getProperty("Printer"), " \n" + "Customer: " + "\t\t" + "Bob \n\n");
 
 		
@@ -322,7 +323,7 @@ public class Receipt {
 				 printerService.printString(Configs.getProperty("Printer"), p.getName());		    	  
 			     printerService.printString(Configs.getProperty("Printer"), "\t\t $ " + setPrecision(p.getPrice()) + "\n");
 		      }
-		      if(p.getName().length() < 30)
+		      else if(p.getName().length() < 30)
 		      {
 				 printerService.printString(Configs.getProperty("Printer"), p.getName());		    	  
 		    	 int size = 30 - p.getName().length() + 1; 
@@ -371,7 +372,7 @@ public class Receipt {
 		   }       
 		}	
 		
-		//subtotals, tax, and total
+		//sub-totals, tax, and total
 		printerService.printString(Configs.getProperty("Printer"), "\n\t\t" + "Subtotal: " + "\t $" + subtotal + " \n");
 		printerService.printString(Configs.getProperty("Printer"), "\t\t" + "Tax " + Configs.getProperty("TaxRate") + "%:" + "\t $" + setPrecision(taxDollars) + "\n");
 		printerService.printString(Configs.getProperty("Printer"), "\t\t" + "Total:  " + "\t $" + total);
@@ -393,8 +394,8 @@ public class Receipt {
 		//open the cash drawer
 		byte[] openP = new byte[] {0x1B, 0x70, 0x30, 0x37, 0x79};
  
-		printerService.printBytes(Configs.getProperty("Printer"), cut);
-		printerService.printBytes(Configs.getProperty("Printer"), openP);
+		PrinterService.printBytes(Configs.getProperty("Printer"), cut);
+		PrinterService.printBytes(Configs.getProperty("Printer"), openP);
 	}
 	
 	/*
