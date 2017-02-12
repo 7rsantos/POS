@@ -38,14 +38,16 @@ private static Stage stage;
 private static double receiptTotal;
 private static Label amountlbl;
 private static Stage primary;
+private static double discountAmount;
 
-	public static Scene displayPaymentScreen(ObservableList<Product> products, double total, Stage window)
+	public static Scene displayPaymentScreen(ObservableList<Product> products, double total, Stage window, int discount)
 	{ 
 		//make a copy of products observable list
 		allProducts = FXCollections.observableArrayList(products);
 		
 		//set balance due
 		receiptTotal = total;
+		discountAmount = discount;
 		
 		stage = window;
 		setWindowSize(stage);
@@ -234,8 +236,7 @@ private static Stage primary;
 	
 	public static void backToMainScreen(Stage stage, int caller) {
 	   
-	    
-		// TODO Auto-generated method stub
+	   
 		Stage window = new Stage();
 		
 	    //close current window
@@ -387,7 +388,7 @@ private static Stage primary;
 		
 		//implement actions
 		cancel.setOnAction(e -> secondary.close());		
-		accept.setOnAction(e -> processPayment(true, Double.parseDouble(cashReceived.getText()), secondary, 0 , cash.getText(), "Completed"));
+		accept.setOnAction(e -> processPayment(true, Double.parseDouble(cashReceived.getText()), secondary, Integer.parseInt(MainScreen.Discount.getText().substring(0, MainScreen.Discount.getText().length()-1)), cash.getText(), "Completed"));
 		
 		//set sizes
 		secondary.setMinWidth(300);
@@ -417,7 +418,7 @@ private static Stage primary;
 		//close the stage
 		stage.close();
 		
-	   // TODO Auto-generated method stub
+
 	   if(!isCashPayment)
 	   {
 		   if(receiptTotal == cashReceived)
@@ -474,7 +475,7 @@ private static Stage primary;
 	}
 
 	private static void changeScreen(double amount, boolean cashPayment, ObservableList<Product> productList, 
-			             double receivedCash, int discout, String paymentMethod, String status) 
+			             double receivedCash, int discount, String paymentMethod, String status) 
 	{
 		//create root layout
 		VBox root = new VBox();
@@ -590,13 +591,12 @@ private static Stage primary;
 
 			@Override
 			public void handle(ActionEvent event) {
-				// TODO Auto-generated method stub
 				MainScreen.resetProductList();
 				
 				secondary.close();
 				
 				//setup receipt
-                Receipt.setupReceipt(Session.getUserFirstName(), change.getText(), "Cash", 0, paymentMethod, "Completed", 0);				
+                Receipt.setupReceipt(Session.getUserFirstName(), change.getText(), "Cash", discount, paymentMethod, "Completed", 0);				
 				
 				//reset product list
 				MainScreen.resetProductList();
@@ -616,7 +616,7 @@ private static Stage primary;
 				secondary.close();				
 				
 				//setup receipt
-                Receipt.setupReceipt(Session.getUserFirstName(), change.getText(), cashReceived.getText(), 0, paymentMethod, "Completed", 1);  
+                Receipt.setupReceipt(Session.getUserFirstName(), change.getText(), cashReceived.getText(), discount, paymentMethod, "Completed", 1);  
 				
                 //reset the product list
 				MainScreen.resetProductList();

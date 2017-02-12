@@ -17,7 +17,7 @@ public class Receipt {
 	 * Build the receipt, compute totals
 	 * 
 	 */
-	public static void setupReceipt(String customer, String change, String cashReceived, int discount, String paymentMethod, String status,
+	public static void setupReceipt(String customer, String change, String cashReceived, double discount, String paymentMethod, String status,
 			                        int caller)
 	{ 
 		ObservableList<Product> products = PaymentScreen.getList();
@@ -32,6 +32,12 @@ public class Receipt {
 	   	   result = result + p.getUnitPrice() * p.getQuantity();		   
 		}	
 		
+		//apply discount if any
+		if(discount > 0)
+		{ 
+		   result = Receipt.setPrecision(result- (discount/100) * result);
+		}	
+		
 		//compute date
 		Date date = new Date();
 		
@@ -42,19 +48,16 @@ public class Receipt {
 	    String timeStamp = new SimpleDateFormat("HH:mm").format(date);
 	    
 	    //get tax dollars and sub total
-	    DecimalFormat df = new DecimalFormat("#.##");
 	    double total = Product.computeTotal(Double.toString(result), Configs.getProperty("TaxRate") + "%");
 	    double taxDollars = result * (Double.parseDouble(Configs.getProperty("TaxRate"))/100);
 	   	    
-	    total = Double.parseDouble(df.format(total));
-	    //taxDollars  = Double.parseDouble(df.format(taxDollars));
+	    total = Receipt.setPrecision(total);
 	   
 	    if(!salesHistoryExists(format2))
 	    {	
 	       //create new sales history
 	    	createSalesHistory(date);
 	    }
-
 	    
 	    //store receipt in the database
 	    String transaction = createReceipt(date, total, paymentMethod, discount, status);
@@ -157,7 +160,7 @@ public class Receipt {
 	/*
 	 *  Create receipt
 	 */
-	private static String createReceipt(Date date, double total, String paymentMethod, int discount,
+	private static String createReceipt(Date date, double total, String paymentMethod, double discount,
 			String status) 
 	{
 		
@@ -203,7 +206,7 @@ public class Receipt {
 			ps2.setString(3, Configs.getProperty("CurrentUser"));
 			ps2.setString(4, paymentMethod);
 			ps2.setInt(5, 1);
-			ps2.setInt(6, discount);
+			ps2.setDouble(6, discount);
 			ps2.setString(7, status);
 			
 			//execute query

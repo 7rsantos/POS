@@ -59,7 +59,7 @@ public class CustomMenu {
 		open.setOnAction(e -> Session.openCashDrawer());
 		clear.setOnAction(e -> MainScreen.resetProductList());
 		cancel.setOnAction(e -> Session.logout(MainScreen.window));
-		payment.setOnAction(e -> PaymentScreen.displayPaymentScreen(MainScreen.products, MainScreen.getTotal(), MainScreen.window));
+		payment.setOnAction(e -> PaymentScreen.displayPaymentScreen(MainScreen.products, MainScreen.getTotal(), MainScreen.window, Integer.parseInt(MainScreen.Discount.getText().substring(0,  MainScreen.Discount.getText().length()-1))));
 		
 		//add items to actions
 		actions.getItems().addAll(payment, cancel, new SeparatorMenuItem(), hold, holdPrint,
@@ -155,6 +155,9 @@ public class CustomMenu {
 	   reports.getItems().addAll(salesOverview, salesProduct, new SeparatorMenuItem(),
 			   inventoryReport, transferReport, new SeparatorMenuItem(), checksDeposited);
 	   
+	   //implement actions
+	   
+	   
 	   //return reports menu
 	   return reports;
 	}
@@ -174,6 +177,9 @@ public class CustomMenu {
 		//add items to the end of day menu
 		end.getItems().addAll(activity, auditCash, settlement, new SeparatorMenuItem(),
 				bankDeposit, new SeparatorMenuItem(),  auditList);
+		
+		//implement actions
+		auditCash.setOnAction(e -> Audit.displayAuditBills());
 		
 		//return the end of day menu
 		return end;

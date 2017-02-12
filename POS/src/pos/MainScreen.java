@@ -58,9 +58,9 @@ public class MainScreen {
 	
 	private static Button pay;
 	private static Button remove;
-	private static TextField subTotal;
-	private static TextField Total;	
-	private static TextField Tax;
+	public static TextField subTotal;
+	public static TextField Total;	
+	public static TextField Tax;
 	public static TextField Discount;
 	
 	/*
@@ -584,7 +584,7 @@ public class MainScreen {
        
        //close the window display payment screen
        window.close();
-       Scene scene = PaymentScreen.displayPaymentScreen(allProducts, Double.parseDouble(Total.getText()), window);
+       Scene scene = PaymentScreen.displayPaymentScreen(allProducts, Double.parseDouble(Total.getText()), window, Integer.parseInt(Discount.getText().substring(0, Discount.getText().length()-1)));
        window.setScene(scene);
        window.show();
     }
