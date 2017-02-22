@@ -1,0 +1,13 @@
+#Tue Feb 21 19:25:44 EST 2017
+temp4=30
+temp3=33
+temp2=200
+temp1=0
+temp12=2000
+temp11=5000
+temp10=0
+temp9=1000
+temp8=0
+temp7=0
+temp6=12
+temp5=0

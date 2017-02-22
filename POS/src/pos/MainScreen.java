@@ -62,6 +62,7 @@ public class MainScreen {
 	public static TextField Total;	
 	public static TextField Tax;
 	public static TextField Discount;
+	public static int discount;
 	
 	/*
 	 * get total of receipt
@@ -582,9 +583,17 @@ public class MainScreen {
        //get the items from the table	
        ObservableList<Product> allProducts = table.getItems();
        
+       //get discount
+       discount = 0;
+       if(Discount.getText().isEmpty())
+       { 
+          discount = Integer.parseInt(Discount.getText().substring(0, Discount.getText().length()-1));
+       }	   
+       
+       
        //close the window display payment screen
        window.close();
-       Scene scene = PaymentScreen.displayPaymentScreen(allProducts, Double.parseDouble(Total.getText()), window, Integer.parseInt(Discount.getText().substring(0, Discount.getText().length()-1)));
+       Scene scene = PaymentScreen.displayPaymentScreen(allProducts, Double.parseDouble(Total.getText()), window, discount);
        window.setScene(scene);
        window.show();
     }

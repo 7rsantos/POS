@@ -8,12 +8,13 @@ import java.util.Properties;
 public class Configs {
 
 	public static Properties prop = new Properties();
+	public static Properties prop2 = new Properties();
 	
 	public static void saveProperty(String title, String value)
 	{ 
 	   try  {
 		  
-		   //save property on external file
+		  //save property on external file
 	      prop.setProperty(title, value);
 	      prop.store(new FileOutputStream("configuration.txt"), null);
 		   
@@ -32,6 +33,38 @@ public class Configs {
 		{ 
 			prop.load(new FileInputStream("configuration.txt"));
 		    value = prop.getProperty(title);	
+		}
+		catch(Exception e)
+		{ 
+			e.printStackTrace();
+		}
+		
+		return value;
+	}
+	
+	public static void saveTempValue(String title, String value)
+	{ 
+	   try  {
+		  
+		  //save property on external file
+	      prop2.setProperty(title, value);
+	      prop2.store(new FileOutputStream("temp.txt"), null);
+		   
+	   }
+	   catch(Exception e)
+	   { 
+		  e.printStackTrace();
+	   }
+	}
+	
+	public static String getTempValue(String title)
+	{ 
+		
+		String value = "";
+		try
+		{ 
+			prop2.load(new FileInputStream("temp.txt"));
+		    value = prop2.getProperty(title);	
 		}
 		catch(Exception e)
 		{ 

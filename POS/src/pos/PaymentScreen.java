@@ -386,9 +386,10 @@ private static double discountAmount;
 		//setup the stage
 		Stage secondary = new Stage();
 		
+		//set discount
 		//implement actions
 		cancel.setOnAction(e -> secondary.close());		
-		accept.setOnAction(e -> processPayment(true, Double.parseDouble(cashReceived.getText()), secondary, Integer.parseInt(MainScreen.Discount.getText().substring(0, MainScreen.Discount.getText().length()-1)), cash.getText(), "Completed"));
+		accept.setOnAction(e -> processPayment(true, Double.parseDouble(cashReceived.getText()), secondary, MainScreen.discount, cash.getText(), "Completed"));
 		
 		//set sizes
 		secondary.setMinWidth(300);
@@ -437,9 +438,7 @@ private static double discountAmount;
 		    	  
 		    	  	    	  
 		    	  //update label
-		    	  StringProperty label = new SimpleStringProperty(df.format(receiptTotal));
-		    	  
-		    	  
+		    	  StringProperty label = new SimpleStringProperty(df.format(receiptTotal));		    	  
 		    	  amountlbl.textProperty().unbind();
 		    	  amountlbl.textProperty().bind(label);			   
 		   }	   
