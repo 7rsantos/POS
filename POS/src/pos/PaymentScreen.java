@@ -490,6 +490,9 @@ private static double discountAmount;
 		if (cashPayment)
 		{
 		   cash = new Label("Cash Received");
+		   
+		   //increase actual cash
+		   RegisterUtilities.increaseCash(receiptTotal);
 	    }
 		else
 		{ 

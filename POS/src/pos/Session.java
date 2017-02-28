@@ -482,4 +482,5 @@ public class Session {
 		  AlertBox.display("FASS Nova", "You do not have enough privileges to perform this action");   
 	   }	   
 	}
+	
 }

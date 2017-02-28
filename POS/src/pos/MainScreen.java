@@ -10,6 +10,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -439,6 +440,20 @@ public class MainScreen {
 		
 		 //implement actions
 		 customers.setOnAction(e -> Customers.displayCustomerList(window));
+		 search.setOnAction(new EventHandler<ActionEvent>(){
+
+			@Override
+			public void handle(ActionEvent event) {
+				
+			   //close the current stage
+			   window.close();
+			   
+			   //display the product list
+			   ProductList.displayProductList();
+				
+			} 
+			 
+		 });
 		 
 	     //add context menu to the image
 	     contextMenu.getItems().add(item1);
