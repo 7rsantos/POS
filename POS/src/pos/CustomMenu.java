@@ -3,6 +3,9 @@ package pos;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -117,7 +120,17 @@ public class CustomMenu {
 		
 		//set actions when triggered
 		registerProduct.setOnAction(e -> Inventory.displayAddInventory());
-		
+		productSearch.setOnAction(new EventHandler<ActionEvent>()  {
+
+			@Override
+			public void handle(ActionEvent event) {
+               //close the stage
+				MainScreen.closeStage();
+				
+				//open product list
+				ProductList.displayProductList(MainScreen.products, MainScreen.customer.getText());
+			} 			
+		});
 		
 		//add menu items to inventory
 		inventory.getItems().addAll(productSearch, new SeparatorMenuItem(), addInventory,
@@ -133,6 +146,19 @@ public class CustomMenu {
 		
 		MenuItem search = new MenuItem("Search for Customer");
 		MenuItem add = new MenuItem("Add New Customer");
+		
+		//set on action
+		add.setOnAction(e -> Customers.displayCustomerForm());
+		search.setOnAction(new EventHandler<ActionEvent>()   {
+
+			@Override
+			public void handle(ActionEvent event) {				
+				//go to the next screen
+				Customers.displayCustomerList(MainScreen.window, MainScreen.products);
+			}
+			
+		});
+		
 		
 		//add menu items to customer menu
 		customers.getItems().addAll(search, add);

@@ -221,7 +221,6 @@ private static Stage window;
         String productBarcode = barcode.getText();
 
 		try   {
-		   // TODO Auto-generated method stub
 		   Connection myConn = Session.openDatabase();
 		   
 		   //prepare statement
@@ -273,8 +272,11 @@ private static Stage window;
 		   String imageUrl = "";
 		   try {
 			  imageUrl = selectedFile.toURI().toURL().toExternalForm();
+			  
+			  f = selectedFile;
+			  
 		   } catch (MalformedURLException e) {
-			   // TODO Auto-generated catch block
+
 			   AlertBox.display("FASS NOVA - Error", "Could not select image");
 			   e.printStackTrace();
 		   }

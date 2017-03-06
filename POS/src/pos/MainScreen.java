@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -49,7 +50,7 @@ public class MainScreen {
     private static Button moneyWire;
 	private static Button search;
 	
-	private static Label customer;
+	static Label customer;
 	
 	private static String barcode = "";
 	private static boolean active = false;
@@ -234,8 +235,6 @@ public class MainScreen {
 
 	private static void activateTimer() 
 	{			
-		
-		// TODO Auto-generated method stub
 		if(!active)
 		{ 
 			KeyFrame key = new KeyFrame(
@@ -258,8 +257,7 @@ public class MainScreen {
 	   double unitPrice = 0.00;
 	   	   
 	   try
-	   {
-		   
+	   {		   
 		   //create the connection
 		   Connection conn = Session.openDatabase();
 		   
@@ -439,7 +437,7 @@ public class MainScreen {
 		    e -> contextMenu.show(carnetIcon, e.getScreenX(), e.getScreenY()+10));
 		
 		 //implement actions
-		 customers.setOnAction(e -> Customers.displayCustomerList(window));
+		 customers.setOnAction(e -> Customers.displayCustomerList(window, products));
 		 search.setOnAction(new EventHandler<ActionEvent>(){
 
 			@Override
@@ -449,7 +447,7 @@ public class MainScreen {
 			   window.close();
 			   
 			   //display the product list
-			   ProductList.displayProductList();
+			   ProductList.displayProductList(table.getItems(), customer.getText());
 				
 			} 
 			 
@@ -624,7 +622,7 @@ public class MainScreen {
        //populate product list array
        for(Product p : products)
        { 
-            productList .add(p.getName());	   
+            productList.add(p.getName());	   
        }	   
        
 	   //create decimal format
@@ -649,6 +647,11 @@ public class MainScreen {
        productList.clear();
        products.clear();
        
+       //set totals equal to zero
+       subTotal.setText("0.00");
+       Total.setText("0.00");
+       Discount.setText("");
+       
        //disable buttons
        remove.setDisable(true);
        pay.setDisable(true);
@@ -660,6 +663,111 @@ public class MainScreen {
     public static void closeStage()
     { 
        window.close();	
+    }
+    
+    /*
+     * Add item to the list
+     */
+    public static void addItems(String name)
+    { 
+
+    	   String query = "CALL searchProductName(?,?)";
+    	   String unitSize = "";
+    	   double unitPrice = 0.0;
+    	   
+    	   try
+    	   { 
+    	 	  //create the connection
+    		  Connection conn = Session.openDatabase();
+    		   
+    		  //create prepared statement
+    		  PreparedStatement ps = conn.prepareCall(query);
+    		   
+    		  //set parameter
+    		  ps.setString(1, name);
+    		  ps.setString(2, Configs.getProperty("StoreCode")); 
+    		  
+    		  //execute the query
+    		  ResultSet rs = ps.executeQuery();
+    		  
+    		  //process the result set
+    		  while(rs.next())
+    		  {	 
+			     unitSize = rs.getString(1);
+			     unitPrice = Double.parseDouble(rs.getString(2));  		     
+    		  }    
+    		  
+			  //add name to product list
+			  productList.add(name);
+				  
+			  //add items to products observable list
+			  products.add(new Product(name, unitSize, 1, unitPrice));	   
+				   
+			  //put items in the table
+			  table.setItems(products);
+    	   }
+    	   catch(Exception e)
+    	   { 
+    		  e.printStackTrace();   
+    	   }
+    	
+    	
+		//create decimal format
+		DecimalFormat df = new DecimalFormat("#.##");
+		   
+		//compute subtotal 
+		subTotal.setText(df.format(Product.computeSubTotal(products, Discount.getText())));
+		   
+		//compute total
+		Total.setText(df.format(Product.computeTotal(subTotal.getText(), Tax.getText())));
+		
+		//enable buttons
+		pay.setDisable(false);
+		remove.setDisable(false);
+    }
+    
+    /*
+     * Get products list
+     */
+    public static ObservableList<Product> getProductList()
+    { 
+       return products;	
+    }
+    
+    /*
+     * Set product list
+     */
+    public static void setProductList(ObservableList<Product> other)
+    { 
+       products = other;   	
+    }
+    
+    /*
+     * Set product list for product names
+     */
+    public static void setProductNamesList(ArrayList<String> other)
+    { 
+        productList = other;  	
+    }
+    
+    /*
+     * Get product list of names
+     */
+    public static ArrayList<String> getProductNamesList()
+    {
+       return productList;
+    }
+    
+    /*
+     * Set Customer Name
+     */
+    public static void setCustomer(String name)
+    { 
+       //set the customer name	
+       SimpleStringProperty property = new SimpleStringProperty(name);
+       customer.textProperty().unbind();
+       customer.textProperty().bind(property);
+       
     }
     
 }

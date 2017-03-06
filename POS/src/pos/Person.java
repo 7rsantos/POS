@@ -4,11 +4,23 @@ public class Person {
     
 	private String firstName;
 	private String lastName;
+	private int id;
 	
-	public Person(String first, String last)
+	public Person(String first, String last, int idNumber)
 	{ 
 	   this.firstName = first;
 	   this.lastName = last;
+	   id = idNumber;
+	}
+	
+	public int getId()
+	{ 
+	   return id;	
+	}
+	
+	public void setId(int newID)
+	{ 
+	   this.id = newID;	
 	}
 	
 	public String getFirstName()

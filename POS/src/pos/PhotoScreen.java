@@ -105,6 +105,10 @@ public class PhotoScreen {
 			{ 	
 			   jc.preparePicturePath(2);
 			}   
+			if(caller == 3)
+			{ 
+			   jc.preparePicturePath(3);
+			}	
 			photoScreen.close();
 		} 
 		   
@@ -317,12 +321,15 @@ public class PhotoScreen {
 		if (caller == 1)
 		{ 
 		   UserDisplay.setPicturePath(file);
-		   System.out.print("Got here");
 		}	
 		if (caller == 2)
 		{	
 		   Inventory.setPicturePath(file);
-		}   
+		}
+		if(caller == 3)
+		{ 
+		   Customers.setPicturePath(file);
+		}	
 	}
 	
 	

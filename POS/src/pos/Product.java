@@ -100,7 +100,10 @@ public class Product {
     public static double computeSubTotal(ObservableList<Product> products, String d)
     { 
     	//remove percentage 
-    	d = d.substring(0, d.length()-1);
+    	if(!d.isEmpty() && d != null)
+    	{	
+    	   d = d.substring(0, d.length()-1);
+    	}
     	
     	//convert to decimal
     	double discount = Double.parseDouble(d);

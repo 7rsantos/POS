@@ -1,5 +1,24 @@
 package pos;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
+
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -25,6 +44,10 @@ public class ProductList {
 
 	private static TableColumn<Product, String> name;
     private static TableColumn<Product, String> unitSize;
+    private static ObservableList<Product> filteredList;
+    private static TableView<Product> list;
+    private static ObservableList<Product> productList;
+    private static TextField productField;
 	
 	/*
 	 * Create a border pane layout for the product list
@@ -62,8 +85,8 @@ public class ProductList {
 	   unitSize = new TableColumn<Product, String>("unitSize");
 	   
 	   //setup column
-	   name.setPrefWidth(200);
-	   unitSize.setPrefWidth(75);
+	   name.setPrefWidth(320);
+	   unitSize.setPrefWidth(180);
 	   
 	   //cell factory
 	   name.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -73,7 +96,7 @@ public class ProductList {
 	   list.getColumns().addAll(name, unitSize);
 	   
 	   //setup table
-	   list.setPrefWidth(350);
+	   list.setPrefWidth(500);
 	   
 	   return list;
 	}
@@ -81,26 +104,87 @@ public class ProductList {
 	/*
 	 * Create the scene for the product list
 	 */
-	private static Scene createProductListScene()
+	private static Scene createProductListScene(Stage stage, ObservableList<Product> allProducts, String cutomer)
 	{
 	    //create root layout
 		BorderPane root = createProductListLayout();
 		
 		//create table view
-		TableView<Product> list = createProductTable();
+		list = createProductTable();
 		
 		//set list items
+		productList = getProductList();
+		
+		//filtered list
+		filteredList = FXCollections.observableArrayList();
+		
+		//add all data
+		filteredList.addAll(productList);
+		
+		//list for changes in master data
+		productList.addListener(new ListChangeListener<Product>() {
+
+			@Override
+			public void onChanged(javafx.collections.ListChangeListener.Change<? extends Product> c) {
+			   
+				//update list
+				updateFilteredData();
+			}		
+		});
+		
+		//set table items
+		list.setItems(productList);
 		
 		//text field and button
-		TextField product = new TextField();
-		Button search = new Button("Search", new ImageView(new Image(ProductList.class.getResourceAsStream("/res/Apply.png"))));
+		productField = new TextField();
+		Button search = new Button("Search", new ImageView(new Image(ProductList.class.getResourceAsStream("/res/search2.png"))));
+		Button back = new Button("Go Back", new ImageView(new Image(ProductList.class.getResourceAsStream("/res/Go back.png"))));
+		
+		//set on action
+		search.setOnAction(e -> updateFilteredData());
+		back.setOnAction(new EventHandler<ActionEvent>()  {
+
+			@Override
+			public void handle(ActionEvent event) {
+			
+				//close the current stage
+				stage.close();
+				
+				//go back to MainScreen
+				PaymentScreen.backToMainScreen(stage, 0);	
+				
+			}
+			
+		});
+		
+		//button
+		Button select = new Button("Select", new ImageView(new Image(ProductList.class.getResourceAsStream("/res/Apply.png"))));
+		
+		//add listener to product search text field
+		productField.textProperty().addListener(new ChangeListener<String>()  {
+		
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				
+				//disable select
+				select.setDisable(true);
+				
+				// reset selection
+				list.getSelectionModel().clearSelection();
+				
+				// update filter list
+				updateFilteredData();
+				
+			}
+			
+		});
 		
 		//top layout
 		HBox top = new HBox();
 		top.setSpacing(5);
 		top.setAlignment(Pos.CENTER);
 		top.setPadding(new Insets(10, 10, 10, 10));
-		top.getChildren().addAll(product, search);
+		top.getChildren().addAll(productField, search);
 			
 		//add table view to center layout
 		FlowPane center = new FlowPane();
@@ -109,9 +193,9 @@ public class ProductList {
 		center.getChildren().add(list);
 		
 		//image view
-		ImageView productImage = new ImageView(new Image(ProductList.class.getResourceAsStream("/res/userPicture	.png")));
-		productImage.setFitHeight(150);
-		productImage.setFitWidth(150);
+		ImageView productImage = new ImageView(new Image(ProductList.class.getResourceAsStream("/res/groceries.png")));
+		productImage.setFitHeight(250);
+		productImage.setFitWidth(200);
 		
 		//nodes to load extra information
 		Label brandlbl = new Label("Brand");
@@ -171,15 +255,80 @@ public class ProductList {
 		right.setPadding(new Insets(10, 10, 10, 10));
 		
 		right.getChildren().addAll(productImage, data);
+
+		//disable select
+		select.setDisable(true);
 		
-		//button
-		Button select = new Button("Select", new ImageView(new Image(ProductList.class.getResourceAsStream("/res/Apply.png"))));
-	
+		//selection set on action
+		select.setOnAction(new EventHandler<ActionEvent>()  {
+			@Override
+			public void handle(ActionEvent event) {
+				
+				//close the stage
+				stage.close();
+				
+				//set the main screen
+				Scene mainScreen = MainScreen.displayMainScreen(stage);
+				
+				if(allProducts.contains(list.getSelectionModel().getSelectedItem().getName()))
+				{	
+                    int quantity = allProducts.get(allProducts.indexOf(list.getSelectionModel().getSelectedItem().getName())).getQuantity();
+                  
+                    allProducts.get(allProducts.indexOf(list.getSelectionModel().getSelectedItem())).setQuantity(quantity++);
+                    
+                    //update list
+                    MainScreen.setTableItems(allProducts);
+			    }
+				else
+				{
+				    MainScreen.addItems(list.getSelectionModel().getSelectedItem().getName());  	
+				}	
+				
+				//set customer
+				MainScreen.setCustomer(cutomer);
+				
+				stage.setScene(mainScreen);				
+				stage.show();				
+			
+			}		
+		});
+		
+		//add listener to selection model
+		list.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Product>(){
+
+			@Override
+			public void changed(ObservableValue<? extends Product> observable, Product oldValue, Product newValue) {
+               
+				//enable button
+				select.setDisable(false);
+				
+				//load basic info
+				if(list.getSelectionModel().getSelectedItem() != null)
+				{	
+				   ObservableList<String> data = loadBasicProductInfo(list.getSelectionModel().getSelectedItem().getName());
+				
+				
+				   //set items
+				   brand.setText(data.get(0));
+				   category.setText(data.get(1));
+				   original.setText(data.get(2));
+				   sales.setText(data.get(3));
+				   date.setText(data.get(4));
+				
+				   //update photo
+				   Image image = getProductPicture(list.getSelectionModel().getSelectedItem().getName());
+				   productImage.setImage(image);
+				}   
+			}
+			
+		});		
+		
 		//bottom layout
 		FlowPane bottom = new FlowPane();
 		bottom.setAlignment(Pos.BOTTOM_RIGHT);
+		bottom.setHgap(7);		
 		bottom.setPadding(new Insets(10, 10, 10, 10));
-		bottom.getChildren().add(select);
+		bottom.getChildren().addAll(back,select);
 		
 		//add nodes to root
 		root.setTop(top);
@@ -193,6 +342,58 @@ public class ProductList {
 	    return scene;
 	}
 	
+	//update list when text field changes
+	private static void updateFilteredData() {
+	   
+		//clear filter list
+		filteredList.clear();
+		
+		//copy elements that match
+		for(Product p: productList)
+		{ 
+		   if(matchesFilter(p))	
+		   { 
+			  filteredList.add(p);   
+		   }	   
+		}	
+		
+		//update table
+		reapplyTableSortOrder();
+	}
+
+	
+	/*
+	 * Copy elements only if they match our filter
+	 */
+	private static boolean matchesFilter(Product p) {
+	
+		String filter = productField.getText();
+		
+		if(filter == null || filter.isEmpty())
+		{ 
+		   return true;	
+		}		
+		
+		String lowerCaseFiltering = filter.toLowerCase();
+		
+		if(p.getName().toLowerCase().indexOf(lowerCaseFiltering) != -1)
+		{ 
+		   return true;	
+		}	
+		
+		//does not match
+		return false;
+	}
+	
+	/*
+	 * Update table data once matches are found
+	 */
+	private static void reapplyTableSortOrder()
+	{ 
+		//update the table
+	   list.setItems(filteredList);	
+	}
+
 	/*
 	 * Setup the stage for the list
 	 */
@@ -215,12 +416,12 @@ public class ProductList {
 	/*
 	 * Display product list
 	 */
-	public static void displayProductList()
+	public static void displayProductList(ObservableList<Product> allProducts, String customer)
 	{ 
 	   Stage stage = createListStage();	
 	   
 	   //create scene
-	   Scene scene = createProductListScene();
+	   Scene scene = createProductListScene(stage, allProducts, customer);
 	   
 	   //set scene
 	   stage.setScene(scene);
@@ -228,4 +429,125 @@ public class ProductList {
 	   //show the stage
 	   stage.show();			   
 	}
+	
+	/*
+	 * Get the list of products
+	 * @return Observable List containing the list of products
+	 */
+	private static ObservableList<Product> getProductList()
+	{ 
+	   ObservableList<Product> productList = FXCollections.observableArrayList();
+	   String query = "Select Name, unitSize from Product WHERE Product.productStoreCode = ?";
+	   
+	   try
+	   { 
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareCall(query);
+		  
+		  //set parameters
+		  ps.setString(1, Configs.getProperty("StoreCode"));
+		  
+		  //execute query
+		  ResultSet rs = ps.executeQuery();
+		  
+		  //copy the result set
+		  while(rs.next())
+		  {
+			 //add product to list 
+			 Product p = new Product();
+			 p.setName(rs.getString(1));
+			 p.setUnitSize(rs.getString(2));
+		     productList.add(p);	  
+		  	 
+		  } 
+	   }
+	   catch(Exception e)
+	   { 
+	      e.printStackTrace();	   
+	   }
+	   
+	   return productList;
+	}
+	
+	/*
+	 * Load basic product info
+	 */
+	private static ObservableList<String> loadBasicProductInfo(String name)
+	{ 
+	   ObservableList<String> data = FXCollections.observableArrayList();
+	   String query = "SELECT Brand, Category, originalPrice, salesPrice, dateCreated FROM Product WHERE Product.productStoreCode = ? AND Product.Name = ?";
+	   
+	   try
+	   { 
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareCall(query);
+		  
+		  //set parameters
+		  ps.setString(1, Configs.getProperty("StoreCode"));
+		  ps.setString(2, name);
+		  
+		  //execute query
+		  ResultSet rs = ps.executeQuery();
+		  
+		  //get info
+		  while(rs.next())
+		  { 
+		     data.add(rs.getString(1));
+		     data.add(rs.getString(2));
+		     data.add(rs.getString(3));
+		     data.add(rs.getString(4));
+		     data.add(rs.getString(5));
+		  }	  
+				  
+	   }
+	   catch(Exception e)
+	   { 
+		  e.printStackTrace();   
+	   }
+	   
+	   return data;
+	}
+	
+	/*
+	 * Get product picture
+	 */
+	private static Image getProductPicture(String name)
+	{ 
+		byte[] imageArray = null;
+		Image image = null;
+		
+	    //retrieve image from the database
+	    String query = "SELECT Photo FROM Product WHERE Product.productStoreCode = ? AND Product.Name = ?";
+	       
+	    try
+	    { 
+	       Connection conn = Session.openDatabase();
+	       PreparedStatement ps = (PreparedStatement) conn.prepareStatement(query);
+	    	  
+	       //set parameters
+	       ps.setString(1, Configs.getProperty("StoreCode"));
+	       ps.setString(2, name);	  
+	       
+	       //execute query
+	       ResultSet rs = ps.executeQuery();
+	    	  
+	       //process
+	       while(rs.next())
+	       { 
+	    	  imageArray= rs.getBytes(1);	  
+	       }	  
+	    	  
+	          InputStream in = new ByteArrayInputStream(imageArray);    	  
+	          BufferedImage bufferedImage = ImageIO.read(in);    	  
+	          image = SwingFXUtils.toFXImage(bufferedImage, null);
+	    	  
+	    	  conn.close();
+	       }
+	       catch(Exception e)
+	       { 
+	          e.printStackTrace();	   
+	       }	
+	    
+	    return image;
+	}   	
 }
