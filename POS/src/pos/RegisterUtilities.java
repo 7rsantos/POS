@@ -10,28 +10,29 @@ import java.sql.Connection;
 public class RegisterUtilities {
 
 	/*
-	 *  Increase cash after each sale
+	 *  Increase cash after each cash sale
 	 */
 	public static void increaseCash(double amount)
 	{ 
-	   String query = "CALL updateActualCash(?,?)";
-	   Date date = new Date();
-	   String dateFormat = new SimpleDateFormat("yyyy-MM-dd").format(date);
+	   String query1 = "CALL updateExpectedCash(?,?)";
 	   double oldAmount = getExpectedCash();
 	   
 	   try
 	   { 
 	       java.sql.Connection conn = Session.openDatabase();
 	       
-	       PreparedStatement ps = conn.prepareCall(query);
+	       PreparedStatement ps = conn.prepareCall(query1);
 	       
 	       //set parameters
-	       ps.setString(1, dateFormat);
-	       ps.setDouble(2, amount + oldAmount);
-	       //ps.setInt(3, Integer.parseInt(Configs.getProperty("Register")));
+	       //ps.setString(1, dateFormat);
+	       ps.setDouble(1, amount + oldAmount);
+	       ps.setInt(2, Integer.parseInt(Configs.getProperty("Register")));
 	       
 	       //execute query
 	       ps.executeUpdate();
+	       	       
+	       //close the connection
+	       conn.close();
 	       
 	   }
 	   catch(Exception e)
@@ -72,8 +73,7 @@ public class RegisterUtilities {
 	    { 
 	       e.printStackTrace();	
 	    }
-	    
-	    
+	    	    
 	    return expected;
 	}
 	
@@ -98,7 +98,7 @@ public class RegisterUtilities {
 	      
 	      //set parameters
 	      ps.setDouble(1, total);
-	      ps.setDouble(2, expected);
+	      ps.setDouble(2, total);
 	      ps.setDouble(3, total - expected);
 	      ps.setInt(4, Integer.parseInt(Configs.getProperty("Register")));
 	      ps.setString(5, Configs.getProperty("CurrentUser"));
