@@ -88,30 +88,36 @@ public class Product {
     public static double computeTotal(String s, String t)
     { 
     	//get the tax rate
-    	t = t.substring(0, t.length()-2);
+    	t = t.substring(0, t.length()-1);
     	
     	//convert to doubles
     	double subtotal = Double.parseDouble(s);
     	double tax = Double.parseDouble(t); 	
     	
-    	return Receipt.setPrecision(subtotal * (tax / 100) + subtotal);
+    	return subtotal += subtotal * (tax / 100);
     }
     
     public static double computeSubTotal(ObservableList<Product> products, String d)
     { 
+    	double discount = 0.0;
+    	
     	//remove percentage 
     	if(!d.isEmpty() && d != null)
     	{	
     	   d = d.substring(0, d.length()-1);
+    	   
+       	   //convert to decimal
+       	   discount = Double.parseDouble(d);
     	}
-    	
-    	//convert to decimal
-    	double discount = Double.parseDouble(d);
     	
     	double result = 0.0;
     	for(Product p : products)
     	{ 
-    	    result = result + p.getUnitPrice() * p.getQuantity();	
+    		if(!p.getUnitSize().equals("0") && (!p.getName().contains("send") ||
+    		   !p.getName().contains("receive")))
+    		{	
+    	       result = result + p.getUnitPrice() * p.getQuantity();
+    		}   	
     	}
     	
     	//apply discount, if any

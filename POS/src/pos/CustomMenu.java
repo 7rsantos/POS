@@ -62,7 +62,7 @@ public class CustomMenu {
 		open.setOnAction(e -> Session.openCashDrawer());
 		clear.setOnAction(e -> MainScreen.resetProductList());
 		cancel.setOnAction(e -> Session.logout(MainScreen.window));
-		payment.setOnAction(e -> PaymentScreen.displayPaymentScreen(MainScreen.products, MainScreen.getTotal(), MainScreen.window, Integer.parseInt(MainScreen.Discount.getText().substring(0,  MainScreen.Discount.getText().length()-1))));
+		payment.setOnAction(e -> PaymentScreen.displayPaymentScreen(MainScreen.products, MainScreen.getTotal(), MainScreen.window, Integer.parseInt(MainScreen.Discount.getText().substring(0,  MainScreen.Discount.getText().length()-1)), MainScreen.status, MainScreen.ticketNo));
 		
 		//add items to actions
 		actions.getItems().addAll(payment, cancel, new SeparatorMenuItem(), hold, holdPrint,
@@ -128,7 +128,7 @@ public class CustomMenu {
 				MainScreen.closeStage();
 				
 				//open product list
-				ProductList.displayProductList(MainScreen.products, MainScreen.customer.getText());
+				ProductList.displayProductList(MainScreen.products, MainScreen.customer.getText(), MainScreen.productList);
 			} 			
 		});
 		

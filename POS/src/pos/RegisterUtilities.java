@@ -117,6 +117,35 @@ public class RegisterUtilities {
 	}
 	
 	/*
-	 * 
+	 *  Increase cash after each cash sale
 	 */
+	public static void transferCash(double amount, String storeCode)
+	{ 
+	   String query1 = "CALL transferCash(?,?,?)";
+	   double oldAmount = RegisterUtilities.getExpectedCash();
+	   
+	   try
+	   { 
+	       java.sql.Connection conn = Session.openDatabase();
+	       
+	       PreparedStatement ps = conn.prepareCall(query1);
+	       
+	       //set parameters
+	       //ps.setString(1, dateFormat);
+	       ps.setDouble(1, amount + oldAmount);
+	       ps.setInt(2, Integer.parseInt(Configs.getProperty("Register")));
+	       ps.setString(3, storeCode);
+	       
+	       //execute query
+	       ps.executeUpdate();
+	       	       
+	       //close the connection
+	       conn.close();
+	       
+	   }
+	   catch(Exception e)
+	   { 
+		  e.printStackTrace();   
+	   }
+	}
 }

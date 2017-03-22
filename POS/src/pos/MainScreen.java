@@ -19,7 +19,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -64,14 +63,21 @@ public class MainScreen {
 	public static TextField Total;	
 	public static TextField Tax;
 	public static TextField Discount;
-	public static int discount;
+	public static double discount;
+	public static String status;
+	public static String ticketNo;
 	
 	/*
 	 * get total of receipt
 	 */
 	public static double getTotal()
 	{ 
-		return Receipt.setPrecision(Double.parseDouble(Total.getText()));
+		if(Total.getText() != null && !Total.getText().isEmpty())
+		{	
+	       return Receipt.setPrecision(Double.parseDouble(Total.getText()));
+		}
+		
+		return 0;
 	}
 	
 	public static Scene displayMainScreen(Stage stage)
@@ -108,11 +114,16 @@ public class MainScreen {
 	}
 	
 
+	@SuppressWarnings("unchecked")
 	public static Scene buildMainScreen(Stage stage)
 	{ 						
 		
         //create a new border pane
 		BorderPane border = new BorderPane();
+		
+		//set the status to Incomplete
+		status = "Incomplete";
+		ticketNo = "";
 		
 		//create left border pane
 		BorderPane left = new BorderPane();
@@ -447,12 +458,21 @@ public class MainScreen {
 			   window.close();
 			   
 			   //display the product list
-			   ProductList.displayProductList(table.getItems(), customer.getText());
+			   ProductList.displayProductList(table.getItems(), customer.getText(), productList);
 				
 			} 
 			 
 		 });
-		 
+		 moneyWire.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+		
+			   //go to next screen
+			   MoneyWire.displaySendReceiveScreen();	
+			}
+			 
+		 });
 	     //add context menu to the image
 	     contextMenu.getItems().add(item1);
 	     
@@ -531,6 +551,9 @@ public class MainScreen {
 		return table;
 	}
 	
+	/*
+	 * Delete item from table view
+	 */
     public static void deleteItem()
     { 
         ObservableList<Product> productSelected, allProducts = FXCollections.observableArrayList();
@@ -545,7 +568,6 @@ public class MainScreen {
         {	
            //get name of product
            String name = table.getSelectionModel().getSelectedItem().getName();
-     
         
            //remove all instances from observable list
            productSelected.forEach(products::remove);
@@ -598,15 +620,15 @@ public class MainScreen {
        
        //get discount
        discount = 0;
-       if(Discount.getText().isEmpty())
+       if(!Discount.getText().isEmpty() && Discount.getText() != null)
        { 
-          discount = Integer.parseInt(Discount.getText().substring(0, Discount.getText().length()-1));
+          discount = Double.parseDouble(Discount.getText().substring(0, Discount.getText().length()-1));
        }	   
        
        
        //close the window display payment screen
        window.close();
-       Scene scene = PaymentScreen.displayPaymentScreen(allProducts, Double.parseDouble(Total.getText()), window, discount);
+       Scene scene = PaymentScreen.displayPaymentScreen(allProducts, Double.parseDouble(Total.getText()), window, discount, status, ticketNo);
        window.setScene(scene);
        window.show();
     }
@@ -646,6 +668,9 @@ public class MainScreen {
     { 
        productList.clear();
        products.clear();
+       
+       //set status to incomplete
+       status = "Incomplete";
        
        //set totals equal to zero
        subTotal.setText("0.00");
@@ -715,11 +740,25 @@ public class MainScreen {
 		//create decimal format
 		DecimalFormat df = new DecimalFormat("#.##");
 		   
-		//compute subtotal 
+		//compute sub total 
 		subTotal.setText(df.format(Product.computeSubTotal(products, Discount.getText())));
-		   
+		
+		
 		//compute total
-		Total.setText(df.format(Product.computeTotal(subTotal.getText(), Tax.getText())));
+		double total = Product.computeTotal(subTotal.getText(), Tax.getText());  	
+;
+		for(Product p : products)
+		{
+		   if(p.getUnitSize().equals("0"))
+		   {
+		      total += p.getUnitPrice();   
+		   }	   
+		}
+		
+		//set total
+		Total.setText(Double.toString(Receipt.setPrecision(total)));
+		
+		
 		
 		//enable buttons
 		pay.setDisable(false);

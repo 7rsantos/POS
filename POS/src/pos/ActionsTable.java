@@ -78,12 +78,98 @@ public class ActionsTable  {
 		manage.setOnMouseClicked(e -> Returns.displayTicketSearchScreen());
 		clear.setOnMouseClicked(e -> MainScreen.resetProductList());
 		open.setOnMouseClicked(e -> Session.passwordValidation(2));
-		receive.setOnMouseClicked(e -> System.out.println("Works"));
-		remove.setOnMouseClicked(e -> System.out.println("Works"));
-		holdTicket.setOnMouseClicked(e -> System.out.println("Works"));
-		retrieveTicket.setOnMouseClicked(e -> System.out.println("Works"));
-		transferCash.setOnMouseClicked(e -> System.out.println("Works"));
-		transferProduct.setOnMouseClicked(e -> System.out.println("Works"));
+		receive.setOnMouseClicked(new EventHandler<MouseEvent>(){
+
+			@Override
+			public void handle(MouseEvent event) {
+			   //close main screen
+				MainScreen.closeStage();
+				
+			   //go to next screen
+				CashOperations.displayCashWD(1);
+				
+			}
+			
+		}) ;
+		remove.setOnMouseClicked(new EventHandler<MouseEvent>(){
+
+			@Override
+			public void handle(MouseEvent event) {
+			   //close main screen
+				MainScreen.closeStage();
+				
+			   //go to next screen
+				CashOperations.displayCashWD(2);			
+			}
+			
+		}) ;
+		holdTicket.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent event) {
+			
+			   if(Integer.parseInt(Configs.getProperty("Privilege")) >= 2)
+			   {
+				  if(!MainScreen.products.isEmpty())
+				  {
+				     //method to handle on-hold tickets
+					 Receipt.createOnHoldTicket(MainScreen.products, MainScreen.getTotal(), "Pending", Double.parseDouble(MainScreen.Discount.getText().substring(0, MainScreen.Discount.getLength()-1)), "On-hold", 1);
+					 
+					 //set status
+					 MainScreen.status = "On-hold";
+				  }	  
+				  else
+				  {
+				     AlertBox.display("FASS Nova", "No products selected");	  
+				  }	  
+			   }	
+			   else
+			   {
+				  AlertBox.display("FASS Nova", "You do not have permission to perform this action");   
+			   }	   
+			}
+		   	
+		});
+		retrieveTicket.setOnMouseClicked(e -> Receipt.displayOnHoldTickets());
+		transferCash.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+			@Override
+			public void handle(MouseEvent event) {
+			   //check priority level
+				if(Double.parseDouble(Configs.getProperty("Privilege")) >= 2)
+				{
+				   CashOperations.transferCashDisplay();	
+				}	
+				else
+				{
+				   AlertBox.display("FASS Nova", "You do not have permission to perform this action");	
+				}	
+			}
+			
+		});
+		transferProduct.setOnMouseClicked(new EventHandler<MouseEvent>()  {
+
+			@Override
+			public void handle(MouseEvent event) {
+			   //check privilege level
+				if(Integer.parseInt(Configs.getProperty("Privilege")) >= 2)
+				{
+				   if(!MainScreen.productList.isEmpty())
+				   {
+					   ProductUtilities.displayTransferProduct(MainScreen.products);   
+				   }	
+				   else
+				   {
+					  AlertBox.display("FASS Nova", "Select products to be transferred");   
+				   }	   
+				}	
+				else
+				{
+				   AlertBox.display("FASS Nova", "You do not have permission to perform this action");	
+				}	
+			}
+			
+		});
 		
 		return actions;
 	}

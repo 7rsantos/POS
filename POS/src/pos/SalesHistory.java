@@ -140,6 +140,8 @@ public class SalesHistory {
 					
 					//query to list ticket details
 				    String query = "CALL listItems(?)"; 
+				    String query2 = "CALL listWD(?)";
+				    String query3 = "CALL listSR(?)";
 				    
 				    try
 				    { 
@@ -157,6 +159,40 @@ public class SalesHistory {
 				       while(rs.next())
 				       { 
 				    	  products.add(new Product(rs.getString(1), rs.getString(2), rs.getInt(3), rs.getDouble(4)));   
+				       }	   
+				       
+				       //second query
+				       ps.clearParameters();
+				       
+				       //set query
+				       ps = conn.prepareStatement(query2);
+				       
+				       //set parameters
+				       ps.setString(1, table.getSelectionModel().getSelectedItem().getTicketno());
+				       
+				       //execute
+				       rs = ps.executeQuery();
+				       
+				       //process the result set
+				       while(rs.next())
+				       {
+				    	  products.add(new Product(rs.getString(1), rs.getString(2), 1, rs.getDouble(3)));   
+				       }
+				       
+				       //third query
+				       ps.clearParameters();
+				       ps = conn.prepareStatement(query3);
+				       
+				       //set parameters
+				       ps.setString(1, table.getSelectionModel().getSelectedItem().getTicketno());
+				       
+				       //execute query
+				       rs = ps.executeQuery();
+				       
+				       //process the result set
+				       while(rs.next())
+				       {
+				    	  products.add(new Product(rs.getString(2) + " " + rs.getInt(1), "0", 1, rs.getDouble(3)));       
 				       }	   
 				       
 				       //set table items
@@ -305,6 +341,7 @@ public class SalesHistory {
 	/*
 	 * Create table view for details
 	 */
+	@SuppressWarnings("unchecked")
 	public static TableView<Product> createDetailsTable()
 	{ 
 		TableView<Product> table = new TableView<Product>();
@@ -334,4 +371,5 @@ public class SalesHistory {
 		//return the table
 		return table;		
 	}
+	
 }

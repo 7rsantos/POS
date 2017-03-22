@@ -37,17 +37,20 @@ private static ObservableList<Product> allProducts;
 private static Stage stage;
 private static double receiptTotal;
 private static Label amountlbl;
-private static Stage primary;
-private static double discountAmount;
+private static String status;
+private static String ticketNo;
 
-	public static Scene displayPaymentScreen(ObservableList<Product> products, double total, Stage window, int discount)
+	public static Scene displayPaymentScreen(ObservableList<Product> products, double total, Stage window, double discount, String ticketStatus, String ticketno)
 	{ 
 		//make a copy of products observable list
 		allProducts = FXCollections.observableArrayList(products);
 		
 		//set balance due
 		receiptTotal = total;
-		discountAmount = discount;
+		
+		//set status
+		status = ticketStatus;
+		ticketNo = ticketno;
 		
 		stage = window;
 		setWindowSize(stage);
@@ -389,7 +392,7 @@ private static double discountAmount;
 		//set discount
 		//implement actions
 		cancel.setOnAction(e -> secondary.close());		
-		accept.setOnAction(e -> processPayment(true, Double.parseDouble(cashReceived.getText()), secondary, MainScreen.discount, cash.getText(), "Completed"));
+		accept.setOnAction(e -> processPayment(true, Double.parseDouble(cashReceived.getText()), secondary, MainScreen.discount, cash.getText(), status));
 		
 		//set sizes
 		secondary.setMinWidth(300);
@@ -413,7 +416,7 @@ private static double discountAmount;
 	
 	
 	private static void processPayment(boolean isCashPayment, double cashReceived, Stage stage,			
-			int discount, String paymentMethod, String status) 
+			double discount, String paymentMethod, String status) 
 	{
 		
 		//close the stage
@@ -474,7 +477,7 @@ private static double discountAmount;
 	}
 
 	private static void changeScreen(double amount, boolean cashPayment, ObservableList<Product> productList, 
-			             double receivedCash, int discount, String paymentMethod, String status) 
+			             double receivedCash, double discount, String paymentMethod, String status) 
 	{
 		//create root layout
 		VBox root = new VBox();
@@ -583,6 +586,8 @@ private static double discountAmount;
 		//load resources
 		scene.getStylesheets().add(MainScreen.class.getResource("MainScreen.css").toExternalForm());		
 
+		//open the cash drawer
+		Session.openCashDrawer();
 			
 		//setup the stage
 		Stage secondary = new Stage();
@@ -593,12 +598,13 @@ private static double discountAmount;
 
 			@Override
 			public void handle(ActionEvent event) {
-				MainScreen.resetProductList();
 				
 				secondary.close();
 				
+				//compute ticket number
+				
 				//setup receipt
-                Receipt.setupReceipt(Session.getUserFirstName(), change.getText(), "Cash", discount, paymentMethod, "Completed", 0);				
+                Receipt.setupReceipt(Session.getUserFirstName(), change.getText(), "Cash", discount, paymentMethod, status, 0, ticketNo);				
 				
 				//reset product list
 				MainScreen.resetProductList();
@@ -618,7 +624,7 @@ private static double discountAmount;
 				secondary.close();				
 				
 				//setup receipt
-                Receipt.setupReceipt(Session.getUserFirstName(), change.getText(), cashReceived.getText(), discount, paymentMethod, "Completed", 1);  
+                Receipt.setupReceipt(Session.getUserFirstName(), change.getText(), cashReceived.getText(), discount, paymentMethod, status, 1, ticketNo);  
 				
                 //reset the product list
 				MainScreen.resetProductList();
@@ -766,7 +772,7 @@ private static double discountAmount;
 		
 		//implement actions
 		cancel.setOnAction(e -> secondary.close());
-		accept.setOnAction(e -> processPayment(false, Double.parseDouble(cashReceived.getText()), secondary, 0, card, "Completed"));
+		accept.setOnAction(e -> processPayment(false, Double.parseDouble(cashReceived.getText()), secondary, 0, card, status));
 		
 		//set sizes
 		secondary.setMinWidth(300);
@@ -793,4 +799,5 @@ private static double discountAmount;
 	   
 	   return result;
 	}
+
 }

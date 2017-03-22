@@ -37,6 +37,7 @@ public class Returns {
    private static NumericTextField ticketTotal;
    private static NumericTextField total;
    private static String ticket;
+   private static String ticketNo;
    
 	/*
 	 *  Display the search ticket window
@@ -133,7 +134,7 @@ public class Returns {
 	 */
 	private static void searchTicket(String ticketno)
 	{ 
-		
+	   ticketNo = ticketno;	
 	   table = createProductsTable();
 	   ObservableList<Product> products = FXCollections.observableArrayList();	
 	   String query = "CALL listItems(?)";
@@ -149,28 +150,25 @@ public class Returns {
 		  //execute query
 		  ResultSet rs = ps.executeQuery();
 		  
-		  if(!rs.next())
+		  if(rs.next())
 		  { 
-		     AlertBox.display("FASS Nova - Error ", "Could not find ticket");	  
-		  }	  
-		  else
-		  { 
-			   while(rs.next())
+			   do
 			   { 
 				   if(rs.getInt(3) == 1)
 				   {	   
 			          products.add(new Product(rs.getString(1), rs.getString(2), rs.getInt(3), rs.getDouble(4)));	     
-				   }
+				   }				   
 				   else
 				   {
-					  int i = rs.getInt(3); 
-					  while(i != 0)
+					  int i = 0; 
+					  while(i != rs.getInt(3))
 					  { 
-					     products.add(new Product(rs.getString(1), rs.getString(2), rs.getInt(3), rs.getDouble(4)));
-					     i--;
+					     products.add(new Product(rs.getString(1), rs.getString(2), 1, rs.getDouble(4)));
+					     i++;
+					     
 					  }		  
 				   }	   
-			   }
+			   } while(rs.next());
 			   
 			   
 			   //set product list
@@ -184,6 +182,10 @@ public class Returns {
 			   
 			   //go to next screen
 			   displayTicketContents();
+		  }
+		  else
+		  { 
+		     AlertBox.display("FASS Nova - Error ", "Could not find ticket");	  
 		  }	  
 	   }
 	   catch(Exception e)
@@ -335,7 +337,7 @@ public class Returns {
 			stage.close();
 			
 			//save changes in the database
-			modifyTicket(Double.parseDouble(total.getText()));
+			modifyTicket(Double.parseDouble(total.getText()), Double.parseDouble(ticketTotal.getText()));
 		}
 		   
 	   });
@@ -442,7 +444,7 @@ public class Returns {
 	/*
 	 * Modify the sales ticket in the database
 	 */
-	protected static void modifyTicket(double total) {
+	protected static void modifyTicket(double refundTotal, double total) {
 	
 	   String status = "";
 	   String query1 = "CALL updateTicketStatus(?,?)";
@@ -475,6 +477,9 @@ public class Returns {
 		  //update ticket total
 		  ps = conn.prepareStatement(query2);
 		  
+		  //add tax rate to total
+		  total += total * (Double.parseDouble(Configs.getProperty("TaxRate"))/100);
+		  
 		  //set parameters
 		  ps.setString(1, ticket);
 		  ps.setDouble(2, total);
@@ -482,16 +487,20 @@ public class Returns {
 		  //execute update
 		  ps.executeUpdate();
 		  
-		  if(isCashPayment())
+		  boolean isCash = isCashPayment();
+		  
+		  if(isCash)
 		  {
 			 //update the expected cash 
 		     ps = conn.prepareStatement(query3);
 		     
 		     //set parameters
-		     ps.setDouble(1, RegisterUtilities.getExpectedCash() - total);
+		     ps.setDouble(1, RegisterUtilities.getExpectedCash() - refundTotal);
+		     ps.setString(2, Configs.getProperty("Register"));
 		     
 		     //execute query
 		     ps.executeUpdate();
+		     
 		  }	  
 		  
 		  //close the connection
@@ -500,7 +509,15 @@ public class Returns {
 		  //update items
 		  deleteRefundedItems();
 		  
-		  //display payment screen
+		  //go to refund screen
+          if(isCash)
+          {	  
+		     displayRefund(1);    
+          }   
+          else
+          {
+        	 displayRefund(2); 
+          } 	  
 	   }
 	   catch(Exception e)
 	   { 
@@ -571,7 +588,7 @@ public class Returns {
 	private static boolean isCashPayment()
 	{
 	   boolean isCash = false;
-	   String query = "SELECT paymentMethod FROM salesTicket WHERE salesTicket.ticket = ?";
+	   String query = "SELECT paymentMethod FROM salesTicket WHERE salesTicket.ticketno = ?";
 	   
 	   try
 	   {
@@ -621,14 +638,17 @@ public class Returns {
 		   //determine the items to be deleted
 		   for(Product p : refundProducts)
 		   {
-			   if(Collections.frequency(refundProducts, p) == 1)
+			   if(!masterProducts.contains(p.getName()))
 			   {
 				  //set parameters
 				  ps.setString(1, ticket);
 				  ps.setString(2, p.getName());
 				  
 				  //execute query
-				  ps.executeQuery();				  
+				  ps.executeQuery();
+				  
+				  //clear parameters
+				  ps.clearParameters();
 			   }
 			   else
 			   {
@@ -638,10 +658,13 @@ public class Returns {
 				     //set parameters
 				     pst.setString(1, ticket);
 				     pst.setString(2, p.getName());
-				     pst.setInt(3, Collections.frequency(masterProducts, p));
+				     pst.setInt(3, Collections.frequency(masterProducts, p.getName()));
 				     
 				     //execute query
 				     pst.executeQuery();
+				     
+				     //clear parameters
+				     pst.clearParameters();
 				  }		  
 			   }	   
 		   }
@@ -653,6 +676,147 @@ public class Returns {
 	   {
 		  e.printStackTrace();   
 	   }
+	}
+	
+	/*
+	 * Display amount to be refunded
+	 * @param caller determines if its cash or card payment
+	 */
+	private static void displayRefund(int caller)
+	{
+	   Stage stage = new Stage();
+	   
+	   //root layout
+	   VBox root = new VBox();
+	   
+	   //layout to hold text fields and labels
+	   Label ticketlbl = new Label("Ticket Total");
+	   Label refundlbl = new Label("Amount to be refunded");
+	   
+	   //setup labels
+	   ticketlbl.setFont(new Font("Courier Sans", 14));
+	   refundlbl.setFont(new Font("Courier Sans", 14));
+	   ticketlbl.setTextFill(Color.WHITE);
+	   refundlbl.setTextFill(Color.WHITE);
+	   
+	   //text fields
+	   NumericTextField ticket = new NumericTextField();
+	   NumericTextField refund = new NumericTextField();
+	   
+	   ///set editable to false
+	   ticket.setDisable(false);
+	   refund.setDisable(false);
+	   
+	   //set values
+	   ticket.setText(ticketTotal.getText());
+	   refund.setText(total.getText());
+	   
+	   //change background color of text fields
+	   refund.setStyle("-fx-control-inner-background: #D3D3D3;");
+	   ticket.setStyle("-fx-control-inner-background: #00ff00;");
+	   
+	   //grid pane
+	   GridPane top = new GridPane();
+	   
+	   //set nodes
+	   top.add(ticketlbl, 0, 0);
+	   top.add(ticket, 1, 0);
+	   top.add(refundlbl, 0, 1);
+	   top.add(refund, 1, 1);
+	   
+	   //setup top
+	   top.setVgap(6);
+	   top.setHgap(6);
+	   top.setAlignment(Pos.CENTER);
+	   top.setPadding(new Insets(10, 10, 10, 10));
+	   
+	   //buttons
+	   Button accept = new Button("Accept", new ImageView(new Image(Returns.class.getResourceAsStream("/res/Apply.png"))));
+	   Button print = new Button("Accept & Print", new ImageView(new Image(Returns.class.getResourceAsStream("/res/Print.png"))));
+	   
+	   //set on action
+	   accept.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//close the stage
+			stage.close();
+			
+			if(caller == 1)
+			{
+			   //open the cash drawer
+				Session.openCashDrawer();
+			}	
+			
+			//go to the next screen
+		    PaymentScreen.backToMainScreen(stage, 2);
+		}
+		   
+	   });
+	   
+	   print.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//close the stage
+			stage.close();	
+			
+			//print the receipt		
+			double subtotalAmount = Double.parseDouble(total.getText());
+			double refundAmount = Receipt.setPrecision(subtotalAmount + (Double.parseDouble(Configs.getProperty("TaxRate"))/100) * subtotalAmount);
+			Receipt.printRefundReceipt(ticketNo, refundProducts, Double.toString(refundAmount), Double.toString(subtotalAmount));
+			
+			//go to the next screen
+		    Scene mainScreen = MainScreen.displayMainScreen(stage);
+		    stage.setScene(mainScreen);
+			stage.show();
+		}
+		   
+	   });	   
+	   
+	   //bottom layout
+	   HBox bottom = new HBox();
+	   
+	   bottom.setAlignment(Pos.CENTER);
+	   bottom.setPadding(new Insets(10, 10, 10, 10));
+	   bottom.setSpacing(5);
+	   
+	   //add nodes
+	   bottom.getChildren().addAll(accept, print);
+	   
+	   //add nodes to root
+	   root.getChildren().addAll(top, bottom);
+	   	   
+	   //set id
+	   root.setId("border");
+	   
+	   //load style sheets
+	   root.getStylesheets().add(MainScreen.class.getResource("MainScreen.css").toExternalForm());
+	   
+	   //scene
+	   Scene scene = new Scene(root);
+	   
+	   if(caller == 1)
+	   {
+		   //open the cash drawer
+			Session.openCashDrawer();
+			
+		   //print the receipt	
+	   }
+	   
+	   //setup stage
+	   stage.setTitle("FASS Nova");
+	   stage.setMinWidth(350);
+	   stage.centerOnScreen();
+	   
+	   
+	   //set scene
+	   stage.setScene(scene);
+	   
+	   //show the stage
+	   stage.show();
 	}
 	
 }

@@ -220,7 +220,7 @@ public class Session {
 		root.setId("border");
 		
 		//set spacing and padding
-		root.setPadding(new Insets(10, 10, 10, 10));
+		root.setPadding(new Insets(20, 20, 20, 20));
 		root.setHgap(5);
 		root.setVgap(8);
 		

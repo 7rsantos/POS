@@ -39,6 +39,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import pos.Product;
+import java.util.*;
 
 public class ProductList {
 
@@ -104,7 +105,7 @@ public class ProductList {
 	/*
 	 * Create the scene for the product list
 	 */
-	private static Scene createProductListScene(Stage stage, ObservableList<Product> allProducts, String cutomer)
+	private static Scene createProductListScene(Stage stage, ObservableList<Product> allProducts, String customer, ArrayList<String> productPos)
 	{
 	    //create root layout
 		BorderPane root = createProductListLayout();
@@ -270,8 +271,9 @@ public class ProductList {
 				//set the main screen
 				Scene mainScreen = MainScreen.displayMainScreen(stage);
 				
-				if(allProducts.contains(list.getSelectionModel().getSelectedItem().getName()))
-				{	
+				
+				if(Collections.frequency(allProducts, list.getSelectionModel().getSelectedItem()) > 0)
+				{
                     int quantity = allProducts.get(allProducts.indexOf(list.getSelectionModel().getSelectedItem().getName())).getQuantity();
                   
                     allProducts.get(allProducts.indexOf(list.getSelectionModel().getSelectedItem())).setQuantity(quantity++);
@@ -281,11 +283,11 @@ public class ProductList {
 			    }
 				else
 				{
-				    MainScreen.addItems(list.getSelectionModel().getSelectedItem().getName());  	
+				    MainScreen.addItems(list.getSelectionModel().getSelectedItem().getName());  
 				}	
 				
 				//set customer
-				MainScreen.setCustomer(cutomer);
+				MainScreen.setCustomer(customer);
 				
 				stage.setScene(mainScreen);				
 				stage.show();				
@@ -416,12 +418,12 @@ public class ProductList {
 	/*
 	 * Display product list
 	 */
-	public static void displayProductList(ObservableList<Product> allProducts, String customer)
+	public static void displayProductList(ObservableList<Product> allProducts, String customer, ArrayList<String> productPos)
 	{ 
 	   Stage stage = createListStage();	
 	   
 	   //create scene
-	   Scene scene = createProductListScene(stage, allProducts, customer);
+	   Scene scene = createProductListScene(stage, allProducts, customer, productPos);
 	   
 	   //set scene
 	   stage.setScene(scene);

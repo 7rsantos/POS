@@ -416,7 +416,7 @@ private static ChoiceBox<String> storeLocations;
 		}	
 		
 		// populate month choice box
-		for (int i = 1900; i < 2000; i++ )
+		for (int i = 1950; i < 2000; i++ )
 		{ 
 		   yearChoice.getItems().add(i);	
 		}	
@@ -471,13 +471,10 @@ private static ChoiceBox<String> storeLocations;
 	 * of a store
 	 * @return Choice Box with store codes
 	 */
-	private static ChoiceBox<String> getStoreCodes()
+	public static ChoiceBox<String> getStoreCodes()
 	{ 
 		ChoiceBox<String> stores = new ChoiceBox<String>();
-		String query = "CALL listStores(?)";
-		//need the current store 
-		String storeCode = "bee1";
-		
+		String query = "CALL listStores(?)";		
 		try
 		{ 
 		   Connection conn = Session.openDatabase();
@@ -486,7 +483,7 @@ private static ChoiceBox<String> storeLocations;
 		   PreparedStatement ps = conn.prepareStatement(query);
 		   
 		   //set parameters
-		   ps.setString(1, storeCode);
+		   ps.setString(1, Configs.getProperty("StoreCode"));
 		   
 		   //execute query
 		   ResultSet rs = ps.executeQuery();
@@ -494,9 +491,10 @@ private static ChoiceBox<String> storeLocations;
 		   while(rs.next())
 		   { 
 			  stores.getItems().add(rs.getString("storeCode"));  
-		   }	   
+		   }
 		   
-		   
+		   //close the connection
+		   conn.close();
 		}
 		catch(Exception e)
 		{ 
