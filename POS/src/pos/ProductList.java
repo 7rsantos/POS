@@ -49,7 +49,9 @@ public class ProductList {
     private static TableView<Product> list;
     private static ObservableList<Product> productList;
     private static TextField productField;
-	
+	public static Date start;
+	public static Date end;
+    
 	/*
 	 * Create a border pane layout for the product list
 	 */
@@ -105,7 +107,7 @@ public class ProductList {
 	/*
 	 * Create the scene for the product list
 	 */
-	private static Scene createProductListScene(Stage stage, ObservableList<Product> allProducts, String customer, ArrayList<String> productPos)
+	public static Scene createProductListScene(Stage stage, ObservableList<Product> allProducts, String customer, ArrayList<String> productPos, int caller)
 	{
 	    //create root layout
 		BorderPane root = createProductListLayout();
@@ -265,33 +267,58 @@ public class ProductList {
 			@Override
 			public void handle(ActionEvent event) {
 				
-				//close the stage
-				stage.close();
+				if(caller == 1)
+				{			
+				   //close the stage
+				   stage.close();
 				
-				//set the main screen
-				Scene mainScreen = MainScreen.displayMainScreen(stage);
+				   //set the main screen
+				   Scene mainScreen = MainScreen.displayMainScreen(stage);
 				
 				
-				if(Collections.frequency(allProducts, list.getSelectionModel().getSelectedItem()) > 0)
-				{
-                    int quantity = allProducts.get(allProducts.indexOf(list.getSelectionModel().getSelectedItem().getName())).getQuantity();
-                  
-                    allProducts.get(allProducts.indexOf(list.getSelectionModel().getSelectedItem())).setQuantity(quantity++);
+				   if(Collections.frequency(allProducts, list.getSelectionModel().getSelectedItem()) > 0)
+				   {
+                       int quantity = allProducts.get(allProducts.indexOf(list.getSelectionModel().getSelectedItem().getName())).getQuantity();
+                   
+                       allProducts.get(allProducts.indexOf(list.getSelectionModel().getSelectedItem())).setQuantity(quantity++);
                     
-                    //update list
-                    MainScreen.setTableItems(allProducts);
-			    }
-				else
+                       //update list
+                       MainScreen.setTableItems(allProducts);
+			       }
+				   else
+				   {
+				       MainScreen.addItems(list.getSelectionModel().getSelectedItem().getName());  
+				   }	
+				
+				   //set customer
+				   MainScreen.setCustomer(customer);
+				
+				   stage.setScene(mainScreen);				
+				   stage.show();				
+				}
+				else if (caller == 2)
 				{
-				    MainScreen.addItems(list.getSelectionModel().getSelectedItem().getName());  
+				   //open main screen
+					PaymentScreen.backToMainScreen(stage, 2);
+					
+				   //open reports window	
+				   Reports.getProductSalesDetails(list.getSelectionModel().getSelectedItem().getName(), start, end);	
 				}	
-				
-				//set customer
-				MainScreen.setCustomer(customer);
-				
-				stage.setScene(mainScreen);				
-				stage.show();				
-			
+				else if (caller ==3)
+				{
+				   if(list.getSelectionModel().getSelectedItem() != null)
+				   {
+					  //close the stage
+					  stage.close(); 
+					   
+					  //display product update screen 
+				      Inventory.displayProductUpdate(list.getSelectionModel().getSelectedItem().getName());   
+				   }	
+				   else
+				   {
+				      AlertBox.display("FASS Nova", "Please select a product");	   
+				   }	   
+				}		
 			}		
 		});
 		
@@ -423,7 +450,7 @@ public class ProductList {
 	   Stage stage = createListStage();	
 	   
 	   //create scene
-	   Scene scene = createProductListScene(stage, allProducts, customer, productPos);
+	   Scene scene = createProductListScene(stage, allProducts, customer, productPos, 1);
 	   
 	   //set scene
 	   stage.setScene(scene);
@@ -513,7 +540,7 @@ public class ProductList {
 	/*
 	 * Get product picture
 	 */
-	private static Image getProductPicture(String name)
+	public static Image getProductPicture(String name)
 	{ 
 		byte[] imageArray = null;
 		Image image = null;
@@ -551,5 +578,25 @@ public class ProductList {
 	       }	
 	    
 	    return image;
-	}   	
+	}   
+	
+	/*
+	 * Manager reports call
+	 */
+	public static void initializeFields(Stage stage, Date start1, Date end1)
+	{
+	   //initialize fields
+		ProductList.start = start1;
+		ProductList.end = end1;
+		
+		//display
+		Scene productScene = ProductList.createProductListScene(stage, MainScreen.products, "Customer", MainScreen.productList, 2);
+		
+		//set scene
+		stage.setScene(productScene);
+		
+		//show
+		stage.show();
+	 	
+	}
 }

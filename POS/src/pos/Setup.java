@@ -4,10 +4,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.PreparedStatement;
 
 import javax.imageio.ImageIO;
 
-import com.mysql.jdbc.PreparedStatement;
 
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
@@ -45,6 +45,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class Setup {
@@ -81,10 +82,10 @@ public class Setup {
 
 		   @Override
 		   public void handle(ActionEvent event) {
-			  // TODO Auto-generated method stub
+			   
 		      stage.close();
 		      
-		      setupPrinter();
+		      setupPrinter(1);
 		   } 
 		   
 	   });
@@ -117,7 +118,7 @@ public class Setup {
 	}
 
 	
-	public static void setupPrinter()
+	public static void setupPrinter(int caller)
 	{
 		//create stage
 		Stage stage = new Stage();
@@ -131,7 +132,6 @@ public class Setup {
 		
 	   //setup nodes
 		Label printerlbl = new Label("Printer Name");
-		//TextField printer = new TextField();
 		
 		printerlbl.setTextFill(Color.WHITE);
 		
@@ -169,6 +169,12 @@ public class Setup {
 	    Button next = new Button("Next", new ImageView(new Image(Setup.class.getResourceAsStream("/res/Go forward.png"))));
 	    Button previous = new Button("Previous", new ImageView(new Image(Setup.class.getResourceAsStream("/res/Go back.png"))));	    
 	    
+	    if(caller == 2)
+	    {
+	       previous.setDisable(true);
+	       next.setText("Accept");
+	    }	
+	    
 	    //bottom layout
 	    FlowPane center = new FlowPane();
 	    center.setHgap(5);
@@ -185,20 +191,37 @@ public class Setup {
 
 			@Override
 			public void handle(ActionEvent event) {
-			   // TODO Auto-generated method stub
 				
-				//close stage
-				stage.close();
-				
-			   //setup selected printer	
-			   validatePrinter(list.getSelectionModel().getSelectedItem());
+				if(caller == 1)
+				{	
+				   //close the stage
+				   stage.close();
+					
+			       //setup selected printer	
+			       validatePrinter(list.getSelectionModel().getSelectedItem());
 			   
-			   if(list.getSelectionModel().getSelectedItem() != null && 
+			       if(list.getSelectionModel().getSelectedItem() != null && 
 					   !list.getSelectionModel().getSelectedItem().isEmpty())
-			   {	   
-			      //go to next screen
-			      setupStoreInfo();
-			   } 
+			       {	   
+			          //go to next screen
+			          setupStoreInfo();
+			       }
+				}
+				else 
+				{
+				    if(list.getSelectionModel().getSelectedItem() != null && 
+							   !list.getSelectionModel().getSelectedItem().isEmpty())
+					{	   
+					    //save property
+					    Configs.saveProperty("Printer", list.getSelectionModel().getSelectedItem());
+					    
+					    //display success
+					    AlertBox.display("FASS Nova", "Printer updated successfully");
+					    
+					    //close
+					    stage.close();
+					}				   	
+				}	
 			}   
 	    	
 	    });
@@ -206,7 +229,6 @@ public class Setup {
 
 			@Override
 			public void handle(ActionEvent event) {
-			   // TODO Auto-generated method stub
 				stage.close();
 				
 				welcomeScreen();
@@ -234,6 +256,7 @@ public class Setup {
 	    stage.centerOnScreen();
 	    stage.setTitle("FASS Nova - Select Printer");
 	    stage.setMinWidth(330);
+	    stage.initModality(Modality.APPLICATION_MODAL);
 	    stage.setScene(scene);
 	    
 	    //show the stage
@@ -248,7 +271,7 @@ public class Setup {
 		}
 		else
 		{ 
-			setupPrinter();
+			setupPrinter(1);
 			
 			AlertBox.display("FASS Nova", "Select a printer!");
 		}	
@@ -364,8 +387,7 @@ public class Setup {
 	   next.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
-			public void handle(ActionEvent event) {
-			   // TODO Auto-generated method stub
+			public void handle(ActionEvent event)  {
 				
 				//close stage
 				stage.close();
@@ -414,7 +436,6 @@ public class Setup {
 
 			@Override
 			public void handle(ActionEvent event) {
-			   // TODO Auto-generated method stub
 
 		         //save properties
 				 Configs.saveProperty("StoreName", name.getText());
@@ -432,7 +453,7 @@ public class Setup {
 			     stage.close();
 			     
 				 //go back to previous screen  
-				 setupPrinter();
+				 setupPrinter(1);
 			} 
 	    	
 	    });	   
@@ -653,7 +674,7 @@ public class Setup {
 		 			  File file = selectedFile;
 		 		      
 		 		   } catch (MalformedURLException e) {
-		 		      // TODO Auto-generated catch block
+		 		 
 		 			  AlertBox.display("FASS NOVA - Error", "Could not select image");
 		 			  e.printStackTrace();
 		 		   }
@@ -897,10 +918,6 @@ public class Setup {
     { 
        Stage stage = new Stage();
        
-       //byte array
-       byte[] imageArray = null;
-       Image image = null;
-       
        //title
        Text title = new Text("FASS Nova has been setup successfully");
        title.setFont(new Font("Courier Sans", 28));
@@ -911,39 +928,8 @@ public class Setup {
        subtitle.setFont(new Font("Courier Sans", 22));
        subtitle.setFill(Color.WHITE);
        
-       //retrieve logo from the database
-       String query = "SELECT Logo FROM Store WHERE Store.storeCode = ?";
-       
-       try
-       { 
-    	  Connection conn = Session.openDatabase();
-    	  PreparedStatement ps = (PreparedStatement) conn.prepareStatement(query);
-    	  
-    	  //set parameters
-    	  ps.setString(1, Configs.getProperty("StoreCode"));
-    	  
-    	  //execute query
-    	  ResultSet rs = ps.executeQuery();
-    	  
-    	  //process
-    	  while(rs.next())
-    	  { 
-    	     imageArray= rs.getBytes(1);	  
-    	  }	  
-    	  
-    	  InputStream in = new ByteArrayInputStream(imageArray);    	  
-    	  BufferedImage bufferedImage = ImageIO.read(in);    	  
-    	  image = SwingFXUtils.toFXImage(bufferedImage, null);
-    	  
-    	  conn.close();
-       }
-       catch(Exception e)
-       { 
-          e.printStackTrace();	   
-       }
-       
        //set image view
-       ImageView imageview = new ImageView(image);
+       ImageView imageview = new ImageView(Setup.getLogo());
        imageview.setFitHeight(200);
        imageview.setFitWidth(200);
        
@@ -988,4 +974,822 @@ public class Setup {
        stage.show();
     }
     
+	/*
+	 * Update store information
+	 */
+	public static void displayStoreUpdate()
+	{
+	   //stage
+	   Stage stage = new Stage();
+	   	   
+	   //create labels
+	   Label namelbl = new Label("Store Name");
+	   Label numberlbl = new Label("Store Number");
+	   Label phonelbl = new Label("Phone Number");
+	   Label streetlbl = new Label("Street");
+	   Label citylbl = new Label("City");
+	   Label statelbl = new Label("State");
+	   Label countrylbl = new Label("Country");
+	   Label ziplbl = new Label("ZipCode");
+	   Label managerlbl = new Label("Manager");
+	   Label sloganlbl = new Label("Slogan");
+	   Label greetinglbl = new Label("Greeting");
+	  	
+	  	//change font color
+	   namelbl.setTextFill(Color.WHITE);
+	   numberlbl.setTextFill(Color.WHITE);
+	   phonelbl.setTextFill(Color.WHITE);
+	   citylbl.setTextFill(Color.WHITE);
+	   statelbl.setTextFill(Color.WHITE);
+	   countrylbl.setTextFill(Color.WHITE);
+	   ziplbl.setTextFill(Color.WHITE);
+	   managerlbl.setTextFill(Color.WHITE);
+	   sloganlbl.setTextFill(Color.WHITE);
+	   greetinglbl.setTextFill(Color.WHITE);
+	   streetlbl.setTextFill(Color.WHITE);
+
+	   //initialize text fields
+	   TextField name = new TextField();
+	   TextField number = new NumericTextField();
+	   NumericTextField phone = new NumericTextField();
+	   TextField address = new TextField();
+	   TextField city = new TextField();
+	   TextField state = new NumericTextField();
+	   TextField country = new NumericTextField();
+	   NumericTextField zip = new NumericTextField();
+	   TextField manager = new TextField();
+	   TextField slogan = new TextField();
+	   TextField greeting = new TextField();
+	   TextField photoPath = new TextField();
+	   
+	   //set values
+	   name.setText(Configs.getProperty("StoreName"));
+	   number.setText(Configs.getProperty("StoreNumber"));
+	   phone.setText(Configs.getProperty("PhoneNumber"));
+	   address.setText(Configs.getProperty("StreetAddress"));
+	   city.setText(Configs.getProperty("City"));
+	   state.setText(Configs.getProperty("State"));
+	   country.setText(Configs.getProperty("Country"));
+	   zip.setText(Configs.getProperty("ZipCode"));
+	   manager.setText(Configs.getProperty("Manager"));
+	   slogan.setText(Configs.getProperty("Slogan"));
+	   greeting.setText(Configs.getProperty("Greeting"));
+	   	   
+	   //buttons
+	   Button done = new Button("Done", new ImageView(new Image(UserDisplay.class.getResourceAsStream("/res/Apply.png"))));
+	   Button update1 = new Button("Update");
+	   Button update2 = new Button("Update");
+	   Button update3 = new Button("Update");
+	   Button update4 = new Button("Update");
+	   Button update5 = new Button("Update");
+	   Button update6 = new Button("Update");
+	   Button update7 = new Button("Update");
+	   Button update8 = new Button("Update");
+	   Button update9 = new Button("Update");
+	   Button update10 = new Button("Update");
+	   Button update11 = new Button("Update");
+	   Button update12 = new Button("Update");
+       
+	   
+	   Button select = new Button("Select", new ImageView(new Image(UserDisplay.class.getResourceAsStream("/res/Go forward.png"))));
+	   
+	   //set on action
+	   update1.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(name.getText() != null && !name.getText().isEmpty())
+			{
+			   //update store name
+			   Setup.updateStoreName(name.getText());	
+				
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+ 
+	   update2.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(number.getText() != null && !number.getText().isEmpty())
+			{
+			   //update store number	
+			   Setup.updateStoreNumber(Integer.parseInt(number.getText()));
+				
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   update3.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(address.getText() != null && !address.getText().isEmpty() && city.getText() != null &&
+		       state.getText() != null && !state.getText().isEmpty() && country.getText() != null &&
+		       zip.getText() != null && !zip.getText().isEmpty())
+			{
+			   //update product street address	
+			   Setup.updateAddress(address.getText(), city.getText(), state.getText(), country.getText(), zip.getText()); 	
+			   
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   update4.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(address.getText() != null && !address.getText().isEmpty() && city.getText() != null &&
+				       state.getText() != null && !state.getText().isEmpty() && country.getText() != null &&
+				       zip.getText() != null && !zip.getText().isEmpty())
+			{
+			   //update product city
+			   Setup.updateAddress(address.getText(), city.getText(), state.getText(), country.getText(), zip.getText()); 	
+			   
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   update5.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(address.getText() != null && !address.getText().isEmpty() && city.getText() != null &&
+				       state.getText() != null && !state.getText().isEmpty() && country.getText() != null &&
+				       zip.getText() != null && !zip.getText().isEmpty())		
+			{
+			   
+			   //update product state
+			   Setup.updateAddress(address.getText(), city.getText(), state.getText(), country.getText(), zip.getText()); 	
+			   
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+
+	   update6.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(address.getText() != null && !address.getText().isEmpty() && city.getText() != null &&
+				       state.getText() != null && !state.getText().isEmpty() && country.getText() != null &&
+				       zip.getText() != null && !zip.getText().isEmpty())
+			{
+			   //update country
+			   Setup.updateAddress(address.getText(), city.getText(), state.getText(), country.getText(), zip.getText()); 	
+			   
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   update7.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(address.getText() != null && !address.getText().isEmpty() && city.getText() != null &&
+				       state.getText() != null && !state.getText().isEmpty() && country.getText() != null &&
+				       zip.getText() != null && !zip.getText().isEmpty())
+			{
+			   //update zip code
+			   Setup.updateAddress(address.getText(), city.getText(), state.getText(), country.getText(), zip.getText()); 	
+				
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   update8.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(manager.getText() != null && !manager.getText().isEmpty())
+			{
+			   //update manager
+			   Setup.updateManager(manager.getText());
+				
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   update9.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(slogan.getText() != null && !slogan.getText().isEmpty())
+			{
+			   //update slogan
+			   Setup.updateSlogan(slogan.getText());
+				
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   update10.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(greeting.getText() != null && !greeting.getText().isEmpty())
+			{
+			   //update greeting
+			   Setup.updateGreeting(greeting.getText());
+				
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   update11.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(phone.getText() != null && !phone.getText().isEmpty())
+			{
+			   //update phone number
+			   Setup.updatePhone(phone.getText());
+				
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   //image view
+	   ImageView storePicture = new ImageView(getLogo());
+	   storePicture.setFitHeight(250);
+	   storePicture.setFitWidth(200);
+	   
+	   //form layout
+	   GridPane left = new GridPane();
+	   
+	   //setup top
+	   left.setHgap(7);
+	   left.setVgap(7);
+	   left.setPadding(new Insets(10, 10, 10, 10));
+	   left.setAlignment(Pos.CENTER);
+	   
+	   //setup top
+	   left.add(namelbl, 0, 0);
+	   left.add(name, 1, 0);
+	   left.add(update1, 2, 0);
+	   left.add(numberlbl, 0, 1);
+	   left.add(number, 1, 1);
+	   left.add(update2, 2, 1);
+	   left.add(phonelbl, 0, 2);
+	   left.add(phone, 1, 2);
+	   left.add(update11, 2, 2);
+	   left.add(streetlbl, 0, 3);
+	   left.add(address, 1, 3);
+	   left.add(update3, 2, 3);
+	   left.add(citylbl, 0, 4);
+	   left.add(city, 1, 4);
+	   left.add(update4, 2, 4);
+	   left.add(statelbl, 0, 5);
+	   left.add(state, 1, 5);
+	   left.add(update5, 2, 5);
+	   left.add(countrylbl, 0, 6);
+	   left.add(country, 1, 6);
+	   left.add(update6, 2, 6);
+	   left.add(ziplbl, 0, 7);
+	   left.add(zip, 1, 7);
+	   left.add(update7, 2, 7);
+	   left.add(managerlbl, 0, 8);
+	   left.add(manager, 1, 8);
+	   left.add(update8, 2, 8);
+	   left.add(sloganlbl, 0, 9);
+	   left.add(slogan, 1, 9);
+	   left.add(update9, 2, 9);
+	   left.add(greetinglbl, 0, 10);
+	   left.add(greeting, 1, 10);
+	   left.add(update10, 2, 10);
+	   	   
+	   //set on action
+	   done.setOnAction(new EventHandler<ActionEvent>() {
+
+		@Override
+		public void handle(ActionEvent event) {
+      		   
+		   //close
+		   stage.close();
+		   
+		}
+		   
+	   });
+ 	   select.setOnAction( new EventHandler<ActionEvent>()   {     
+
+		@Override
+		public void handle(ActionEvent event) {
+		 	  //create image file chooser
+		 	  FileChooser fileChooser = Icon.createImageChooser();
+		 		   
+		      //create file that will hold the image path
+		      File selectedFile = Icon.selectImage(fileChooser);
+		 		   
+		 	  //process the selected file path
+		  	  if(selectedFile != null)
+		       { 
+		 		 photoPath.setText(selectedFile.getAbsolutePath());
+		 		 String imageUrl = "";
+		 		   try {
+		 		      imageUrl = selectedFile.toURI().toURL().toExternalForm();
+		 		      Image image = new Image(imageUrl);  
+		 			  
+		 		      //set image
+		 			  storePicture.setImage(image);
+		 			  		 			  		 		      
+		 		   } catch (MalformedURLException e) {
+		 		 
+		 			  AlertBox.display("FASS NOVA - Error", "Could not select image");
+		 			  e.printStackTrace();
+		 		   }
+		 		   	 		   
+		 		}	   
+		 		else
+		 		{ 
+		 			AlertBox.display("FASS Nova - Selection Error", "No File Selected"); 			
+		        }				
+		  } 
+ 		   
+ 	   }); 	 
+	   
+	   update12.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(photoPath.getText() != null && !photoPath.getText().isEmpty())
+			{
+			   //set file
+			   File file = new File(photoPath.getText());	
+				
+			   //update photo path
+			   Setup.updateLogo(file);	
+			   
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+ 	   
+	   //right layout
+	   VBox right = new VBox();
+	   right.setSpacing(7);
+	   right.setAlignment(Pos.CENTER);
+	   
+	   //photo layout
+	   HBox photoLayout = new HBox();
+	   photoLayout.setSpacing(7);
+	   photoLayout.getChildren().addAll(update12, photoPath);
+	   
+	   //button
+	   HBox topPhotoLayout = new HBox();
+	   topPhotoLayout.setSpacing(7);
+	   topPhotoLayout.getChildren().addAll(select);
+	   
+	   //add nodes to right
+	   right.getChildren().addAll(storePicture, topPhotoLayout, photoLayout);
+	   
+	   //bottom
+	   VBox bottom = new VBox();
+	   
+	   //setup bottom
+	   bottom.setAlignment(Pos.CENTER);
+	   bottom.setSpacing(7);
+	   bottom.setPadding(new Insets(10, 10, 10, 10));
+	   
+	   //add nodes to bottom
+	   bottom.getChildren().addAll(done);
+	   
+	   //root
+	   BorderPane root = new BorderPane();
+	   root.setPadding(new Insets(20, 20, 20, 20));
+	   
+	   //setup root
+	   root.setLeft(left);
+	   root.setBottom(bottom);
+	   root.setRight(right);
+	   	   
+	   //set id
+	   root.setId("border");
+	   
+	   //load style sheets
+	   root.getStylesheets().add(UserDisplay.class.getResource("MainScreen.css").toExternalForm());
+	   
+	   //scene
+	   Scene scene = new Scene(root);
+	   
+	   //setup stage
+	   stage.setTitle("FASS Nova - Update Store Info");
+	   stage.initModality(Modality.APPLICATION_MODAL);
+	   stage.setMinWidth(375);
+	   stage.centerOnScreen();
+	   
+	   //set scene
+	   stage.setScene(scene);
+	   
+	   //show
+	   stage.show();
+	}
+	
+	/*
+	 * Get store logo
+	 */
+	private static Image getLogo()
+	{
+	    //retrieve logo from the database
+	    String query = "SELECT Logo FROM Store WHERE Store.storeCode = ?";
+	    byte[] imageArray = null;
+	    Image image = null;
+	       
+	    try
+	    { 
+	       Connection conn = Session.openDatabase();
+	       PreparedStatement ps = (PreparedStatement) conn.prepareStatement(query);
+	    	  
+	       //set parameters
+	       ps.setString(1, Configs.getProperty("StoreCode"));
+	    	  
+	       //execute query
+	   	   ResultSet rs = ps.executeQuery();
+	    	  
+	    	//process
+	    	while(rs.next())
+	    	{ 
+	           imageArray= rs.getBytes(1);	  
+	        }	  
+	    	  
+	    	InputStream in = new ByteArrayInputStream(imageArray);    	  
+	        BufferedImage bufferedImage = ImageIO.read(in);    	  
+	    	image = SwingFXUtils.toFXImage(bufferedImage, null);
+	    	  
+	    	conn.close();
+	    }
+	    catch(Exception e)
+	    { 
+	       e.printStackTrace();	   
+        }      		
+	    
+	    return image;
+	}
+    
+	/*
+	 * Update store name
+	 */
+	private static void updateStoreName(String name)
+	{
+	   String query = "CALL updateStoreName(?,?)";
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, name);
+		  ps.setString(2, Configs.getProperty("StoreCode"));
+		  
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+		  //save locally
+		  Configs.saveProperty("StoreName", name);
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}
+	
+	/*
+	 * Update store address
+	 */
+	private static void updateAddress(String street, String city, String state, String country, String zip)
+	{
+	   String query = "CALL updateAddress(?,?,?,?,?,?)";
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, Configs.getProperty("StoreCode"));
+		  ps.setString(2, street);
+		  ps.setString(3, city);
+		  ps.setString(4, state);
+		  ps.setString(5, country);
+		  ps.setString(6, zip);
+
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+		  //save values locally
+		  Configs.saveProperty("StreetAddress", street);
+		  Configs.saveProperty("City", city);
+		  Configs.saveProperty("State", state);
+		  Configs.saveProperty("Country", country);
+		  Configs.saveProperty("ZipCode", zip);
+
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}
+	
+	/*
+	 * Update store number
+	 */
+	private static void updateStoreNumber(int number)
+	{
+	   String query = "CALL updateStoreNumber(?,?)";
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, Configs.getProperty("StoreCode"));
+		  ps.setInt(2, number);
+
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+		  //save value locally
+		  Configs.saveProperty("StoreNumber", Integer.toString(number));
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}	
+	
+	/*
+	 * Update store manager
+	 */
+	private static void updateManager(String manager)
+	{
+	   String query = "CALL updateManager(?,?)";
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, manager);
+		  ps.setString(2, Configs.getProperty("StoreCode"));
+		  
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+		  //save value locally
+		  Configs.saveProperty("Manager", manager);
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}	
+	
+	/*
+	 * Update store phone
+	 */
+	private static void updatePhone(String phone)
+	{
+	   String query = "CALL updatePhoneNumber(?,?)";
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, phone);
+		  ps.setString(2, Configs.getProperty("StoreCode"));
+
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+		  //save locally
+		  Configs.saveProperty("PhoneNumber", phone);
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}	
+	
+	/*
+	 * Update store slogan
+	 */
+	private static void updateSlogan(String slogan)
+	{
+	   String query = "CALL updateSlogan(?,?)";
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, Configs.getProperty("StoreCode"));
+		  ps.setString(2, slogan);
+
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+		  //save locally
+		  Configs.saveProperty("Slogan", slogan);
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}
+	
+	/*
+	 * Update store greeting
+	 */
+	private static void updateGreeting(String greeting)
+	{
+	   String query = "CALL updateGreeting(?,?)";
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, Configs.getProperty("StoreCode"));
+		  ps.setString(2, greeting);
+
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+		  //save locally
+		  Configs.saveProperty("Greeting", greeting);
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}
+	
+	/*
+	 * Update store logo
+	 */
+	private static void updateLogo(File file)
+	{
+	   String query = "CALL setLogo(?,?)";
+	   
+	   try
+	   {
+		  FileInputStream input = new FileInputStream(file); 
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, Configs.getProperty("StoreCode"));
+		  ps.setBlob(2, input);
+
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}
 }

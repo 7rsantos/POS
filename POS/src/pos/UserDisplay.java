@@ -8,6 +8,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -62,9 +66,6 @@ private static ChoiceBox<String> storeLocations;
 		window.setTitle("FASS Nova - Create New User");
 		window.initModality(Modality.APPLICATION_MODAL);
 		window.setMinWidth(250);
-		window.setWidth(650);
-		window.setHeight(507);
-		window.setResizable(false);	  	
 	  	
 		//create the root layout
 		BorderPane root = new BorderPane();
@@ -474,7 +475,7 @@ private static ChoiceBox<String> storeLocations;
 	public static ChoiceBox<String> getStoreCodes()
 	{ 
 		ChoiceBox<String> stores = new ChoiceBox<String>();
-		String query = "CALL listStores(?)";		
+		String query = "CALL listStoreCodes(?)";		
 		try
 		{ 
 		   Connection conn = Session.openDatabase();
@@ -483,7 +484,7 @@ private static ChoiceBox<String> storeLocations;
 		   PreparedStatement ps = conn.prepareStatement(query);
 		   
 		   //set parameters
-		   ps.setString(1, Configs.getProperty("StoreCode"));
+		   ps.setString(1, Configs.getProperty("StoreName"));
 		   
 		   //execute query
 		   ResultSet rs = ps.executeQuery();
@@ -522,4 +523,461 @@ private static ChoiceBox<String> storeLocations;
 			return false;
 		}	
 	}
+	
+	/*
+	 * Update user information
+	 */
+	public static void displayUserUpdate()
+	{
+	   //stage
+	   Stage stage = new Stage();
+	   	   
+	   //create labels
+	   Label firstlbl = new Label("First Name");
+	   Label lastlbl = new Label("Last Name");
+	   Label emailAddresslbl = new Label("Email");
+	   Label phoneNumberlbl = new Label("Phone Number");
+
+	  	
+	  	//change font color
+	   firstlbl.setTextFill(Color.WHITE);
+	   lastlbl.setTextFill(Color.WHITE);
+	   emailAddresslbl.setTextFill(Color.WHITE);
+	   phoneNumberlbl.setTextFill(Color.WHITE);
+	   
+	   //initialize text fields
+	   firstName = new TextField();
+	   lastName = new TextField();
+	   email = new TextField();
+	   phone = new TextField();
+	   photoPath = new TextField();
+	   
+	   //set values
+	   ObservableList<String> result = UserDisplay.getEmployeeInfo();
+	   firstName.setText(result.get(0));
+	   lastName.setText(result.get(1));
+	   email.setText(result.get(2));
+	   phone.setText(result.get(3));
+	   
+	   //buttons
+	   Button done = new Button("Done", new ImageView(new Image(UserDisplay.class.getResourceAsStream("/res/Apply.png"))));
+	   Button update1 = new Button("Update");
+	   Button update2 = new Button("Update");
+	   Button update3 = new Button("Update");
+	   Button update4 = new Button("Update");
+	   Button update5 = new Button("Update");
+	   Button takePicture = new Button("Take Picture");
+	   Button select = new Button("Select", new ImageView(new Image(UserDisplay.class.getResourceAsStream("/res/Apply.png"))));
+	   
+	   //set on action
+	   update1.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(firstName.getText() != null && !firstName.getText().isEmpty())
+			{
+			   //update first name
+			   UserDisplay.updateFirstName(firstName.getText());	
+				
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+ 
+	   update2.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(lastName.getText() != null && !lastName.getText().isEmpty())
+			{
+			   //update last name	
+			   UserDisplay.updateLastName(lastName.getText());
+			   
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   update3.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(email.getText() != null && !email.getText().isEmpty())
+			{
+			   //update email address	
+			   UserDisplay.updateEmail(email.getText());
+			   
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   update4.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(phone.getText() != null && !phone.getText().isEmpty())
+			{
+			   //update phone number
+			   UserDisplay.updateEmployeePhoneNumber(phone.getText());
+			   
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   update5.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(photoPath.getText() != null && !photoPath.getText().isEmpty())
+			{
+			   //update photo path
+			   UserDisplay.updatePhoto();
+			   
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   //image view
+	   userPicture = Session.getUserPicture();
+	   userPicture.setFitHeight(250);
+	   userPicture.setFitWidth(200);
+	   
+	   //form layout
+	   GridPane left = new GridPane();
+	   
+	   //setup top
+	   left.setHgap(7);
+	   left.setVgap(7);
+	   left.setPadding(new Insets(10, 10, 10, 10));
+	   left.setAlignment(Pos.CENTER);
+	   
+	   //setup top
+	   left.add(firstlbl, 0, 0);
+	   left.add(firstName, 1, 0);
+	   left.add(update1, 2, 0);
+	   left.add(lastlbl, 0, 1);
+	   left.add(lastName, 1, 1);
+	   left.add(update2, 2, 1);
+	   left.add(emailAddresslbl, 0, 2);
+	   left.add(email, 1, 2);
+	   left.add(update3, 2, 2);
+	   left.add(phoneNumberlbl, 0, 3);
+	   left.add(phone, 1, 3);
+	   left.add(update4, 2, 3);
+	   
+	   //set on action
+	   done.setOnAction(new EventHandler<ActionEvent>() {
+
+		@Override
+		public void handle(ActionEvent event) {
+           
+		   //close main screen
+		   MainScreen.closeStage();
+		   
+		   //close
+		   stage.close();
+		   
+		   //back to main screen
+		   PaymentScreen.backToMainScreen(stage, 2);
+		}
+		   
+	   });
+	   select.setOnAction(e -> selectImageFile(photoPath, userPicture));
+	   takePicture.setOnAction(e -> PhotoScreen.displayPhotoScreen(1));
+	   
+	   //right layout
+	   VBox right = new VBox();
+	   right.setSpacing(7);
+	   right.setAlignment(Pos.CENTER);
+	   
+	   //photo layout
+	   HBox photoLayout = new HBox();
+	   photoLayout.setSpacing(7);
+	   photoLayout.getChildren().addAll(update5, photoPath);
+	   
+	   //button
+	   HBox topPhotoLayout = new HBox();
+	   topPhotoLayout.setSpacing(7);
+	   topPhotoLayout.getChildren().addAll(select, takePicture);
+	   
+	   //add nodes to right
+	   right.getChildren().addAll(userPicture, topPhotoLayout, photoLayout);
+	   
+	   //bottom
+	   VBox bottom = new VBox();
+	   
+	   //setup bottom
+	   bottom.setAlignment(Pos.CENTER);
+	   bottom.setSpacing(7);
+	   bottom.setPadding(new Insets(10, 10, 10, 10));
+	   
+	   //add nodes to bottom
+	   bottom.getChildren().addAll(done);
+	   
+	   //root
+	   BorderPane root = new BorderPane();
+	   root.setPadding(new Insets(20, 20, 20, 20));
+	   
+	   //setup root
+	   root.setLeft(left);
+	   root.setBottom(bottom);
+	   root.setRight(right);
+	   	   
+	   //set id
+	   root.setId("border");
+	   
+	   //load style sheets
+	   root.getStylesheets().add(UserDisplay.class.getResource("MainScreen.css").toExternalForm());
+	   
+	   //scene
+	   Scene scene = new Scene(root);
+	   
+	   //setup stage
+	   stage.setTitle("FASS Nova - Update User Info");
+	   stage.initModality(Modality.APPLICATION_MODAL);
+	   stage.setMinWidth(350);
+	   stage.centerOnScreen();
+	   
+	   //set scene
+	   stage.setScene(scene);
+	   
+	   //show
+	   stage.show();
+	}
+	
+	/*
+	 * Update user first name
+	 */
+	private static void updateFirstName(String first)
+	{
+	   String query = "CALL updateFirstName(?,?,?)";
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, first);
+		  ps.setString(2, Configs.getProperty("CurrentUser"));
+		  ps.setString(3, Configs.getProperty("StoreCode"));
+		  
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}
+	
+	/*
+	 * Update user last name
+	 */
+	private static void updateLastName(String last)
+	{
+	   String query = "CALL updateLastName(?,?,?)";
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, last);
+		  ps.setString(2, Configs.getProperty("CurrentUser"));
+		  ps.setString(3, Configs.getProperty("StoreCode"));
+		  
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}
+	
+	/*
+	 * Update user email
+	 */
+	private static void updateEmail(String email)
+	{
+	   String query = "CALL updateEmail(?,?,?)";
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, email);
+		  ps.setString(2, Configs.getProperty("CurrentUser"));
+		  ps.setString(3, Configs.getProperty("StoreCode"));
+		  
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}
+	
+	/*
+	 * Update user phone number
+	 */
+	private static void updateEmployeePhoneNumber(String phone)
+	{
+	   String query = "CALL updatePhoneNumber(?,?,?)";
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, phone);
+		  ps.setString(2, Configs.getProperty("CurrentUser"));
+		  ps.setString(3, Configs.getProperty("StoreCode"));
+		  
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}
+	
+	/*
+	 * Update user photo
+	 */
+	private static void updatePhoto()
+	{
+	   String query = "CALL updatePhoto(?,?,?)";
+	  
+	   try
+	   {
+		  FileInputStream input = new FileInputStream(file); 
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setBlob(1, input);
+		  ps.setString(2, Configs.getProperty("CurrentUser"));
+		  ps.setString(3, Configs.getProperty("StoreCode"));
+		  
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}
+	
+	/*
+	 * Get employee info
+	 */
+	private static ObservableList<String> getEmployeeInfo()
+	{
+	   String query = "CALL listEmployeeBasicInfo(?,?)";
+	   ObservableList<String> result = FXCollections.observableArrayList();
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, Configs.getProperty("CurrentUser"));
+		  ps.setString(2, Configs.getProperty("StoreCode"));
+		  
+		  //execute
+		  ResultSet rs = ps.executeQuery();
+		  
+		  //process
+		  while(rs.next())
+		  {
+		     result.add(rs.getString(1));   
+		     result.add(rs.getString(2));   	  
+		     result.add(rs.getString(3));   	  
+		     result.add(rs.getString(4));   	  
+		  }	  
+		  
+		  //close
+		  conn.close();
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	   
+	   return result;
+	}
+	
 }

@@ -73,6 +73,9 @@ public class CashOperations {
 	   Button vendor = new Button("Select Vendor", new ImageView(new Image(CashOperations.class.getResourceAsStream("/res/search2.png"))));
 	   Button create = new Button("Create New Reason", new ImageView(new Image(CashOperations.class.getResourceAsStream("/res/Create.png"))));
 	   
+	   //text area
+	   TextArea notes = new TextArea();
+	   
 	   //set on action
 	   accept.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -101,7 +104,7 @@ public class CashOperations {
 				   if(caller == 1)
 				   {
 					  String ticketno = Receipt.createReceipt(date, Double.parseDouble(amount.getText()), "Cash Deposit", 0, "Completed"); 
-					  createCashWD(reasons.getSelectionModel().getSelectedItem(), Double.parseDouble(amount.getText()), ticketno, "D", 1);      
+					  createCashWD(reasons.getSelectionModel().getSelectedItem(), Double.parseDouble(amount.getText()), ticketno, "D", 1, notes.getText());      
 					  
 					  //increase cash
 					  RegisterUtilities.increaseCash(Double.parseDouble(amount.getText()));
@@ -109,7 +112,7 @@ public class CashOperations {
 				   else
 				   {
 					  String ticketno = Receipt.createReceipt(date, Double.parseDouble(amount.getText()) * (-1), "Cash Withdrawal", 0, "Completed"); 
-					  createCashWD(reasons.getSelectionModel().getSelectedItem(), Double.parseDouble(amount.getText()) * (-1), ticketno, "W", 2);					
+					  createCashWD(reasons.getSelectionModel().getSelectedItem(), Double.parseDouble(amount.getText()) * (-1), ticketno, "W", 2, notes.getText());					
 					  
 					  //decrease cash from the register
 					  RegisterUtilities.increaseCash(Double.parseDouble(amount.getText()) * -1);
@@ -163,9 +166,6 @@ public class CashOperations {
 		}
 		   
 	   });
-	   
-	   //text area
-	   TextArea notes = new TextArea();
 	   
 	   //text field
 	   vendorField = new TextField();
@@ -819,9 +819,9 @@ public class CashOperations {
 	/*
 	 * Create a cash withdrawal or deposit
 	 */
-	private static void createCashWD(String reason, double total, String ticketNo, String c, int caller)
+	private static void createCashWD(String reason, double total, String ticketNo, String c, int caller, String notes)
 	{
-	   String query = "CALL createcashWD(?,?,?,?,?)";	
+	   String query = "CALL createcashWD(?,?,?,?,?,?)";	
 	   try
 	   {
 		  Connection conn = Session.openDatabase();
@@ -833,6 +833,7 @@ public class CashOperations {
 		  ps.setString(3, Session.getUserFirstName());
 		  ps.setString(4, ticketNo);
 		  ps.setString(5, c);
+		  ps.setString(6, notes);
 		  
 		  //execute query
 		  ps.execute();

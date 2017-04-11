@@ -260,7 +260,7 @@ public class Audit {
 		   hundredlbl.textProperty().bind(property);
 		   
 		   //update the array at position 5 if not empty;
-		   if(!hundred.getText().isEmpty() || hundred.getText() != null)
+		   if(hundred.getText() != null || !hundred.getText().isEmpty())
 		   {	   
 		     totalArray[5] = Double.parseDouble(hundredlbl.getText().substring(1));
 		   }

@@ -6,10 +6,12 @@ import java.util.Date;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.stage.Stage;
 
 
 public class CustomMenu {
@@ -94,6 +96,7 @@ public class CustomMenu {
 		logout.setOnAction(e->Session.logout(MainScreen.window));
 		updatePassword.setOnAction(e -> Session.passwordValidation(1));
 		listUsers.setOnAction(e -> User.displayUsers());
+		updateUserInfo.setOnAction(e -> Session.passwordValidation(3));
 		
 		//add menu items to the user menu
 		user.getItems().addAll(listUsers, getUserInfo, new SeparatorMenuItem(), updateUserInfo,
@@ -132,6 +135,27 @@ public class CustomMenu {
 			} 			
 		});
 		
+		updateProductInfo.setOnAction(new EventHandler<ActionEvent>()  {
+
+			@Override
+			public void handle(ActionEvent event) {
+			   
+				//close the stage
+				MainScreen.closeStage();
+				
+				//stage
+				Stage stage = new Stage();
+				
+				//go to product list screen
+				Scene scene = ProductList.createProductListScene(stage, MainScreen.products, "", MainScreen.productList, 3);
+				stage.setScene(scene);
+				
+				//show
+				stage.show();
+			}
+			
+		});
+		
 		//add menu items to inventory
 		inventory.getItems().addAll(productSearch, new SeparatorMenuItem(), addInventory,
 				registerProduct,damagedInventory, new SeparatorMenuItem(), updateProductInfo);
@@ -154,7 +178,7 @@ public class CustomMenu {
 			@Override
 			public void handle(ActionEvent event) {				
 				//go to the next screen
-				Customers.displayCustomerList(MainScreen.window, MainScreen.products);
+				Customers.displayCustomerList(MainScreen.window, MainScreen.products, 1);
 			}
 			
 		});
@@ -173,16 +197,20 @@ public class CustomMenu {
 	   
 	   MenuItem salesOverview = new MenuItem("Sales Overview");
 	   MenuItem salesProduct = new MenuItem("Sales Detail for Product");
-	   MenuItem inventoryReport = new MenuItem("Inventory Audit Report");
-	   MenuItem transferReport = new MenuItem("Inventory Transfer Report");
-	   MenuItem checksDeposited = new MenuItem("Checks to be Deposited");
+	   MenuItem charts = new MenuItem("Get charts & graphs");
+	   MenuItem customerSales = new MenuItem("Sales Detail for customer");
+	   //MenuItem transferReport = new MenuItem("Inventory Transfer Report");
+	   //MenuItem checksDeposited = new MenuItem("Checks to be Deposited");
 	   
 	   //add items to the reports menu
 	   reports.getItems().addAll(salesOverview, salesProduct, new SeparatorMenuItem(),
-			   inventoryReport, transferReport, new SeparatorMenuItem(), checksDeposited);
+			   charts, new SeparatorMenuItem(), customerSales);
 	   
 	   //implement actions
-	   
+	   salesOverview.setOnAction(e -> Reports.displayRanges(1));
+	   salesProduct.setOnAction(e -> Reports.displayRanges(2));
+	   charts.setOnAction(e -> Charts.displayChartOptions());
+	   customerSales.setOnAction(e -> Reports.displayRanges(3));
 	   
 	   //return reports menu
 	   return reports;
@@ -196,16 +224,17 @@ public class CustomMenu {
 		//create items for the end of day menu
 		MenuItem activity = new MenuItem("1. Activity Report");
 		MenuItem auditCash = new MenuItem("2. Audit Cash");
-		MenuItem settlement = new MenuItem("3. Settlement");
-		MenuItem bankDeposit = new MenuItem("Create Bank Deposit");
+		//MenuItem settlement = new MenuItem("3. Settlement");
+		//MenuItem bankDeposit = new MenuItem("Create Bank Deposit");
 		MenuItem auditList = new MenuItem("List of Audits");
 		
 		//add items to the end of day menu
-		end.getItems().addAll(activity, auditCash, settlement, new SeparatorMenuItem(),
-				bankDeposit, new SeparatorMenuItem(),  auditList);
+		end.getItems().addAll(activity, auditCash, new SeparatorMenuItem(),
+				new SeparatorMenuItem(),  auditList);
 		
 		//implement actions
 		auditCash.setOnAction(e -> Audit.displayAuditBills());
+		activity.setOnAction(e -> Reports.displayRanges(4));
 		
 		//return the end of day menu
 		return end;
@@ -217,14 +246,65 @@ public class CustomMenu {
 		Menu settings = new Menu("Settings");
 		
 		//create items for settings menu
-		MenuItem changeDatabase = new MenuItem("Setup Database");
-		MenuItem storeInfo = new MenuItem("Store Info");
+		MenuItem selectPrinter = new MenuItem("Select Receipt Printer");
 		MenuItem updateStoreInfo = new MenuItem("Update Store Info");
-		
+		MenuItem updateTax = new MenuItem("Update Tax Rate");
+
 		
 		//add items to the settings menu
-		settings.getItems().addAll(changeDatabase, new SeparatorMenuItem(), 
-				storeInfo, updateStoreInfo);
+		selectPrinter.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+			   if(Integer.parseInt(Configs.getProperty("Privilege")) >= 2)
+			   {
+			      //validate password
+				  Session.passwordValidation(5);
+			   }	
+			   else
+			   {
+				  AlertBox.display("FASS Nova", "You do not have permission to perform this action");   
+			   }	   
+			}
+			
+		});
+		settings.getItems().addAll(selectPrinter, updateTax, new SeparatorMenuItem(), 
+				updateStoreInfo);
+		
+		//set on action
+		updateStoreInfo.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+			   if(Integer.parseInt(Configs.getProperty("Privilege")) == 3)
+			   {
+			      //validate password
+				  Session.passwordValidation(4);
+			   }	
+			   else
+			   {
+				  AlertBox.display("FASS Nova", "You do not have permission to perform this action");   
+			   }	   
+			}
+			
+		});
+		
+		updateTax.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+			   //check privilege level
+			   if(Integer.parseInt(Configs.getProperty("Privilege")) == 3)
+			   {
+			      RegisterUtilities.displayTaxRateUpdate();	   
+			   }	
+			   else
+			   {
+				   AlertBox.display("FASS Nova", "You do not have permission to perform this action");   
+			   }	   
+			}
+			
+		});
 		
 		//return settings menu
 		return settings;

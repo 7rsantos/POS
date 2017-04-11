@@ -46,6 +46,40 @@ public class MoneyWire {
    private static ImageView logoPicture;
    private static TextField photo;
    private static File file;
+   private String company;
+   private String amount;
+   private String type;
+   private String wireNo;
+   
+   //type
+   public MoneyWire(String company, String wireNo, String amount, String type)
+   {
+      this.company = company;
+      this.amount = amount;
+      this.type = type;
+      this.wireNo = wireNo;
+   }
+   
+   public String getCompany()
+   {
+	  return this.company;   
+   }
+   
+   public String getAmount()
+   {
+	  return this.amount;   
+   }
+   
+   public String getType()
+   {
+	  return this.type;   
+   }
+   
+   public String getWireNo()
+   {
+	  return this.wireNo;   
+   }
+   
    
    //Display the first screen
    public static void displaySendReceiveScreen()
@@ -169,6 +203,8 @@ public class MoneyWire {
 	  {
 	     Connection conn = Session.openDatabase();
 	     PreparedStatement ps = conn.prepareStatement(query);
+	     
+	     System.out.println(serviceType);
 	     
 	     //set parameters
 	     ps.setInt(1, wireNo);
@@ -308,6 +344,13 @@ public class MoneyWire {
 	  amountlbl.setFont(new Font("Courier Sans", 12));
 	  destinationlbl.setFont(new Font("Courier Sans", 12));
 	  
+	  String transactionType = "S";
+	  
+	  if(caller == 2)
+	  {
+	     transactionType = "R";	  
+	  }	  
+	  
 	  //buttons
 	  Button previous = new Button("Go Back", new ImageView(new Image(MoneyWire.class.getResourceAsStream("/res/Go back.png"))));
 	  Button accept = new Button("Accept", new ImageView(new Image(MoneyWire.class.getResourceAsStream("/res/Apply.png"))));
@@ -345,14 +388,14 @@ public class MoneyWire {
 					  && amount.getText() != null && !amount.getText().isEmpty())
 				  {
 					  //type
-					  String serviceType = "send";
+					  String service_Type = "send";
 					  
 					  //close the stage
 					  stage.close();  
 					  
 					  if(caller == 2)
 					  {
-					     serviceType = "receive";
+					     service_Type = "receive";
 					     amount.setText(Double.toString(Double.parseDouble(amount.getText())* 1));
 					  }
 					  
@@ -361,13 +404,13 @@ public class MoneyWire {
 					  Configs.saveTempValue("temp21", sender.getText());
 					  Configs.saveTempValue("temp22", receiver.getText());
 					  Configs.saveTempValue("temp23", amount.getText());
-					  Configs.saveTempValue("temp24", serviceType);
+					  Configs.saveTempValue("temp24", service_Type);
 					  Configs.saveTempValue("temp25", company);
 					  Configs.saveTempValue("temp26", destination.getText());
 					  
 					  //add money wire to the table
 					  MainScreen.productList.add("MoneyWire");
-					  MainScreen.products.add(new Product(company + " " + serviceType, "0", 1, Double.parseDouble(amount.getText())));
+					  MainScreen.products.add(new Product(company + " " + service_Type, "0", 1, Double.parseDouble(amount.getText())));
 					  
 					  //set table items
 					  MainScreen.setTableItems(MainScreen.products);

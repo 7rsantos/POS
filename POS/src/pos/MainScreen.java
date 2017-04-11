@@ -418,7 +418,7 @@ public class MainScreen {
 		grid.add(total, 9, 1);
 		grid.add(Total, 10, 1);
 		
-		Tax.setText("9.25%");
+		Tax.setText(Configs.getProperty("TaxRate") + "%");
 		Discount.setText("0.00%");
 		
 		return grid;
@@ -448,7 +448,7 @@ public class MainScreen {
 		    e -> contextMenu.show(carnetIcon, e.getScreenX(), e.getScreenY()+10));
 		
 		 //implement actions
-		 customers.setOnAction(e -> Customers.displayCustomerList(window, products));
+		 customers.setOnAction(e -> Customers.displayCustomerList(window, products, 1));
 		 search.setOnAction(new EventHandler<ActionEvent>(){
 
 			@Override

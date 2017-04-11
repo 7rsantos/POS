@@ -5,6 +5,21 @@ import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+
 import java.sql.Connection;
 
 public class RegisterUtilities {
@@ -145,6 +160,139 @@ public class RegisterUtilities {
 	   }
 	   catch(Exception e)
 	   { 
+		  e.printStackTrace();   
+	   }
+	}
+	
+	/*
+	 * Display change tax rate screen
+	 * 
+	 */
+	public static void displayTaxRateUpdate()
+	{
+	   Stage stage = new Stage();
+	   
+	   //root
+	   VBox root = new VBox();
+	   
+	   //label
+	   Label taxlbl = new Label("Tax Rate");
+	   
+	   //set label
+	   taxlbl.setTextFill(Color.WHITE);
+	   
+	   //text fields
+	   NumericTextField tax = new NumericTextField();
+	   tax.setText(Configs.getProperty("TaxRate"));
+	   
+	   //buttons
+	   Button accept = new Button("Accept", new ImageView(new Image(RegisterUtilities.class.getResourceAsStream("/res/Apply.png"))));
+	   Button cancel = new Button("Cancel", new ImageView(new Image(RegisterUtilities.class.getResourceAsStream("/res/Cancel.png"))));
+	   
+	   //set on action
+	   cancel.setOnAction(e -> stage.close());
+	   accept.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   //check if not null
+		   if(tax.getText() != null && !tax.getText().isEmpty())
+		   {
+			   updateTaxRate(tax.getText());   
+			   
+			   //report success
+			   AlertBox.display("FASS Nova", "Tax Rate updated successfully");
+			   
+			   //close main screen
+			   MainScreen.closeStage();
+			   
+			   //close
+			   stage.close();
+			   
+			   //main screen
+			   PaymentScreen.backToMainScreen(stage, 2);
+		   }	
+		   else
+		   {
+		      AlertBox.display("FASS Nova", "Fill in required field");	   
+		   }	   
+		}
+		   
+	   });
+	   
+	   //bottom
+	   HBox bottom = new HBox();
+	   bottom.setSpacing(7);
+	   bottom.setPadding(new Insets(10, 10, 10, 10));
+	   
+	   //add nodes to bottom
+	   bottom.getChildren().addAll(accept, cancel);
+	   
+	   //top
+	   HBox top = new HBox();
+	   top.setSpacing(7);
+	   top.setAlignment(Pos.CENTER);
+	   top.setPadding(new Insets(10, 10, 10, 10));
+	   
+	   //add nodes to top
+	   top.getChildren().addAll(taxlbl, tax);
+	   
+	   //setup root
+	   root.setSpacing(7);
+	   root.setAlignment(Pos.CENTER);
+	   root.setPadding(new Insets(20, 20, 20, 20));
+	   
+	   //add nodes to root
+	   root.getChildren().addAll(top, bottom);
+	   
+	   //set id
+	   root.setId("border");
+	   
+	   //load style sheets
+	   root.getStylesheets().add(RegisterUtilities.class.getResource("MainScreen.css").toExternalForm());
+	   
+	   //setup stage
+	   stage.setTitle("FASS Nova - Update Tax Rate");
+	   stage.setMinWidth(300);
+	   stage.centerOnScreen();
+	   stage.initModality(Modality.APPLICATION_MODAL);
+	   
+	   //scene
+	   stage.setScene(new Scene(root));
+	   
+	   //show
+	   stage.show();
+	}
+	
+	/*
+	 * Update tax rate
+	 */
+	public static void updateTaxRate(String tax)
+	{
+	   String query = "CALL updateTaxRate(?,?,?)";
+	   
+	   try
+	   {
+	      Connection conn = Session.openDatabase();
+	      PreparedStatement ps = conn.prepareStatement(query);
+	      
+	      //set parameters
+	      ps.setInt(1, Integer.parseInt(Configs.getProperty("Register")));
+	      ps.setDouble(2, Double.parseDouble(tax));
+	      ps.setString(3, Configs.getProperty("StoreCode"));
+	      
+	      //execute
+	      ps.executeUpdate();
+	      
+	      //close
+	      conn.close();
+	      
+	      //save locally
+	      Configs.saveProperty("TaxRate", tax);
+	      
+	   }
+	   catch(Exception e)
+	   {
 		  e.printStackTrace();   
 	   }
 	}

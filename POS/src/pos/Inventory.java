@@ -7,7 +7,12 @@ import java.net.MalformedURLException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -42,7 +47,7 @@ private static TextField originalPrice;
 private static TextField salesPrice;
 private static File f;
 private static Stage window;
-	
+
 	public static void displayAddInventory()
 	{ 
 		   window = new Stage();
@@ -59,7 +64,6 @@ private static Stage window;
 		   //setup title properties
 		   title.setFill(Color.WHITE);
 		   title.setFont(Font.font("Courier New", FontWeight.BOLD, 28));
-		   //title.setEffect(dropShadow);		   
 		   
 		   //create box to hold title
 		   HBox top = new HBox();
@@ -315,4 +319,642 @@ private static Stage window;
 	   productPicture.setFitWidth(200);
 	}
 	
+	/*
+	 * Update product information
+	 */
+	public static void displayProductUpdate(String productName)
+	{
+	   //stage
+	   Stage stage = new Stage();
+	   	   
+	   //create labels
+	   Label namelbl = new Label("Name");
+	   Label barcodelbl = new Label("Barcode");
+	   Label brandlbl = new Label("Brand");
+	   Label unitlbl = new Label("UnitSize");
+	   Label categorylbl = new Label("Category");
+	   Label originallbl = new Label("Original Price");
+	   Label saleslbl = new Label("Sales Price");
+
+	  	
+	  	//change font color
+	   namelbl.setTextFill(Color.WHITE);
+	   barcodelbl.setTextFill(Color.WHITE);
+	   brandlbl.setTextFill(Color.WHITE);
+	   unitlbl.setTextFill(Color.WHITE);
+	   categorylbl.setTextFill(Color.WHITE);
+	   originallbl.setTextFill(Color.WHITE);
+	   saleslbl.setTextFill(Color.WHITE);
+
+	   //initialize text fields
+	   name = new TextField();
+	   barcode = new NumericTextField();
+	   brand = new TextField();
+	   unitSize = new TextField();
+	   category = new TextField();
+	   salesPrice = new NumericTextField();
+	   originalPrice = new NumericTextField();
+	   photoPath = new TextField();
+	   
+	   //set values
+	   ObservableList<String> result = Inventory.listProductInfo(productName);
+	   name.setText(result.get(0));
+	   barcode.setText(result.get(1));
+	   unitSize.setText(result.get(2));
+	   brand.setText(result.get(3));
+	   category.setText(result.get(4));
+	   salesPrice.setText(result.get(5));
+	   originalPrice.setText(result.get(6));
+	   
+	   //buttons
+	   Button done = new Button("Done", new ImageView(new Image(UserDisplay.class.getResourceAsStream("/res/Apply.png"))));
+	   Button update1 = new Button("Update");
+	   Button update2 = new Button("Update");
+	   Button update3 = new Button("Update");
+	   Button update4 = new Button("Update");
+	   Button update5 = new Button("Update");
+	   Button update6 = new Button("Update");
+	   Button update7 = new Button("Update");
+	   Button update8 = new Button("Update");
+	   Button takePicture = new Button("Take Picture");
+	   Button select = new Button("Select", new ImageView(new Image(UserDisplay.class.getResourceAsStream("/res/Apply.png"))));
+	   
+	   //set on action
+	   update1.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(name.getText() != null && !name.getText().isEmpty())
+			{
+			   //update product name
+			   Inventory.updateProductName(productName, name.getText());	
+				
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+ 
+	   update2.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(barcode.getText() != null && !barcode.getText().isEmpty())
+			{
+			   //update product barcode	
+			   Inventory.updateProductBarcode(productName, barcode.getText());	
+			   
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   update3.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(brand.getText() != null && !brand.getText().isEmpty())
+			{
+			   //update product brand	
+			   Inventory.updateProductBrand(productName, brand.getText());	
+			   
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   update4.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(unitSize.getText() != null && !unitSize.getText().isEmpty())
+			{
+			   //update product unit size
+			   Inventory.updateProductUnitSize(productName, unitSize.getText());	
+			   
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   update5.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(category.getText() != null && !category.getText().isEmpty())
+			{
+			   //update product category
+			   Inventory.updateProductCategory(productName, category.getText());
+			   
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+
+	   update6.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(originalPrice.getText() != null && !originalPrice.getText().isEmpty())
+			{
+			   //update product original price
+			   Inventory.updateProductOriginalPrice(productName, Double.parseDouble(originalPrice.getText()));
+			   
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   update7.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(salesPrice.getText() != null && !salesPrice.getText().isEmpty())
+			{
+			   //update product sales price
+			   Inventory.updateProductSalesPrice(productName, Double.parseDouble(salesPrice.getText()));
+			   
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   update8.setOnAction(new EventHandler<ActionEvent>()  {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			//update user info if not null
+			if(photoPath.getText() != null && !photoPath.getText().isEmpty())
+			{
+			   //update photo path
+			   Inventory.updateProductPhoto(productName);	
+			   
+			   //display success
+			   AlertBox.display("FASS Nova", "Update successful!");	
+			}	
+			else
+			{
+			   AlertBox.display("FASS Nova", "Fill in required field");	
+			}	
+		}
+		   
+	   });
+	   
+	   //image view
+	   productPicture = new ImageView(ProductList.getProductPicture(productName));
+	   productPicture.setFitHeight(250);
+	   productPicture.setFitWidth(200);
+	   
+	   //form layout
+	   GridPane left = new GridPane();
+	   
+	   //setup top
+	   left.setHgap(7);
+	   left.setVgap(7);
+	   left.setPadding(new Insets(10, 10, 10, 10));
+	   left.setAlignment(Pos.CENTER);
+	   
+	   //setup top
+	   left.add(namelbl, 0, 0);
+	   left.add(name, 1, 0);
+	   left.add(update1, 2, 0);
+	   left.add(barcodelbl, 0, 1);
+	   left.add(barcode, 1, 1);
+	   left.add(update2, 2, 1);
+	   left.add(brandlbl, 0, 2);
+	   left.add(brand, 1, 2);
+	   left.add(update3, 2, 2);
+	   left.add(unitlbl, 0, 3);
+	   left.add(unitSize, 1, 3);
+	   left.add(update4, 2, 3);
+	   left.add(categorylbl, 0, 4);
+	   left.add(category, 1, 4);
+	   left.add(update5, 2, 4);
+	   left.add(originallbl, 0, 5);
+	   left.add(originalPrice, 1, 5);
+	   left.add(update6, 2, 5);
+	   left.add(saleslbl, 0, 6);
+	   left.add(salesPrice, 1, 6);
+	   left.add(update7, 2, 6);
+	   
+	   //set on action
+	   done.setOnAction(new EventHandler<ActionEvent>() {
+
+		@Override
+		public void handle(ActionEvent event) {
+           
+		   //close main screen
+		   MainScreen.closeStage();
+		   
+		   //close
+		   stage.close();
+		   
+		   //back to main screen
+		   PaymentScreen.backToMainScreen(stage, 2);
+		}
+		   
+	   });
+	   select.setOnAction(e -> selectImageFile(photoPath, productPicture));
+	   takePicture.setOnAction(e -> PhotoScreen.displayPhotoScreen(2));
+	   
+	   //right layout
+	   VBox right = new VBox();
+	   right.setSpacing(7);
+	   right.setAlignment(Pos.CENTER);
+	   
+	   //photo layout
+	   HBox photoLayout = new HBox();
+	   photoLayout.setSpacing(7);
+	   photoLayout.getChildren().addAll(update8, photoPath);
+	   
+	   //button
+	   HBox topPhotoLayout = new HBox();
+	   topPhotoLayout.setSpacing(7);
+	   topPhotoLayout.getChildren().addAll(select, takePicture);
+	   
+	   //add nodes to right
+	   right.getChildren().addAll(productPicture, topPhotoLayout, photoLayout);
+	   
+	   //bottom
+	   VBox bottom = new VBox();
+	   
+	   //setup bottom
+	   bottom.setAlignment(Pos.CENTER);
+	   bottom.setSpacing(7);
+	   bottom.setPadding(new Insets(10, 10, 10, 10));
+	   
+	   //add nodes to bottom
+	   bottom.getChildren().addAll(done);
+	   
+	   //root
+	   BorderPane root = new BorderPane();
+	   root.setPadding(new Insets(20, 20, 20, 20));
+	   
+	   //setup root
+	   root.setLeft(left);
+	   root.setBottom(bottom);
+	   root.setRight(right);
+	   	   
+	   //set id
+	   root.setId("border");
+	   
+	   //load style sheets
+	   root.getStylesheets().add(UserDisplay.class.getResource("MainScreen.css").toExternalForm());
+	   
+	   //scene
+	   Scene scene = new Scene(root);
+	   
+	   //setup stage
+	   stage.setTitle("FASS Nova - Update Product Info");
+	   stage.initModality(Modality.APPLICATION_MODAL);
+	   stage.setMinWidth(350);
+	   stage.centerOnScreen();
+	   
+	   //set scene
+	   stage.setScene(scene);
+	   
+	   //show
+	   stage.show();
+	}
+	
+	/*
+	 * Update user product name
+	 */
+	private static void updateProductName(String name, String newName)
+	{
+	   String query = "CALL updateProductName(?,?,?)";
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, name);
+		  ps.setString(2, newName);
+		  ps.setString(3, Configs.getProperty("StoreCode"));
+		  
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}
+
+	/*
+	 * Update user product barcode
+	 */
+	private static void updateProductBarcode(String name, String barcode)
+	{
+	   String query = "CALL updateBarcode(?,?,?)";
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, name);
+		  ps.setString(2, barcode);
+		  ps.setString(3, Configs.getProperty("StoreCode"));
+		  
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}
+	
+	/*
+	 * Update user product name
+	 */
+	private static void updateProductUnitSize(String name, String unit)
+	{
+	   String query = "CALL updateUnitSize(?,?,?)";
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, name);
+		  ps.setString(2, unit);
+		  ps.setString(3, Configs.getProperty("StoreCode"));
+		  
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}
+	
+	/*
+	 * Update user product brand
+	 */
+	private static void updateProductBrand(String name, String brand)
+	{
+	   String query = "CALL updateBrand(?,?,?)";
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, name);
+		  ps.setString(2, brand);
+		  ps.setString(3, Configs.getProperty("StoreCode"));
+		  
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}
+	
+	/*
+	 * Update user product name
+	 */
+	private static void updateProductCategory(String name, String category)
+	{
+	   String query = "CALL updateProductCategory(?,?,?)";
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, name);
+		  ps.setString(2, category);
+		  ps.setString(3, Configs.getProperty("StoreCode"));
+		  
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}
+	
+	/*
+	 * Update user product sales price
+	 */
+	private static void updateProductSalesPrice(String name, double price)
+	{
+	   String query = "CALL updateSalesPrice(?,?,?)";
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, name);
+		  ps.setDouble(2, price);
+		  ps.setString(3, Configs.getProperty("StoreCode"));
+		  
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}
+	
+	/*
+	 * Update user product original price
+	 */
+	private static void updateProductOriginalPrice(String name, double price)
+	{
+	   String query = "CALL updateOriginalPrice(?,?,?)";
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, name);
+		  ps.setDouble(2, price);
+		  ps.setString(3, Configs.getProperty("StoreCode"));
+		  
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}
+	
+	/*
+	 * Update user product name
+	 */
+	private static void updateProductPhoto(String name)
+	{
+	   String query = "CALL updateProductPhoto(?,?,?)";
+	   
+	   try
+	   {
+		  FileInputStream input = new FileInputStream(f); 
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, name);
+		  ps.setBlob(2, input);
+		  ps.setString(3, Configs.getProperty("StoreCode"));
+		  
+		  //execute
+		  ps.executeUpdate();
+		  
+		  //close
+		  conn.close();
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	}
+	
+	/*
+	 * List product info
+	 */
+	private static ObservableList<String> listProductInfo(String name)
+	{
+	   String query = "CALL listProductInfo(?,?)";
+	   ObservableList<String> result = FXCollections.observableArrayList();
+	   
+	   try
+	   {
+		  Connection conn = Session.openDatabase();
+		  PreparedStatement ps = conn.prepareStatement(query);
+		  
+		  //set parameters
+		  ps.setString(1, name);
+		  ps.setString(2, Configs.getProperty("StoreCode"));
+		  
+		  //execute
+		  ResultSet rs = ps.executeQuery();
+		  
+		  //process the result set
+		  while(rs.next())
+		  {
+		     result.add(rs.getString(1));
+		     result.add(rs.getString(2));	  
+		     result.add(rs.getString(3));	  
+		     result.add(rs.getString(4));	  
+		     result.add(rs.getString(5));	  
+		     result.add(rs.getString(6));	  
+		     result.add(rs.getString(7));	  
+		  }	  
+		  
+		  //close
+		  conn.close();
+		  
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	   
+	   return result;
+	}
 }

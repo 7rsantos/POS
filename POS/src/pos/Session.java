@@ -95,7 +95,7 @@ public class Session {
 		root.setId("border");
 		
 		//set spacing and padding
-		root.setPadding(new Insets(10, 10, 10, 10));
+		root.setPadding(new Insets(20, 20, 20, 20));
 		root.setHgap(5);
 		root.setVgap(8);
 		
@@ -220,7 +220,7 @@ public class Session {
 		root.setId("border");
 		
 		//set spacing and padding
-		root.setPadding(new Insets(20, 20, 20, 20));
+		root.setPadding(new Insets(30, 30, 30, 30));
 		root.setHgap(5);
 		root.setVgap(8);
 		
@@ -234,7 +234,7 @@ public class Session {
 	    Stage stage = new Stage();
 	    
 	    //set title
-	    stage.setTitle("FASS Nova - Update User Password");
+	    stage.setTitle("FASS Nova - Password Validation");
 	    
 		//implement actions
 		cancel.setOnAction(e -> stage.close());
@@ -277,12 +277,27 @@ public class Session {
 				             //go to the next screen	
 					         displayUpdatePasswordScreen();
 				    	  }
-				    	  if (caller == 2)
+				    	  else if (caller == 2)
 				    	  { 
 				    		  
 				    		  //open the cash drawer
 				    		  openCashDrawer();
 				    	  }		  
+				    	  else if (caller == 3)
+				    	  {
+				    	      //update user info
+				    		  UserDisplay.displayUserUpdate();
+				    	  }	  
+				    	  else if (caller == 4)
+				    	  {
+				    		  //update store info
+				    		  Setup.displayStoreUpdate();
+				    	  }	  
+				    	  else
+				    	  {
+				    	      //update printer
+				    		  Setup.setupPrinter(2);
+				    	  }	  
 				       }					    
 				       else
 				       {				    	   
@@ -304,7 +319,7 @@ public class Session {
 		});
 	    
 	    stage.initModality(Modality.APPLICATION_MODAL);
-	    stage.setMinWidth(310);
+	    stage.setMinWidth(350);
 	    stage.centerOnScreen();
 	    
 	    //set scene and show

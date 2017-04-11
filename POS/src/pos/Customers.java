@@ -9,6 +9,8 @@ import java.net.MalformedURLException;
 import java.sql.Connection; 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.imageio.ImageIO;
 
@@ -59,8 +61,10 @@ public class Customers {
 	private static TextField url;
 	private static TextField searchField;
 	private static ImageView imageView;
+	public static Date start;
+	public static Date end;
 	
-	public static void displayCustomerList(Stage primary, ObservableList<Product> products)
+	public static void displayCustomerList(Stage primary, ObservableList<Product> products, int caller)
 	{ 
 		//initialize customer list
 		customerList = FXCollections.observableArrayList();
@@ -71,11 +75,16 @@ public class Customers {
 	    //create root layout
 	    BorderPane root = new BorderPane();
 	    
-	    //textfield
+	    //text field
 	    searchField = new TextField();
 	    
 	    //images for buttons
 	    Image selectCustomer = new Image(Customers.class.getResourceAsStream("/res/Apply.png"));
+	    
+	    //text fields
+	    NumericTextField phone = new NumericTextField();
+	    TextField record = new TextField();
+	    TextField check = new TextField();
 	    
 	    //buttons
 	    Button select = new Button("Select", new ImageView(selectCustomer));
@@ -90,17 +99,34 @@ public class Customers {
 				//close the current stage
 				stage.close();
 				
-				//build the main screen
-				Scene mainScreen = MainScreen.displayMainScreen(stage);
-				stage.setScene(mainScreen);
+				if(caller == 1)
+				{	
+				   //build the main screen
+				   Scene mainScreen = MainScreen.displayMainScreen(stage);
+				   stage.setScene(mainScreen);
 				
-				//set the customer
-				MainScreen.setCustomer(table.getSelectionModel().getSelectedItem().getFirstName() + " " + table.getSelectionModel().getSelectedItem().getLastName().substring(0, 1) + ".");
+				   //set the customer
+				   MainScreen.setCustomer(table.getSelectionModel().getSelectedItem().getFirstName() + " " + table.getSelectionModel().getSelectedItem().getLastName().substring(0, 1) + ".");
 				
-				//set table items
-				MainScreen.setTableItems(products);
+				   //set table items
+				   MainScreen.setTableItems(products);
 				
-				stage.show();
+				   stage.show();
+				}
+				else if(caller == 2)
+				{
+				   if(table.getSelectionModel().getSelectedItem() != null)
+				   {
+				      Person p = table.getSelectionModel().getSelectedItem();
+				      
+				      //back to main screen
+				      PaymentScreen.backToMainScreen(stage, 2);
+				      
+				      //open reports
+					  Reports.displayCustomerSalesDetails(p.getFirstName(), p.getLastName(), p.getId(), phone.getText(), start, end);
+					  
+				   }	   
+				}		
 				
 			}
 	    	
@@ -213,11 +239,6 @@ public class Customers {
 	    
 	    //add table to center
 	    root.setCenter(center);
-	    
-	    //text fields
-	    NumericTextField phone = new NumericTextField();
-	    TextField record = new TextField();
-	    TextField check = new TextField();
 	    
 	    //set disable
 	    phone.setEditable(false);
@@ -499,7 +520,7 @@ public class Customers {
 	 * Get the customer photo
 	 * 
 	 */
-	private static Image loadCustomerPhoto(int id)
+	public static Image loadCustomerPhoto(int id)
 	{ 
 	   Image image = null;
 	   byte[] imageArray = null;
@@ -890,4 +911,18 @@ public class Customers {
 		//update the table
 	   table.setItems(filteredList);	
 	}	
+	
+	/*
+	 * Manager reports call
+	 */
+	public static void initializeFields(Stage stage, Date start1, Date end1)
+	{
+	   //initialize fields
+		Customers.start = start1;
+		Customers.end = end1;
+			
+		//display customer list
+		Customers.displayCustomerList(stage, MainScreen.products, 2);
+	 	
+	}
 }

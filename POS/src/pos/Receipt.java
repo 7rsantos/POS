@@ -41,13 +41,6 @@ public class Receipt {
 		double result = 0; 	
 		int count = 0;
 		
-	   //compute item count
-		//for(Product p : products)
-		//{ 
-		   //count = count + p.getQuantity();
-	   	   //result = result + p.getUnitPrice() * p.getQuantity();		   
-		//}		
-		
 		count = products.size();
 		result = Product.computeSubTotal(products, Double.toString(discount) + "%");
 		
