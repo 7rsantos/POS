@@ -3,19 +3,34 @@ package pos;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 
 import com.mysql.jdbc.Connection;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -51,6 +66,7 @@ public class ActivityReport {
       
       //set layout
       root.setPadding(new Insets(20, 20, 20, 20));
+      root.setId("border");
       root.getStylesheets().add(ActivityReport.class.getResource("MainScreen.css").toExternalForm());
       
       return root;
@@ -356,5 +372,213 @@ public class ActivityReport {
 	   root.getChildren().addAll(revenueLayout, taxLayout, cashLayout);
 	   
 	   return root;
+   }
+   
+   /*
+    *  Display audits
+    */
+   public static void displayAudits()
+   {
+      //stage
+	  Stage stage = new Stage();
+	  
+	  //date pickers
+	  DatePicker start = new DatePicker();
+	  DatePicker end = new DatePicker();
+	  
+	  //set default values
+	  start.setValue(LocalDate.now());
+	  end.setValue(LocalDate.now());
+	  
+	  //table
+	  TableView<Audit> table = ActivityReport.createTable();
+
+	  //date
+	  Date date = new Date();
+	  
+	  //convert
+	  String start2 = new SimpleDateFormat("yyy-MM-dd").format(date);
+	  String end2 = new SimpleDateFormat("yyyy-MM-dd").format(date);
+		
+	  //get audits
+	  ObservableList<Audit> audits = getAudits(start2, end2);
+	   
+	  //set items
+	  table.setItems(audits);
+	  
+	  //buttons
+	  Button search = new Button("Search", new ImageView(new Image(ActivityReport.class.getResourceAsStream("/res/search2.png"))));
+	  Button done = new Button("Done", new ImageView(new Image(ActivityReport.class.getResourceAsStream("/res/Apply.png"))));
+	  
+	  //set on action
+	  done.setOnAction(e -> stage.close());
+	  search.setOnAction(new EventHandler<ActionEvent>() {
+
+		@Override
+		public void handle(ActionEvent event) {
+	       
+			if(start.getValue().compareTo(end.getValue()) <= 0)
+			{
+			   //get local date 
+			   LocalDate localDate1 = start.getValue();
+			   LocalDate localDate2 = end.getValue();	
+				
+			   //convert to java.utl.Date
+			   Date date1 = Date.from(localDate1.atStartOfDay(ZoneId.systemDefault()).toInstant()); 
+			   Date date2 = Date.from(localDate2.atStartOfDay(ZoneId.systemDefault()).toInstant()); 
+				
+			   //convert
+			   String start2 = new SimpleDateFormat("yyy-MM-dd").format(date1);
+			   String end2 = new SimpleDateFormat("yyyy-MM-dd").format(date2);
+				
+			   //get audits
+			   ObservableList<Audit> items = getAudits(start2, end2);
+			   
+			   //set items
+			   table.setItems(items);
+			   
+			   //refresh
+			   table.refresh();	
+			}
+			else
+			{
+			   AlertBox.display("FASS Nova", "Could not validate input");	
+			}	
+		}
+	     	  
+	  });
+	  
+	  //labels
+	  Label startlbl = new Label("Start");
+	  Label endlbl = new Label("End");
+	  
+	  //set color
+	  startlbl.setTextFill(Color.WHITE);
+	  endlbl.setTextFill(Color.WHITE);
+	  
+	  //top
+	  HBox top = new HBox();
+	  top.setAlignment(Pos.CENTER);
+	  top.setSpacing(10);
+	  top.setPadding(new Insets(20, 20, 20, 10));
+	  
+	  //add nodes to top
+	  top.getChildren().addAll(startlbl, start, endlbl, end, search);
+	  
+	  //bottom
+	  FlowPane bottom = new FlowPane();
+	  bottom.setAlignment(Pos.CENTER);
+	  bottom.setPadding(new Insets(20, 20, 20, 20));
+	  
+	  //add nodes to bottom
+	  bottom.getChildren().add(done);
+	  
+	  //root
+	  BorderPane root = new BorderPane();
+	  
+	  //add nodes to root
+	  root.setTop(top);
+	  root.setCenter(table);
+	  root.setBottom(bottom);
+	  
+	  //set id 
+	  root.setId("border");
+	  
+	  //style sheets
+	  root.getStylesheets().add(ActivityReport.class.getResource("MainScreen.css").toExternalForm());
+	  
+	  //setup stage
+	  stage.setTitle("FASS Nova - List of Audits");
+	  stage.initModality(Modality.APPLICATION_MODAL);
+	  stage.centerOnScreen();
+	  stage.setMinWidth(600);
+	  stage.setMaxHeight(370);
+	  
+	  //scene
+	  Scene scene = new Scene(root);
+	  
+	  //set scene
+	  stage.setScene(scene);
+	  
+	  //show 
+	  stage.show();
+   }
+   
+   /*
+    * Get audits from the database
+    */
+   private static ObservableList<Audit> getAudits(String start, String end)
+   {
+      ObservableList<Audit> result = FXCollections.observableArrayList();	   
+      String query = "CALL listAudits(?,?,?,?)";
+      
+      try
+      {
+         java.sql.Connection conn = Session.openDatabase();
+         PreparedStatement ps = conn.prepareStatement(query);
+         
+         //set parameters
+         ps.setString(1, start);
+         ps.setString(2, end);
+         ps.setInt(3, Integer.parseInt(Configs.getProperty("Register")));
+         ps.setString(4, Configs.getProperty("StoreCode"));
+         
+         //execute
+         ResultSet rs = ps.executeQuery();
+         
+         //process
+         while(rs.next())
+         {
+            String expected = Double.toString(Receipt.setPrecision(rs.getDouble(2) + (Math.sqrt(rs.getDouble(4) * rs.getDouble(4)))));	 
+            result.add(new Audit(rs.getString(1), expected, rs.getString(3), rs.getString(4), rs.getString(5)));	 
+         }
+         
+         //close
+         conn.close();
+      }
+      catch(Exception e)
+      {
+         e.printStackTrace();	  
+      }
+      
+      return result;
+   }
+   
+   /*
+    * Construct table view for audits
+    */
+   @SuppressWarnings("unchecked")
+   private static TableView<Audit> createTable()
+   {
+      TableView<Audit> table = new TableView<Audit>();
+	  table.setEditable(false);
+		
+	  //create columns
+	  TableColumn<Audit, String> auditDate = new TableColumn<Audit, String>("Date");
+	  auditDate.setCellValueFactory(new PropertyValueFactory<>("auditDate"));
+		
+	  TableColumn<Audit, String> expectedCash = new TableColumn<Audit, String>("Expected Cash");
+	  expectedCash.setCellValueFactory(new PropertyValueFactory<>("expectedCash"));
+		
+	  TableColumn<Audit, String> actualCash = new TableColumn <Audit, String>("Actual Cash");
+	  actualCash.setCellValueFactory(new PropertyValueFactory<>("actualCash"));
+		
+	  TableColumn<Audit, String> difference = new TableColumn<Audit, String>("Difference");
+	  difference.setCellValueFactory(new PropertyValueFactory<>("difference"));
+		
+	  TableColumn<Audit, String> user = new TableColumn<Audit, String>("User");
+	  user.setCellValueFactory(new PropertyValueFactory<>("user"));	
+		
+	  //set sizes
+	  auditDate.setPrefWidth(90);
+	  expectedCash.setPrefWidth(100);
+	  actualCash.setPrefWidth(100);
+	  difference.setPrefWidth(100);
+	  user.setPrefWidth(80);
+		
+	  //add columns to the table view
+      table.getColumns().addAll(auditDate, expectedCash, actualCash, difference, user);	
+      
+      return table;
    }
 }

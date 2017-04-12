@@ -1,7 +1,10 @@
 package pos;
 
 import java.beans.*;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
+
+import com.mysql.jdbc.Connection;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -127,6 +130,34 @@ public class Product {
     	}	
     	
     	return result;
+    }
+    
+    /*
+     * Delete product from the database
+     */
+    public static void deleteProduct(String name)
+    {
+       String query = "CALL delete Product(?,?)";
+       
+       try
+       {
+    	  java.sql.Connection conn = Session.openDatabase();
+    	  PreparedStatement ps = conn.prepareStatement(query);
+    	  
+    	  //set parameters
+    	  ps.setString(1, name);
+    	  ps.setString(2, Configs.getProperty("StoreCode"));
+    	  
+    	  //execute
+    	  ps.execute();
+    	  
+    	  //close
+    	  conn.close();
+       }
+       catch(Exception e)
+       {
+          e.printStackTrace();	   
+       }
     }
   
 }

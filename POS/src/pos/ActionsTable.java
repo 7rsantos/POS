@@ -82,12 +82,19 @@ public class ActionsTable  {
 
 			@Override
 			public void handle(MouseEvent event) {
-			   //close main screen
-				MainScreen.closeStage();
 				
-			   //go to next screen
-				CashOperations.displayCashWD(1);
+				if(Integer.parseInt(Configs.getProperty("Privilege")) >= 1)
+				{	
+			       //close main screen
+				   MainScreen.closeStage();
 				
+			      //go to next screen
+				  CashOperations.displayCashWD(1);
+				}
+				else
+				{
+				   AlertBox.display("FASS Nova", "You do not have permission to perform this action");	
+				}		
 			}
 			
 		}) ;
@@ -95,11 +102,18 @@ public class ActionsTable  {
 
 			@Override
 			public void handle(MouseEvent event) {
-			   //close main screen
-				MainScreen.closeStage();
+				if(Integer.parseInt(Configs.getProperty("Privilege")) >= 1)
+				{	
+			       //close main screen
+				   MainScreen.closeStage();
 				
-			   //go to next screen
-				CashOperations.displayCashWD(2);			
+			      //go to next screen
+				  CashOperations.displayCashWD(2);
+				}
+				else
+				{
+				   AlertBox.display("FASS Nova", "You do not have permission to perform this action");	
+				}		
 			}
 			
 		}) ;

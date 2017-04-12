@@ -40,6 +40,48 @@ public class Audit {
 	private static NumericTextField five;
 	private static NumericTextField one;
 	private static NumericTextField ten;
+	private String auditDate;
+	private String expectedCash;
+	private String actualCash;
+	private String difference;
+	private String user;
+	/*
+	 *  audit object
+	 */
+	public Audit(String auditDate, String expectedCash, String actualCash, String difference, String user)
+	{
+	   this.auditDate = auditDate;
+	   this.expectedCash = expectedCash;
+	   this.actualCash = actualCash;
+	   this.difference = difference;
+	   this.user = user;
+	}
+	
+	public String getAuditDate()
+	{
+	   return this.auditDate;	
+	}
+	
+	public String getExpectedCash()
+	{
+	   return this.expectedCash;	
+	}
+	
+	public String getActualCash()
+	{
+	   return this.actualCash;	
+	}
+	
+	public String getDifference()
+	{
+	   return this.difference;	
+	}
+	
+	public String getUser()
+	{
+	   return this.user;	
+	}
+	
 	/*
 	 * Display the audit cash screen 1
 	 */

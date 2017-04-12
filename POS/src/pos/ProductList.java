@@ -24,6 +24,9 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -58,10 +61,7 @@ public class ProductList {
 	public static BorderPane createProductListLayout()
 	{ 
 	   BorderPane root = new BorderPane();
-	   
-	   //setup the layout
-	   root.setPadding(new Insets(10, 10, 10, 10));
-	   
+	   	   
 	   //set id
 	   root.setId("border");
 	   
@@ -112,8 +112,45 @@ public class ProductList {
 	    //create root layout
 		BorderPane root = createProductListLayout();
 		
+		//menu
+		MenuItem delete = new MenuItem("Delete Product");
+		Menu actions = new Menu("Actions");
+		MenuBar menu = new MenuBar();
+		
+		//add items to menu
+		actions.getItems().add(delete);
+		
+		//add menus to bar
+		menu.getMenus().add(actions);
+		menu.prefWidthProperty().bind(stage.widthProperty());
+		
 		//create table view
 		list = createProductTable();
+		
+		//set on action
+		delete.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+			   //check
+			   if(Integer.parseInt(Configs.getProperty("Privilege")) >= 2)
+			   {
+				  if(list.getSelectionModel().getSelectedItem() != null)
+				  {	  
+			         Product.deleteProduct(list.getSelectionModel().getSelectedItem().getName());	   
+				  }
+				  else
+				  {
+				     AlertBox.display("FASS Nova", "Please select a product");	  
+				  }		  
+			   }	
+			   else
+			   {
+			      AlertBox.display("FASS Nova", "You do not have permission to perform this action");	   
+			   }	   
+			}
+			
+		});
 		
 		//set list items
 		productList = getProductList();
@@ -182,13 +219,21 @@ public class ProductList {
 			
 		});
 		
-		//top layout
+		//top container
 		HBox top = new HBox();
 		top.setSpacing(5);
 		top.setAlignment(Pos.CENTER);
-		top.setPadding(new Insets(10, 10, 10, 10));
+		top.setPadding(new Insets(0, 10, 10, 10));
 		top.getChildren().addAll(productField, search);
-			
+		
+		//top layout
+		VBox topLayout = new VBox();
+		topLayout.setAlignment(Pos.CENTER);
+		topLayout.setSpacing(7);
+		
+		//add nodes top top layout
+		topLayout.getChildren().addAll(menu, top);
+		
 		//add table view to center layout
 		FlowPane center = new FlowPane();
 		center.setAlignment(Pos.CENTER);
@@ -318,7 +363,42 @@ public class ProductList {
 				   {
 				      AlertBox.display("FASS Nova", "Please select a product");	   
 				   }	   
-				}		
+				}	
+				else if(caller == 4)
+				{
+				   if(list.getSelectionModel().getSelectedItem() != null && 
+					  !list.getSelectionModel().isEmpty())
+				   {
+					  //close
+					   stage.close();
+					   
+				      //go to next screen
+					  Inventory.updateProductAmount(list.getSelectionModel().getSelectedItem().getName()); 
+				   }	
+				   else
+				   {
+					  AlertBox.display("FASS Nova", "Please select a product");   
+				   }	   
+				}
+				else if(caller == 5)
+				{
+				   if(list.getSelectionModel().getSelectedItem() != null && 
+					  !list.getSelectionModel().isEmpty())
+				   {
+					  //close
+					   stage.close();
+					   
+					   //get product
+					   Product p = list.getSelectionModel().getSelectedItem();
+					   
+				      //go to next screen
+					  DamagedInventory.displayDamagedInventory(p.getName(), p.getUnitSize()); 
+				   }	
+				   else
+				   {
+					  AlertBox.display("FASS Nova", "Please select a product");   
+				   }	   
+				}
 			}		
 		});
 		
@@ -360,7 +440,7 @@ public class ProductList {
 		bottom.getChildren().addAll(back,select);
 		
 		//add nodes to root
-		root.setTop(top);
+		root.setTop(topLayout);
 		root.setCenter(center);
 		root.setBottom(bottom);
 		root.setRight(right);

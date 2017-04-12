@@ -379,8 +379,15 @@ public class Customers {
 	    
 	}
 	
+	/*
+	 * Close the customer list
+	 */
 	private static void cancel() {
 	    
+		//close the stage
+		stage.close();
+		
+		//go back to main screen
 	    backToMainScreen();
 	    	
 	}
@@ -494,22 +501,44 @@ public class Customers {
 	    
 	    //build actions menu
 	    MenuItem createCustomer = new MenuItem("Create Customer");
-	    MenuItem modifyCustomer = new MenuItem("Update Customer Info");
 	    MenuItem deleteCustomer = new MenuItem("Delete Customer");
 	    
-	    Actions.getItems().addAll(createCustomer, modifyCustomer, deleteCustomer);
+	    Actions.getItems().addAll(createCustomer, deleteCustomer);
 	    
 	    //build options menu
 	    MenuItem cancel = new MenuItem("Cancel");
 	    
 	    //implement action
 	    cancel.setOnAction(e -> backToMainScreen());
+	    createCustomer.setOnAction(e -> Customers.displayCustomerForm());
+	    deleteCustomer.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+			   if(Integer.parseInt(Configs.getProperty("Privilege")) >= 1)
+			   {
+			      if(table.getSelectionModel().getSelectedItem() != null)
+			      {
+			         Customers.deleteCustomer(table.getSelectionModel().getSelectedItem().getId());	  
+			      }	  
+			      else
+			      {
+			         AlertBox.display("FASS Nova", "Select customer");	  
+			      } 	  
+			   }
+			   else
+			   {
+			      AlertBox.display("FASS Nova", "You do not have permission to perform this action");	   
+			   }	   
+			}
+	    	
+	    });
 	    
 	    Options.getItems().addAll(cancel);
 	    
 	    //menu
 	    MenuBar menu = new MenuBar();
-	    
+	    	    
 	    //add items to menu bar
 	    menu.getMenus().addAll(Actions, Options);
 	    
@@ -922,7 +951,34 @@ public class Customers {
 		Customers.end = end1;
 			
 		//display customer list
-		Customers.displayCustomerList(stage, MainScreen.products, 2);
-	 	
+		Customers.displayCustomerList(stage, MainScreen.products, 2);	 	
+	}
+	
+	/*
+	 * Delete customer from the database
+	 */
+	private static void deleteCustomer(int id)
+	{
+	   String query = "CALL deleteCustomer(?,?)";
+	   
+	   try
+	   {
+	      Connection conn = Session.openDatabase();
+	      PreparedStatement ps = conn.prepareStatement(query);
+	      
+	      //set parameters
+	      ps.setInt(1, id);
+	      ps.setString(2, Configs.getProperty("StoreCode"));
+	      
+	      //execute
+	      ps.execute();
+	      
+	      //close
+	      conn.close();
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
 	}
 }

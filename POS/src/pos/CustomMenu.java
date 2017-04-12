@@ -11,6 +11,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 
@@ -48,8 +49,6 @@ public class CustomMenu {
 		payment = new MenuItem("Receive Payment");
 		MenuItem cancel = new MenuItem("Cancel Ticket");
 		MenuItem hold = new MenuItem("Hold Receipt");
-		MenuItem holdPrint = new MenuItem("Hold and Print Receipt");
-		MenuItem remove = new MenuItem("Remove Item");
 		MenuItem sales = new MenuItem("Sales History");
 		MenuItem retrieve = new MenuItem("Retrieve Ticket On-Hold");
 		MenuItem clear = new MenuItem("Clear Payments");
@@ -63,12 +62,135 @@ public class CustomMenu {
 		//implement actions
 		open.setOnAction(e -> Session.openCashDrawer());
 		clear.setOnAction(e -> MainScreen.resetProductList());
+	    discount.setOnAction(e -> Discount.displayDiscountScreen());
 		cancel.setOnAction(e -> Session.logout(MainScreen.window));
+		sales.setOnAction(new EventHandler<ActionEvent>()  {
+
+			@Override
+			public void handle(ActionEvent event) {
+            
+				//close the stage
+				MainScreen.closeStage();
+				
+				//display sales history screen
+				SalesHistory.displaySalesHistory();
+			} 
+
+		});
+		receiveCash.setOnAction(new EventHandler<ActionEvent>(){
+
+			@Override
+			public void handle(ActionEvent event) {
+				
+				if(Integer.parseInt(Configs.getProperty("Privilege")) >= 1)
+				{	
+			       //close main screen
+				   MainScreen.closeStage();
+				
+			      //go to next screen
+				  CashOperations.displayCashWD(1);
+				}
+				else
+				{
+				   AlertBox.display("FASS Nova", "You do not have permission to perform this action");	
+				}		
+			}
+			
+		}) ;
 		payment.setOnAction(e -> PaymentScreen.displayPaymentScreen(MainScreen.products, MainScreen.getTotal(), MainScreen.window, Integer.parseInt(MainScreen.Discount.getText().substring(0,  MainScreen.Discount.getText().length()-1)), MainScreen.status, MainScreen.ticketNo));
+
+		removeCash.setOnAction(new EventHandler<ActionEvent>(){
+
+			@Override
+			public void handle(ActionEvent event) {
+				
+				if(Integer.parseInt(Configs.getProperty("Privilege")) >= 1)
+				{	
+			       //close main screen
+				   MainScreen.closeStage();
+				
+			      //go to next screen
+				  CashOperations.displayCashWD(2);
+				}
+				else
+				{
+				   AlertBox.display("FASS Nova", "You do not have permission to perform this action");	
+				}		
+			}
+			
+		}) ;
+		hold.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+			
+			   if(Integer.parseInt(Configs.getProperty("Privilege")) >= 2)
+			   {
+				  if(!MainScreen.products.isEmpty())
+				  {
+				     //method to handle on-hold tickets
+					 Receipt.createOnHoldTicket(MainScreen.products, MainScreen.getTotal(), "Pending", Double.parseDouble(MainScreen.Discount.getText().substring(0, MainScreen.Discount.getLength()-1)), "On-hold", 1);
+					 
+					 //set status
+					 MainScreen.status = "On-hold";
+				  }	  
+				  else
+				  {
+				     AlertBox.display("FASS Nova", "No products selected");	  
+				  }	  
+			   }	
+			   else
+			   {
+				  AlertBox.display("FASS Nova", "You do not have permission to perform this action");   
+			   }	   
+			}
+		   	
+		});
+		retrieve.setOnAction(e -> Receipt.displayOnHoldTickets());
+		transferCash.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+			   //check priority level
+				if(Double.parseDouble(Configs.getProperty("Privilege")) >= 2)
+				{
+				   CashOperations.transferCashDisplay();	
+				}	
+				else
+				{
+				   AlertBox.display("FASS Nova", "You do not have permission to perform this action");	
+				}	
+			}
+			
+		});
+		transferInventory.setOnAction(new EventHandler<ActionEvent>()  {
+
+			@Override
+			public void handle(ActionEvent event) {
+			   //check privilege level
+				if(Integer.parseInt(Configs.getProperty("Privilege")) >= 2)
+				{
+				   if(!MainScreen.productList.isEmpty())
+				   {
+					   ProductUtilities.displayTransferProduct(MainScreen.products);   
+				   }	
+				   else
+				   {
+					  AlertBox.display("FASS Nova", "Select products to be transferred");   
+				   }	   
+				}	
+				else
+				{
+				   AlertBox.display("FASS Nova", "You do not have permission to perform this action");	
+				}	
+			}
+			
+		});
+		
 		
 		//add items to actions
-		actions.getItems().addAll(payment, cancel, new SeparatorMenuItem(), hold, holdPrint,
-				retrieve, remove, new SeparatorMenuItem(), clear, discount, 
+		actions.getItems().addAll(payment, cancel, new SeparatorMenuItem(), hold,
+				retrieve, new SeparatorMenuItem(), clear, discount, 
 				new SeparatorMenuItem(),
 				sales, open, new SeparatorMenuItem(), receiveCash, removeCash, 
 				new SeparatorMenuItem(), transferCash, transferInventory);
@@ -122,6 +244,59 @@ public class CustomMenu {
 		MenuItem registerProduct = new MenuItem("Register New Product");
 		
 		//set actions when triggered
+		damagedInventory.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+			   //check privilege
+			   if(Integer.parseInt(Configs.getProperty("Privilege")) >= 1)
+			   {
+				   //close main screen
+				   MainScreen.closeStage();
+					  
+			 	   //stage
+				   Stage stage = new Stage();
+						
+			 	   //go to product list screen
+				   Scene scene = ProductList.createProductListScene(stage, MainScreen.products, "", MainScreen.productList, 5);
+			 	   stage.setScene(scene);
+						
+				   //show
+				   stage.show();			       	   
+			   }  
+			   else
+			   {
+				   AlertBox.display("FASS Nova", "You do not have permission to perform this action");   
+			   }	   
+			}
+			
+		});
+		addInventory.setOnAction(new EventHandler<ActionEvent>()  {
+
+			@Override
+			public void handle(ActionEvent event) {
+			   if(Integer.parseInt(Configs.getProperty("Privilege")) >= 1)
+			   {
+				  //close main screen
+				  MainScreen.closeStage();
+				  
+				  //stage
+				  Stage stage = new Stage();
+					
+				  //go to product list screen
+				  Scene scene = ProductList.createProductListScene(stage, MainScreen.products, "", MainScreen.productList, 4);
+				  stage.setScene(scene);
+					
+				  //show
+				  stage.show();
+			   }
+			   else
+			   {
+			      AlertBox.display("FASS Nova", "You do not have permission to perform this action");	   
+			   }	   
+			}
+		   	
+		});
 		registerProduct.setOnAction(e -> Inventory.displayAddInventory());
 		productSearch.setOnAction(new EventHandler<ActionEvent>()  {
 
@@ -132,6 +307,7 @@ public class CustomMenu {
 				
 				//open product list
 				ProductList.displayProductList(MainScreen.products, MainScreen.customer.getText(), MainScreen.productList);
+				
 			} 			
 		});
 		
@@ -229,12 +405,28 @@ public class CustomMenu {
 		MenuItem auditList = new MenuItem("List of Audits");
 		
 		//add items to the end of day menu
-		end.getItems().addAll(activity, auditCash, new SeparatorMenuItem(),
+		end.getItems().addAll(activity, auditCash,
 				new SeparatorMenuItem(),  auditList);
 		
 		//implement actions
 		auditCash.setOnAction(e -> Audit.displayAuditBills());
 		activity.setOnAction(e -> Reports.displayRanges(4));
+		auditList.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+			    if(Integer.parseInt(Configs.getProperty("Privilege")) >= 2)
+			    {
+			       //display audits
+			       ActivityReport.displayAudits();	
+			    }	
+			    else
+			    {
+			       AlertBox.display("FASS Nova", "You do not have permission to perform this action");	
+			    }	
+			}
+			
+		});
 		
 		//return the end of day menu
 		return end;

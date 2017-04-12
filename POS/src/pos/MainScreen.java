@@ -432,7 +432,7 @@ public class MainScreen {
 		//create icons
 		search = Icon.createButtonIcon("Product Search", "/res/search.png");
 	    moneyWire = Icon.createButtonIcon("Money Wire", "/res/moneyWire.png");
-		checkCashing = Icon.createButtonIcon("Check Cashing", "/res/check.PNG");
+		//checkCashing = Icon.createButtonIcon("Check Cashing", "/res/check.PNG");
 		customers = Icon.createButtonIcon("Customer", "/res/customer.png");
 		
 		//create user icon
@@ -481,13 +481,13 @@ public class MainScreen {
 		Label cashierName = new Label(Session.getUserFirstName());		
 		
 		customer = new Label("Customer");
-		Label check = new Label("Check Cashing");
+		//Label check = new Label("Check Cashing");
 		Label productSearch = new Label("Product Search");
 		Label money = new Label("Money Wire");
 		
 		//change label color
 		customer.setTextFill(Color.WHITE);
-		check.setTextFill(Color.WHITE);
+		//check.setTextFill(Color.WHITE);
 		productSearch.setTextFill(Color.WHITE);
 		money.setTextFill(Color.WHITE);
 		cashier.setTextFill(Color.WHITE);
@@ -504,8 +504,8 @@ public class MainScreen {
 		options.add(productSearch, 18, 2);
 		options.add(moneyWire, 20, 1);
 		options.add(money, 20, 2);
-		options.add(checkCashing, 22, 1);
-		options.add(check, 22, 2);	
+		//options.add(checkCashing, 22, 1);
+		//options.add(check, 22, 2);	
 	
         options.setHgap(15); 
 		options.setAlignment(Pos.CENTER);
