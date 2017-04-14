@@ -206,8 +206,8 @@ public class CustomMenu {
 		
 		//create user menu items
 		MenuItem listUsers = new MenuItem("List Users");
-		MenuItem getUserInfo = new MenuItem("Get User Info");
-		MenuItem timeClock = new MenuItem("Time Clock");
+		//MenuItem getUserInfo = new MenuItem("Get User Info");
+		//MenuItem timeClock = new MenuItem("Time Clock");
 		MenuItem createUser = new MenuItem("Create New User");
 		MenuItem updateUserInfo = new MenuItem("Update User Info");
 		MenuItem updatePassword = new MenuItem("Update User Password");		
@@ -221,9 +221,9 @@ public class CustomMenu {
 		updateUserInfo.setOnAction(e -> Session.passwordValidation(3));
 		
 		//add menu items to the user menu
-		user.getItems().addAll(listUsers, getUserInfo, new SeparatorMenuItem(), updateUserInfo,
+		user.getItems().addAll(listUsers, new SeparatorMenuItem(), updateUserInfo,
 				createUser, 
-				updatePassword, new SeparatorMenuItem(), timeClock, new SeparatorMenuItem(),
+				updatePassword, new SeparatorMenuItem(),
 				logout);
 		
 		
