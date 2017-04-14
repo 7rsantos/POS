@@ -39,7 +39,6 @@ public class RegisterUtilities {
 	       PreparedStatement ps = conn.prepareCall(query1);
 	       
 	       //set parameters
-	       //ps.setString(1, dateFormat);
 	       ps.setDouble(1, amount + oldAmount);
 	       ps.setInt(2, Integer.parseInt(Configs.getProperty("Register")));
 	       
@@ -61,7 +60,7 @@ public class RegisterUtilities {
 	 */
 	public static double getExpectedCash()
 	{ 
-		String query1 = "SELECT expectedCash FROM auditcashhistory WHERE auditCashHistory.registerID = (SELECT Register.`ID` FROM Register WHERE Register.registerStoreCode = ?) ";
+		String query1 = "SELECT expectedCash FROM auditcashhistory WHERE auditCashHistory.registerID = (SELECT Register.`ID` FROM Register WHERE Register.ID = ? AND Register.registerStoreCode = ?) ";
 		double expected = 0.0;
 		   
 	    try
@@ -71,8 +70,8 @@ public class RegisterUtilities {
  	       PreparedStatement ps = conn.prepareCall(query1);
 		      
 		   //set parameters
-		   //ps.setInt(1, Integer.parseInt(Configs.getProperty("Register")));
-		   ps.setString(1, Configs.getProperty("StoreCode"));
+		   ps.setInt(1, Integer.parseInt(Configs.getProperty("Register")));
+		   ps.setString(2, Configs.getProperty("StoreCode"));
 		      
 		   //execute query
 		   ResultSet rs = ps.executeQuery();

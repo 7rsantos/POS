@@ -325,6 +325,7 @@ public class Reports {
 	   GridPane categorySummary = new GridPane();
 	   categorySummary.setHgap(7);
 	   categorySummary.setVgap(7);
+	   categorySummary.setAlignment(Pos.CENTER);
 	   categorySummary.setPadding(new Insets(10, 10, 10, 10));
 	   
 	   //add nodes
@@ -357,6 +358,7 @@ public class Reports {
 	   //setup money wire layout
 	   VBox wireSummary = new VBox();
 	   wireSummary.setSpacing(7);
+	   wireSummary.setAlignment(Pos.CENTER);
 	   wireSummary.setPadding(new Insets(10, 10, 10, 10));
 	   
 	   for(String s : companies)

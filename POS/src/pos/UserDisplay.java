@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -171,6 +172,43 @@ private static ChoiceBox<String> storeLocations;
 	  	//create choice box to display store locations
 	  	storeLocations = getStoreCodes();
 	  	
+	  	//button 
+	  	Button check = new Button("Check");
+	  	Label checklbl = new Label("");
+	  	
+	  	//set on action
+	  	check.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+			   if(user.getText() != null && !user.getText().isEmpty())
+			   {
+			      if(!usernameExists(user.getText()))
+	   
+			      {
+				      //bind property 
+				      checklbl.textProperty().unbind();
+				      SimpleStringProperty property = new SimpleStringProperty("Available");
+				      checklbl.setTextFill(Color.LIGHTGREEN);
+				      checklbl.textProperty().bind(property);			    	  
+			      }	  
+			      else
+			      {
+			    	 //bind property 
+			         checklbl.textProperty().unbind();
+			         SimpleStringProperty property = new SimpleStringProperty("Unavailable");
+			         checklbl.setTextFill(Color.RED);
+			         checklbl.textProperty().bind(property);
+			      }	  
+			   }	
+			   else
+			   {
+				   AlertBox.display("FASS Nova", "Fill in required fields");   
+			   }	   
+			}
+	  		
+	  	});
+	  	
 	  	//create a grid layout to hold nodes for the form
 	  	GridPane layout = new GridPane();
 	  	layout.setPadding(new Insets(15, 10, 5, 25));
@@ -186,8 +224,10 @@ private static ChoiceBox<String> storeLocations;
 	  	layout.add(lastName, 1, 1);
 	  	layout.add(username, 0, 2);
 	  	layout.add(user, 1, 2);
+	  	layout.add(check, 2, 2);
 	  	layout.add(password, 0, 3);
 	  	layout.add(pass, 1, 3);
+	  	layout.add(checklbl, 2, 3);
 	  	layout.add(confirmPassword, 0, 4);
 	  	layout.add(confirmPass, 1, 4);
 	  	layout.add(emailAddress, 0, 5);
@@ -253,7 +293,6 @@ private static ChoiceBox<String> storeLocations;
 		                          int year, String email, String phone, String photoPath,
 		                          String storeCode) 
    {
-	  boolean usernameExists = false;
 	  
 	  // construct birth date of user
 	  String birthDate = year + "-" + month + "-" + day;
@@ -264,7 +303,7 @@ private static ChoiceBox<String> storeLocations;
 	  if(formCompleted())
 	  {	   
 	     //check if username exists
-	     if(!usernameExists)
+	     if(usernameExists(user) == false)
 	     {
             if(pass.equals(confirmPass))
             { 
@@ -321,6 +360,44 @@ private static ChoiceBox<String> storeLocations;
 	  }	  
    }
    
+   /*
+    *  Check if username exists in the database
+    */
+   private static boolean usernameExists(String user)
+   {
+	  String query = "SELECT Count(Username) FROM Employee WHERE Employee.Username = ?";
+	  boolean exists = false;
+	  
+	  try
+	  {
+	     Connection conn = Session.openDatabase();
+	     PreparedStatement pst = conn.prepareStatement(query);
+	     
+	     //set parameter
+	     pst.setString(1, user);
+	     
+	     //execute
+	     ResultSet rs = pst.executeQuery();
+	     
+	     while(rs.next())
+	     {
+	        if(rs.getInt(1) == 1)
+	        {
+	           exists = true;	
+	        } 	
+	     } 	 
+	  }
+	  catch(Exception e)
+	  {
+	     e.printStackTrace();	  
+	  }
+			 
+      return exists;
+   }
+   
+   /*
+    * Select the image file
+    */
    public static void selectImageFile(TextField path, ImageView userPhoto)
    { 
 		

@@ -33,7 +33,7 @@ public class Receipt {
 	 * Build the receipt, compute totals
 	 * 
 	 */
-	public static void setupReceipt(String customer, String change, String cashReceived, double discount, String paymentMethod, String status,
+	public static void setupReceipt(String change, String cashReceived, double discount, String paymentMethod, String status,
 			                        int caller, String ticketno)
 	{ 
 		ObservableList<Product> products = PaymentScreen.getList();
@@ -85,13 +85,12 @@ public class Receipt {
 		   if(caller == 1)
 		   {	
 		      //print the receipt
-		      printReceipt(products, total, result, taxDollars, customer, format, timeStamp, count, change, cashReceived,
-		    		transaction);
+		      printReceipt(products, total, result, taxDollars, format, timeStamp, count, change, cashReceived,
+		    		transaction, discount);
 		   }
 	    }
 	    else
-	    {
-	       
+	    {	       
 	       //change status
 	    	status = "Completed";
 	    	
@@ -108,8 +107,8 @@ public class Receipt {
 		   if(caller == 1)
 		   {	
 		      //print the receipt
-		      printReceipt(products, total, result, taxDollars, customer, format, timeStamp, count, change, cashReceived,
-		    		ticketno);
+		      printReceipt(products, total, result, taxDollars, format, timeStamp, count, change, cashReceived,
+		    		ticketno, discount);
 		   }
 	    	
 	    }	
@@ -216,6 +215,12 @@ public class Receipt {
 		String day = df3.format(date);
 		String month = df2.format(date);
 		String mysqlDate = df4.format(date);
+		int id = 0;
+		
+		if(Integer.parseInt(Configs.getTempValue("customerID")) != -1)
+		{
+		   id = Integer.parseInt(Configs.getTempValue("customerID"));	
+		}		
 		
 		//query
 		String query2 = "CALL createSalesTicket(?,?,?,?,?,?,?)";
@@ -248,7 +253,7 @@ public class Receipt {
 			ps2.setDouble(2, total);
 			ps2.setString(3, Configs.getProperty("CurrentUser"));
 			ps2.setString(4, paymentMethod);
-			ps2.setInt(5, 1);
+			ps2.setInt(5, id);
 			ps2.setDouble(6, discount);
 			ps2.setString(7, status);
 			
@@ -272,9 +277,7 @@ public class Receipt {
 	 *  Save items of a receipt in the database
 	 */
     public static void saveItems(ObservableList<Product> products, String ticketno) 
-    { 
-	
-       
+    {  
        try
        {
           String query = "CALL createItem(?, ?, ?, ?, ?)"; 
@@ -342,12 +345,18 @@ public class Receipt {
 	 * @param customer the name of the customer
 	 */
 	public static void printReceipt(ObservableList<Product> products, double total, double subtotal, 
-			double taxDollars, String customer, String date, String timeStamp,
-			int count, String change, String cashReceived, String transaction) 
+			double taxDollars, String date, String timeStamp,
+			int count, String change, String cashReceived, String transaction, double discount) 
 	{
 		
 		PrinterService printerService = new PrinterService();
+        String customer  = " ";
         
+        if(Configs.getTempValue("customerName") != "null")
+        {
+           customer = Configs.getTempValue("customerName");	
+        } 	
+		
 		//print the header
 		printerService.printString(Configs.getProperty("Printer"), " \n \n \n \t \t" + "   " + Configs.getProperty("StoreName") 
 		+ "\n \t \t" + "   " + "Store # " + Configs.getProperty("StoreNumber") 
@@ -362,8 +371,7 @@ public class Receipt {
 		+ " \n" + "Date: " + "\t\t\t" + date
 		+ " \n" + "Time: " + "\t\t\t" + timeStamp
 		+ " \n" + "Cashier: " + "\t\t" + Session.getUserFirstName()
-		+ " \n" + "Customer: " + "\t\t" + "Bob \n\n"
-
+		+ " \n" + "Customer: " + "\t\t" + customer + " \n\n"
 		
         //print items header
 		+ "\t" + "Item" + "\t\t\t" + "Item Total \n" 
@@ -438,10 +446,17 @@ public class Receipt {
 		+ "\t\t" + "Change: " + "\t " + change + " \n");		
 		
 		//items sold
-		printerService.printString(Configs.getProperty("Printer"), "\n\t\t" + "Items Sold: " + "\t" + count + "\n"
+		printerService.printString(Configs.getProperty("Printer"), "\n\t\t" + "Items Sold: " + "\t" + count + "\n");
 		
+		//discount section
+		if(discount > 0)
+		{
+		   printerService.printString(Configs.getProperty("Printer"), "\n\t\t"
+				   + "Your purchase includes a" + discount + "% discount");   	
+		}	
+				
         //display greeting		
-		+ "\n\t\t" + Configs.getProperty("Slogan") + "\n"		
+		printerService.printString(Configs.getProperty("Printer"), "\n\t\t" + Configs.getProperty("Slogan") + "\n"		
 		+ "\n\t\t" + "" + Configs.getProperty("Greeting") + "\n\n\n\n");
 		
 		// cut the paper
@@ -460,7 +475,13 @@ public class Receipt {
 	public static void printRefundReceipt(String ticketno, ObservableList<Product> products, String total, String subtotal)
 	{
 		PrinterService printerService = new PrinterService();
-		
+        String customer  = " ";
+        
+        if(Configs.getTempValue("customerName") != "null")
+        {
+           customer = Configs.getTempValue("customerName");	
+        }
+        
 		//compute date
 		Date date = new Date();
 		
@@ -486,7 +507,7 @@ public class Receipt {
 		+ " \n" + "Date: " + "\t\t\t" + format
 		+ " \n" + "Time: " + "\t\t\t" + timeStamp
 		+ " \n" + "Cashier: " + "\t\t" + Session.getUserFirstName()
-		+ " \n" + "Customer: " + "\t\t" + "Bob \n\n" + 
+		+ " \n" + "Customer: " + "\t\t" +  customer + "\n\n" + 
 
 		
         //print items header

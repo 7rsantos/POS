@@ -311,13 +311,13 @@ public class PhotoScreen {
 	public void takePicture()
 	{ 
 			
-		Imgcodecs.imwrite("C:/Users/Atomic/Downloads/example.jpg", frame);
+		Imgcodecs.imwrite(Configs.getProperty("DestinationFolder") + "/example.jpg", frame);
 		ok.setDisable(false);
 	}
 	
 	public void preparePicturePath(int caller)
 	{ 
-		File file = new File("C:/Users/Atomic/Downloads/example.jpg");
+		File file = new File(Configs.getProperty("DestinationFolder") + "/example.jpg");
 		if (caller == 1)
 		{ 
 		   UserDisplay.setPicturePath(file);

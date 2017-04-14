@@ -600,12 +600,14 @@ private static String ticketNo;
 			public void handle(ActionEvent event) {
 				
 				secondary.close();
-				
-				//compute ticket number
-				
+								
 				//setup receipt
-                Receipt.setupReceipt(Session.getUserFirstName(), change.getText(), "Cash", discount, paymentMethod, status, 0, ticketNo);				
+                Receipt.setupReceipt(change.getText(), "Cash", discount, paymentMethod, status, 0, ticketNo);				
 				
+                //reset values
+                Configs.saveTempValue("customerID", "-1");
+                Configs.saveProperty("customerName", "null");
+                
 				//reset product list
 				MainScreen.resetProductList();
 				
@@ -624,8 +626,8 @@ private static String ticketNo;
 				secondary.close();				
 				
 				//setup receipt
-                Receipt.setupReceipt(Session.getUserFirstName(), change.getText(), cashReceived.getText(), discount, paymentMethod, status, 1, ticketNo);  
-				
+                Receipt.setupReceipt(change.getText(), cashReceived.getText(), discount, paymentMethod, status, 1, ticketNo);  
+                
                 //reset the product list
 				MainScreen.resetProductList();
                 

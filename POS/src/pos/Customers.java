@@ -107,7 +107,16 @@ public class Customers {
 				
 				   //set the customer
 				   MainScreen.setCustomer(table.getSelectionModel().getSelectedItem().getFirstName() + " " + table.getSelectionModel().getSelectedItem().getLastName().substring(0, 1) + ".");
-				
+			
+				   
+				   if(table.getSelectionModel().getSelectedItem() != null)
+				   {	   
+				      Configs.saveTempValue("customerName", Integer.toString(table.getSelectionModel().getSelectedItem().getId()));
+				      
+					  //save property
+					  Configs.saveTempValue("customerID", Integer.toString(table.getSelectionModel().getSelectedItem().getId()));
+				   }
+				   
 				   //set table items
 				   MainScreen.setTableItems(products);
 				
@@ -464,8 +473,7 @@ public class Customers {
 		
 		//set sizes
 		firstName.setPrefWidth(330);
-		lastName.setPrefWidth(330);		
-		
+		lastName.setPrefWidth(330);				
 		
 		//add columns to the table view
         table.getColumns().addAll(firstName, lastName);			

@@ -29,11 +29,14 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -537,6 +540,33 @@ public class MainScreen {
 		TableColumn<Product, String> price = new TableColumn<Product, String>("Price");
 		price.setCellValueFactory(new PropertyValueFactory<>("price"));	
 		
+		//add context menu
+		ContextMenu contextMenu = new ContextMenu();	 
+	    MenuItem quantityMenu = new MenuItem("Update Quantity");	
+	    
+	    quantityMenu.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+			   if(table.getSelectionModel().getSelectedItem() != null && !table.getSelectionModel().isEmpty())	
+			   {
+                  MainScreen.displayQuantity(table.getSelectionModel().getSelectedItem().getQuantity());
+			   } 	   
+			}
+	    	
+	    });
+	    contextMenu.getItems().add(quantityMenu);
+	     
+		//add listener to item
+		table.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
+
+			@Override
+			public void handle(ContextMenuEvent event) {
+			   contextMenu.show(table, event.getScreenX()+2, event.getScreenY()+2);	
+			}
+			
+		});
+		
 		//set sizes
 		Name.setPrefWidth(350);
 		unitSize.setPrefWidth(70);
@@ -623,8 +653,7 @@ public class MainScreen {
        if(!Discount.getText().isEmpty() && Discount.getText() != null)
        { 
           discount = Double.parseDouble(Discount.getText().substring(0, Discount.getText().length()-1));
-       }	   
-       
+       }	   	   
        
        //close the window display payment screen
        window.close();
@@ -771,6 +800,124 @@ public class MainScreen {
     public static ObservableList<Product> getProductList()
     { 
        return products;	
+    }
+    
+    /*
+     * Display quantity screen
+     */
+    private static void displayQuantity(int quantity)
+    {
+       //stage
+       Stage stage = new Stage();
+       
+       //text field
+       NumericTextField number = new NumericTextField();
+       
+       //label
+       Label title = new Label("Set quantity for this item");
+       title.setTextFill(Color.WHITE);
+       
+       //button
+       Button update = new Button("Update");
+       
+       //set on action
+       update.setOnAction(new EventHandler<ActionEvent>() {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+			if(number.getText() != null && !number.getText().isEmpty())
+			{	
+			   //set product quantity
+			   setProductQuantity(Integer.parseInt(number.getText()));
+			   
+			   //close the stage
+			   stage.close();
+			}
+			else
+			{
+			   AlertBox.display("FASS Nova", "Please fill in required fields");	
+			}	
+		}
+      	   
+       });
+       
+       //bottom layout
+       HBox bottom = new HBox();
+       bottom.setSpacing(7);
+       bottom.setAlignment(Pos.CENTER);
+       
+       //add nodes to bottom
+       bottom.getChildren().addAll(number, update);
+       
+       //root 
+       VBox root = new VBox();
+       
+       //add nodes to root
+       root.getChildren().addAll(title, bottom);
+       
+       
+       //setup root
+       root.setSpacing(7);
+       root.setAlignment(Pos.CENTER);
+       root.setPadding(new Insets(20, 20, 20, 20));
+       //set it
+       root.setId("border");
+       
+       //style sheets
+       root.getStylesheets().add(MainScreen.class.getResource("MainScreen.css").toExternalForm());
+       
+       //setup stage
+       stage.setTitle("FASS Nova - Quantity");
+       stage.initModality(Modality.APPLICATION_MODAL);
+       stage.setMinWidth(300);
+       stage.centerOnScreen();
+       
+       //set scene
+       stage.setScene(new Scene(root));
+       
+       //show
+       stage.showAndWait();
+    }
+    
+    /*
+     * Set quantity
+     */
+    private static void setProductQuantity(int quantity)
+    {
+	      
+	   //set new quantity
+	   table.getSelectionModel().getSelectedItem().setQuantity(quantity);
+	      
+	   //refresh
+	   table.refresh();
+	 
+	   //add items to list
+	   products.get(products.indexOf(table.getSelectionModel().getSelectedItem()));
+	      
+	   //add items to observable list 
+	   productList.get(productList.indexOf(table.getSelectionModel().getSelectedItem().getName()));	
+		
+	    //create decimal format
+		DecimalFormat df = new DecimalFormat("#.##");
+		   
+		//compute sub total 
+		subTotal.setText(df.format(Product.computeSubTotal(products, Discount.getText())));
+		
+		
+		//compute total
+		double total = Product.computeTotal(subTotal.getText(), Tax.getText());  	
+
+		for(Product p : products)
+		{
+		   if(p.getUnitSize().equals("0"))
+		   {
+		      total += p.getUnitPrice();   
+		   }	   
+		}
+		
+		//set total
+		Total.setText(Double.toString(Receipt.setPrecision(total)));
     }
     
     /*

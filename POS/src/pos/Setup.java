@@ -204,7 +204,7 @@ public class Setup {
 					   !list.getSelectionModel().getSelectedItem().isEmpty())
 			       {	   
 			          //go to next screen
-			          setupStoreInfo();
+			          displayOptions();
 			       }
 				}
 				else 
@@ -453,7 +453,7 @@ public class Setup {
 			     stage.close();
 			     
 				 //go back to previous screen  
-				 setupPrinter(1);
+				 Setup.displayOptions();
 			} 
 	    	
 	    });	   
@@ -1792,4 +1792,269 @@ public class Setup {
 		  e.printStackTrace();   
 	   }
 	}
+	
+	/*
+	 * Display options
+	 */
+	private static void displayOptions()
+	{
+	   //stage
+	   Stage stage = new Stage();
+	   
+	   //buttons
+	   Button create = new Button("Create New Store");
+	   Button find = new Button("Search Existing Store");
+
+	   //setup create
+	   create.setMinWidth(40);
+	   
+	   //set on action
+	   create.setOnAction(new EventHandler<ActionEvent>() {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+		   //close the stage
+		   stage.close();
+		   
+		   //go to next screen
+		   Setup.setupStoreInfo();
+		}
+		   
+	   });
+	   find.setOnAction(new EventHandler<ActionEvent>() {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+		   //close the stage
+		   stage.close();
+		   
+		   //go to next screen
+		   Setup.findStore();
+		}
+		   
+	   });	   
+	   //top layout
+	   VBox top = new VBox();
+	   top.setAlignment(Pos.CENTER);
+	   top.setSpacing(7);
+	   top.setPadding(new Insets(10, 10, 10, 10));
+	   
+	   //add nodes to top layout
+	   top.getChildren().addAll(create, find);
+	   
+	   //bottom layout
+	   Button previous = new Button("Previous", new ImageView(new Image(Setup.class.getResourceAsStream("/res/Go back.png"))));
+	   
+	   //set on action
+	   previous.setOnAction(new EventHandler<ActionEvent>(){
+
+		@Override
+		public void handle(ActionEvent event) {
+			
+           //close the stage
+		   stage.close();
+		   
+		   //go to printer
+		   Setup.setupPrinter(1);
+		}
+		   
+	   });
+	   
+	   //bottom layout
+	   HBox bottom = new HBox();
+	   bottom.setSpacing(7);
+	   bottom.setAlignment(Pos.CENTER);
+	   bottom.setPadding(new Insets(20, 20, 20, 20));
+	   
+	   //add nodes to bottom
+	   bottom.getChildren().addAll(previous);
+	   
+	   //root
+	   VBox root = new VBox();
+	   
+	   //setup root
+	   root.setPadding(new Insets(30, 30, 30, 30));
+	   
+	   //add nodes to root
+	   root.getChildren().addAll(top, bottom);
+	   
+	   //set id
+	   root.setId("border");
+	   
+	   //get style sheets
+	   root.getStylesheets().add(Setup.class.getResource("MainScreen.css").toExternalForm());
+	   
+	   //setup stage
+	   stage.setTitle("FASS Nova - Setup");
+	   stage.setMinWidth(350);
+	   stage.centerOnScreen();
+	   
+	   //scene
+	   stage.setScene(new Scene(root));
+	   
+	   //show
+	   stage.show();
+	}
+	
+	/*
+	 * Second version of store exists
+	 */
+	private static boolean storeExists2(String name, int number)
+	{
+	   String query = "SELECT Name FROM Store WHERE Store.Name = ? AND Store.storeNumber = ?";	
+	   try
+	   {
+	      Connection conn = Session.openDatabase();
+	      PreparedStatement ps = conn.prepareStatement(query);
+	      
+	      //set parameters
+	      ps.setString(1, name);
+	      ps.setInt(2, number);
+	      
+	      //execute
+	      ResultSet rs = ps.executeQuery();
+	      
+	      //process
+	      if(rs.next())
+	      {
+		     //close
+		     conn.close(); 
+	    	  
+	         return true;	  
+	      } 	
+	      else
+	      {
+		     //close
+		     conn.close(); 
+	    	  
+	         return false;	  
+	      } 	  
+	    
+	   }
+	   catch(Exception e)
+	   {
+		  e.printStackTrace();   
+	   }
+	   
+	   return false;
+	}
+	
+	/*
+	 * Find the store
+	 * 
+	 */
+	private static void findStore()
+	{
+	   //stage
+	   Stage stage = new Stage();
+	   
+	   //top layout
+	   Label namelbl = new Label("Store Name");
+	   Label numberlbl = new Label("Number");
+	   
+	   namelbl.setTextFill(Color.WHITE);
+	   numberlbl.setTextFill(Color.WHITE);
+	   
+	   numberlbl.setFont(new Font("Courier Sans", 12));
+	   namelbl.setFont(new Font("Courier Sans", 12));
+	   
+	   //text field
+	   TextField name = new TextField();
+	   NumericTextField number = new NumericTextField();
+	   
+	   //gridpane top
+	   GridPane top = new GridPane();
+	   top.setVgap(7);
+	   top.setHgap(7);
+	   top.setPadding(new Insets(10, 10, 10, 10));
+	   top.setAlignment(Pos.CENTER);
+	   
+	   //add nodes to top
+	   top.add(namelbl, 0, 0);
+	   top.add(name, 1, 0);
+	   top.add(numberlbl, 0, 1);
+	   top.add(number, 1, 1);
+	   
+	   //bottom
+	   Button previous = new Button("Previous", new ImageView(new Image(Setup.class.getResourceAsStream("/res/Go back.png"))));
+	   Button next = new Button("Next", new ImageView(new Image(Setup.class.getResourceAsStream("/res/Go forward.png"))));
+	
+	   //set on action
+	   previous.setOnAction(new EventHandler<ActionEvent>() {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   
+		   //close the stage
+		   stage.close();
+		   
+		   //go to next screen
+		   Setup.displayOptions();
+		}
+		   
+	   });	   next.setOnAction(new EventHandler<ActionEvent>() {
+
+		@Override
+		public void handle(ActionEvent event) {
+		   if(number.getText() != null && name.getText() != null)
+		   {
+		      if(storeExists2(name.getText(), Integer.parseInt(number.getText())))
+		      {
+		    	 //close the stage
+		    	 stage.close(); 
+		    	  
+		         //go to setup register screen
+		    	 Setup.setupRegister(); 
+		      }	  
+		      else
+		      {
+		         AlertBox.display("FASS Nova", "Could not find store");	  
+		      }	  
+		   }	
+		   else
+		   {
+		      AlertBox.display("FASS Nova", "Please fill in required fields");	   
+		   }	   
+		}
+		   
+	   });
+	   
+	   //bottom layout
+	   HBox bottom = new HBox();
+	   bottom.setAlignment(Pos.CENTER);
+	   bottom.setSpacing(7);
+	   bottom.setPadding(new Insets(10, 10, 10, 10));
+	   
+	   //add nodes to bottom
+	   bottom.getChildren().addAll(previous, next);
+	   
+	   //root
+	   VBox root = new VBox();
+	   
+	   //setup root
+	   root.setPadding(new Insets(30, 30, 30, 30));
+	   
+	   //add nodes to root
+	   root.getChildren().addAll(top, bottom);
+	   
+	   //set id
+	   root.setId("border");
+	   
+	   //get style sheets
+	   root.getStylesheets().add(Setup.class.getResource("MainScreen.css").toExternalForm());
+	   
+	   //setup stage
+	   stage.setTitle("FASS Nova - Find store");
+	   stage.setMinWidth(350);
+	   stage.centerOnScreen();
+	   
+	   //scene
+	   stage.setScene(new Scene(root));
+	   
+	   //show
+	   stage.show();
+	}
+
 }

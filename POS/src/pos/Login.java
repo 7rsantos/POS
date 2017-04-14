@@ -147,25 +147,23 @@ public static Stage window;
 				  //create a result set
 				  ResultSet rs = myStmt.executeQuery();
 				  
-				  
-				  
 				  //process the result set
 				  while (rs.next())
 				  {	  
 					  
                      if(rs.getString(1).equals("1"))
                      {
+                    	 //close the stage
+                    	 stage.close();
+                    	 
+                         //loading screen
+                    	 Loading.displayLoadingScreen();
+                    	 
                     	 //set current user
                     	 Configs.saveProperty("CurrentUser", username);
                     	 
                     	 //set priority level
                     	 Session.getPrivilegeLevel();
-                    	 
-                        //MainScreen ms = new MainScreen(stage);
-                    	 window.close();
-                    	 Scene mainScreen = MainScreen.displayMainScreen(stage);
-                    	 stage.setScene(mainScreen);
-                    	 stage.show();
                      }	  
                      else
                      { 
