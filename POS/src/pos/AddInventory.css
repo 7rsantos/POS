@@ -2,7 +2,17 @@
 #root   {
 	
 	
-   -fx-background-color:  #7d7676;
- 
+   -fx-background-color:  #7d7676; 
 	
+}
+
+.combo-box {
+	
+   -fx-pref-width:100;	
+}
+
+.combo-box-popup > .list-view   {
+	
+ -fx-pref-height:20;
+  	
 }
