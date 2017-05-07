@@ -41,7 +41,11 @@ public class Receipt {
 		double result = 0; 	
 		int count = 0;
 		
-		count = products.size();
+		for(Product p : products)
+		{
+		   count += p.getQuantity();	
+		}	
+		
 		result = Product.computeSubTotal(products, Double.toString(discount) + "%");
 		
 		//apply discount if any
@@ -350,9 +354,9 @@ public class Receipt {
 	{
 		
 		PrinterService printerService = new PrinterService();
-        String customer  = " ";
+        String customer  = "   ";
         
-        if(Configs.getTempValue("customerName") != "null")
+        if(Configs.getTempValue("customerName") != null)
         {
            customer = Configs.getTempValue("customerName");	
         } 	
@@ -363,7 +367,9 @@ public class Receipt {
 		+ " \n \t \t" + "" +  Configs.getProperty("StreetAddress")
 		+ " \n \t " +  "     " + Configs.getProperty("City") + " " +
 		    Configs.getProperty("State") + " " + Configs.getProperty("ZipCode")
-		+ " \n \t \t" + " " + Configs.getProperty("PhoneNumber") + "\n\n\n");
+		+ " \n \t \t" + " (" + Configs.getProperty("PhoneNumber").substring(0,3) + ")" + Configs.getProperty("PhoneNumber").substring(3,6) + "-" 
+		+ Configs.getProperty("PhoneNumber").substring(6)  + 
+		"\n\n\n");
 		
 		//print cashier, sales ticket and date info
 		printerService.printString(Configs.getProperty("Printer"), "Transaction Number #: " + "\t" + transaction
@@ -431,7 +437,7 @@ public class Receipt {
 			   { 
 		          String name = p.getName().substring(0, 29);
 	  	          printerService.printString(Configs.getProperty("Printer"), name
-				  + "\t\t $ " + p.getPrice() + "\n");		         
+				  + "\t\t $ " + Receipt.setPrecision(p.getPrice()) + "\n");		         
 			   }	    
 		   }       
 		}	
@@ -442,7 +448,7 @@ public class Receipt {
 		+"\t\t" + "Total:  " + "\t $" + total
 
         //payment method and change
-		+ "\n\n\t\t" + "Cash " + "\t\t " + cashReceived + " \n"
+		+ "\n\n\t\t" + "Amount Paid " + "\t " + cashReceived + " \n"
 		+ "\t\t" + "Change: " + "\t " + change + " \n");		
 		
 		//items sold
@@ -451,13 +457,13 @@ public class Receipt {
 		//discount section
 		if(discount > 0)
 		{
-		   printerService.printString(Configs.getProperty("Printer"), "\n\t\t"
-				   + "Your purchase includes a" + discount + "% discount");   	
+		   printerService.printString(Configs.getProperty("Printer"), "\n\t"
+				   + "Your purchase includes a " + Double.toString(discount) + "0% discount");   	
 		}	
 				
         //display greeting		
 		printerService.printString(Configs.getProperty("Printer"), "\n\t\t" + Configs.getProperty("Slogan") + "\n"		
-		+ "\n\t\t" + "" + Configs.getProperty("Greeting") + "\n\n\n\n");
+		+ "\n\t" + "     " + Configs.getProperty("Greeting") + "\n\n\n\n");
 		
 		// cut the paper
 		byte[] cut = new byte[]  {0x1b, 0x69};
@@ -475,12 +481,12 @@ public class Receipt {
 	public static void printRefundReceipt(String ticketno, ObservableList<Product> products, String total, String subtotal)
 	{
 		PrinterService printerService = new PrinterService();
-        String customer  = " ";
+        String customer  = "   ";
         
-        if(Configs.getTempValue("customerName") != "null")
+        if(Configs.getTempValue("customerName") != null)
         {
            customer = Configs.getTempValue("customerName");	
-        }
+        } 	
         
 		//compute date
 		Date date = new Date();
@@ -499,7 +505,7 @@ public class Receipt {
 		+ " \n \t \t" + "" +  Configs.getProperty("StreetAddress")
 		+ " \n \t " +  "     " + Configs.getProperty("City") + " " +
 		    Configs.getProperty("State") + " " + Configs.getProperty("ZipCode")
-		+ " \n \t \t" + " " + Configs.getProperty("PhoneNumber") + "\n\n\n");
+		+ " \n \t \t" + " (" + Configs.getProperty("PhoneNumber").substring(0,3) + ")" + Configs.getProperty("PhoneNumber").substring(3)  + "\n\n\n");
 		
 		//print cashier, sales ticket and date info
 		printerService.printString(Configs.getProperty("Printer"), "Transaction Number #: " + "\t" + ticketno

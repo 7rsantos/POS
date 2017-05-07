@@ -1,17 +1,17 @@
 package pos;
-import org.opencv.core.Core;
+
+
+//import org.opencv.core.Core;
 
 import javafx.application.*;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 public class Main extends Application {
 
+    //static{ System.loadLibrary(Core.NATIVE_LIBRARY_NAME); }
+    
+        
 	public static void main(String[] args) {
 		
-		// load the native OpenCV library
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-		
-		// TODO Auto-generated method stub
         launch(args);
 	}
 

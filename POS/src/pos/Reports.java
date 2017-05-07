@@ -593,8 +593,8 @@ public class Reports {
 	public static String getCategoryAmount(String category, String start, String end, String code, int register)
 	{
 	   String result = "0";
-	   String query = "SELECT sum(quantity), unitPrice from Item WHERE Item.Name" 
-	                   + " = (SELECT Name from Product WHERE Product.Category = "
+	   String query = "SELECT sum(quantity), unitPrice from Item WHERE Item.Name IN" 
+	                   + " (SELECT Name from Product WHERE Product.Category = "
 	                   + "? AND Product.productStoreCode = ?) AND Item.salesTicketNoItem IN"
 	                   + " (Select ticketNo from salesTicket WHERE salesTicket.salesHistoryDate IN "
 	                   + "(SELECT salesDate FROM salesHistory WHERE salesHistory.registerSales = ?)"
@@ -649,6 +649,7 @@ public class Reports {
 	   
 	   return result;
 	}
+	
 	/*
 	 * Get total amounts per money wire company
 	 */
@@ -681,6 +682,7 @@ public class Reports {
 		  {
 		     result = rs.getString(1); 	  
 		  }	  
+		  
 		  
 		  //close
 		  conn.close();

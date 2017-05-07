@@ -53,8 +53,7 @@ public class Setup {
 	public static void initSetup()
 	{ 
 	   //setup the database	
-	   welcomeScreen();   	
-	   
+	   welcomeScreen();   		   
 	}
 	
 	/*
@@ -112,7 +111,8 @@ public class Setup {
 	   stage.setMinHeight(300);
 	   stage.centerOnScreen();
 	   stage.setTitle("FASS Nova - Setup - Welcome Screen");
-	   
+	   stage.getIcons().add(new Image(Setup.class.getResourceAsStream("/res/FASSlogo.jpg")));
+
 	   stage.setScene(scene);
 	   stage.show();
 	}
@@ -258,7 +258,9 @@ public class Setup {
 	    stage.setMinWidth(330);
 	    stage.initModality(Modality.APPLICATION_MODAL);
 	    stage.setScene(scene);
-	    
+		stage.getIcons().add(new Image(Setup.class.getResourceAsStream("/res/FASSlogo.jpg")));
+
+		  
 	    //show the stage
 	    stage.show();
 	}
@@ -472,6 +474,7 @@ public class Setup {
 	   stage.setMinWidth(500);
 	   stage.setTitle("FASS Nova - Setup Store Info");
 	   stage.centerOnScreen();
+	   stage.getIcons().add(new Image(Login.class.getResourceAsStream("/res/FASSlogo.jpg")));
 	   stage.setScene(scene);
 	   stage.show();
 	}
@@ -628,6 +631,9 @@ public class Setup {
 			     //execute query
 			     ps.executeQuery();
 			     
+			     //close
+			     conn.close();
+			     
 			     //display success
 			     AlertBox.display("FASS Nova", "Store has been created successfully");
 			     
@@ -769,7 +775,7 @@ public class Setup {
     	//setup stage
     	stage.setMinHeight(500);
     	stage.setMinWidth(400);
-    	
+		stage.getIcons().add(new Image(Setup.class.getResourceAsStream("/res/FASSlogo.jpg")));
     	
     	stage.setTitle("FASS Nova - Setup Store Info");
     	stage.centerOnScreen();
@@ -898,6 +904,10 @@ public class Setup {
     	//get stylesheets
     	root.getStylesheets().add(Setup.class.getResource("MainScreen.css").toExternalForm());
     	
+    	//set icon
+		stage.getIcons().add(new Image(Setup.class.getResourceAsStream("/res/FASSlogo.jpg")));
+
+    	
     	//setup the scene
     	Scene scene = new Scene(root);
     	
@@ -970,6 +980,8 @@ public class Setup {
        stage.setTitle("FASS Nova - Setup Complete");
        stage.centerOnScreen();
        stage.setScene(scene);
+	   stage.getIcons().add(new Image(Setup.class.getResourceAsStream("/res/FASSlogo.jpg")));
+
        
        stage.show();
     }

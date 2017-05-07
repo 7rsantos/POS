@@ -80,11 +80,11 @@ private static ChoiceBox<String> storeLocations;
 	  	Button add = new Button("Add", new ImageView(addUser));
 	  	Button cancel = new Button("Cancel", new ImageView(cancelIcon));
 	  	Button select = new Button("Select");
-	  	Button picture = new Button("Take Photo", new ImageView(cameraIcon));
+	  	//Button picture = new Button("Take Photo", new ImageView(cameraIcon));
 	  	
         //implement buttons functionalities
 		select.setOnAction(e -> selectImageFile(photoPath, userPicture));
-		picture.setOnAction(e -> PhotoScreen.displayPhotoScreen(1));
+		//picture.setOnAction(e -> PhotoScreen.displayPhotoScreen(1));
 		cancel.setOnAction(e -> window.close());
 		add.setOnAction(e -> createUser(firstName.getText(), lastName.getText(), user.getText(),
 				                   pass.getText(), confirmPass.getText(), privilegeLevel.getValue(),
@@ -266,7 +266,8 @@ private static ChoiceBox<String> storeLocations;
 		   
 		//add nodes to photoLayout
 		right.setSpacing(7);
-		right.getChildren().addAll(userPicture, picture, fileSelection);  	
+		//right.getChildren().addAll(userPicture, picture, fileSelection);  	
+		right.getChildren().addAll(userPicture, fileSelection);  	
 	  	
 	  	//add nodes to the root
 	  	root.setTop(top);
@@ -279,6 +280,10 @@ private static ChoiceBox<String> storeLocations;
 	  	
 	  	//set id
 	  	root.setId("root");
+	  	
+	  	//set icon
+		window.getIcons().add(new Image(Login.class.getResourceAsStream("/res/FASSlogo.jpg")));
+
 	  	
 		//load resources
 		scene.getStylesheets().add(Inventory.class.getResource("AddInventory.css").toExternalForm());
@@ -472,6 +477,11 @@ private static ChoiceBox<String> storeLocations;
 		monthChoice = new ChoiceBox<Integer>();
 		yearChoice = new ChoiceBox<Integer>();
 		
+		//set height
+		//yearChoice.prefHeightProperty().bind(window.heightProperty());
+		monthChoice.setMaxHeight(10);
+		dayChoice.setMaxHeight(10);
+		
 		//create labels
 		Label dayLbl = new Label("Day");
 		Label monthLbl = new Label("Month");
@@ -513,6 +523,8 @@ private static ChoiceBox<String> storeLocations;
 		
 		//set padding
 		birthField.setPadding(new Insets(1, 10, 3, 25));
+		
+		birthField.getStylesheets().add(UserDisplay.class.getResource("AddInventory.css").toExternalForm());
 		
 		//set alignment
 		birthField.setAlignment(Pos.TOP_LEFT);
@@ -643,7 +655,7 @@ private static ChoiceBox<String> storeLocations;
 	   Button update3 = new Button("Update");
 	   Button update4 = new Button("Update");
 	   Button update5 = new Button("Update");
-	   Button takePicture = new Button("Take Picture");
+	   //Button takePicture = new Button("Take Picture");
 	   Button select = new Button("Select", new ImageView(new Image(UserDisplay.class.getResourceAsStream("/res/Apply.png"))));
 	   
 	   //set on action
@@ -803,7 +815,7 @@ private static ChoiceBox<String> storeLocations;
 		   
 	   });
 	   select.setOnAction(e -> selectImageFile(photoPath, userPicture));
-	   takePicture.setOnAction(e -> PhotoScreen.displayPhotoScreen(1));
+	   //takePicture.setOnAction(e -> PhotoScreen.displayPhotoScreen(1));
 	   
 	   //right layout
 	   VBox right = new VBox();
@@ -818,7 +830,8 @@ private static ChoiceBox<String> storeLocations;
 	   //button
 	   HBox topPhotoLayout = new HBox();
 	   topPhotoLayout.setSpacing(7);
-	   topPhotoLayout.getChildren().addAll(select, takePicture);
+	   //topPhotoLayout.getChildren().addAll(select, takePicture);
+	   topPhotoLayout.getChildren().addAll(select);
 	   
 	   //add nodes to right
 	   right.getChildren().addAll(userPicture, topPhotoLayout, photoLayout);

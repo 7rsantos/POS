@@ -1,0 +1,24 @@
+#Sun Apr 23 12:57:36 EDT 2017
+StreetAddress=500 Wonderland Ave
+customerID=0
+Register=1
+Manager=Eddie Huang
+CurrentUser=admin
+TaxRate=9.25
+Country=USA
+Privilege=3
+Greeting=Thank you for your business\!
+StoreNumber=1
+State=TN
+customerName=null
+Printer=EPSON TM-T20 Receipt
+ServicesEnabled=true
+DatabaseURL=jdbc\:mysql\://Atomic-PC\:3306/test?autoReconnect\=true&rewriteBatchedStatements\=true&useSSL\=false&user\=root&password\=cybertronic
+DestinationFolder=C\:\\Users\\Atomic\\Documents\\test
+StoreName=Bees Mart
+StoreCode=bee1
+Slogan=Buy Smart Bee Smart
+ZipCode=37932
+LastLoginUser=admin
+City=Knoxville
+PhoneNumber=8652790576

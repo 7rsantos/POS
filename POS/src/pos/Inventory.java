@@ -119,7 +119,7 @@ private static Stage window;
 		   //create add and cancel buttons
 		   Button cancel = new Button("Cancel", new ImageView(cancelIcon));
 		   Button add = new Button("Add", new ImageView(addProduct));
-		   Button takePhoto = new Button("Take Photo", new ImageView(cameraIcon));
+		   //Button takePhoto = new Button("Take Photo", new ImageView(cameraIcon));
 		   Button select = new Button("Select Image");
 		   
 		   //create the photo icon
@@ -130,7 +130,7 @@ private static Stage window;
 		   
            //implement buttons functionalities
 		   select.setOnAction(e -> selectImageFile(photoPath, productPicture));
-		   takePhoto.setOnAction(e -> PhotoScreen.displayPhotoScreen(2));
+		   //takePhoto.setOnAction(e -> PhotoScreen.displayPhotoScreen(2));
 		   cancel.setOnAction(e -> window.close());
 		   add.setOnAction(e -> addProduct());
 		   
@@ -148,7 +148,8 @@ private static Stage window;
 		   
 		   //add nodes to photoLayout
 		   photoLayout.setSpacing(7);
-		   photoLayout.getChildren().addAll(productPicture, takePhoto, fileSelection);
+		   //photoLayout.getChildren().addAll(productPicture, takePhoto, fileSelection);
+		   photoLayout.getChildren().addAll(productPicture, fileSelection);
 		   
 		   //create grid pane layout
 		   GridPane layout = new GridPane();
@@ -377,7 +378,7 @@ private static Stage window;
 	   Button update6 = new Button("Update");
 	   Button update7 = new Button("Update");
 	   Button update8 = new Button("Update");
-	   Button takePicture = new Button("Take Picture");
+	   //Button takePicture = new Button("Take Picture");
 	   Button select = new Button("Select", new ImageView(new Image(UserDisplay.class.getResourceAsStream("/res/Apply.png"))));
 	   
 	   //set on action
@@ -612,7 +613,7 @@ private static Stage window;
 		   
 	   });
 	   select.setOnAction(e -> selectImageFile(photoPath, productPicture));
-	   takePicture.setOnAction(e -> PhotoScreen.displayPhotoScreen(2));
+	   //takePicture.setOnAction(e -> PhotoScreen.displayPhotoScreen(2));
 	   
 	   //right layout
 	   VBox right = new VBox();
@@ -627,7 +628,8 @@ private static Stage window;
 	   //button
 	   HBox topPhotoLayout = new HBox();
 	   topPhotoLayout.setSpacing(7);
-	   topPhotoLayout.getChildren().addAll(select, takePicture);
+	   //topPhotoLayout.getChildren().addAll(select, takePicture);
+	   topPhotoLayout.getChildren().addAll(select);
 	   
 	   //add nodes to right
 	   right.getChildren().addAll(productPicture, topPhotoLayout, photoLayout);

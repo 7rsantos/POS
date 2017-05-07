@@ -61,9 +61,11 @@ public class PrinterService implements Printable {
 		DocFlavor flavor = DocFlavor.BYTE_ARRAY.AUTOSENSE;
 		PrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
 		
+		//lookup printers associated with this computer
 		PrintService printServices[] = PrintServiceLookup.lookupPrintServices(
 				flavor, pras);
 		
+		//put each printer name in the list
 		ObservableList<String> printerList = FXCollections.observableArrayList();
 		for(PrintService printerService: printServices){
 			printerList.add( printerService.getName());

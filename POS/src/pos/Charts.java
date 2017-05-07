@@ -63,7 +63,7 @@ public class Charts {
 	   
 	   //labels
 	   Label pielbl = new Label("Pie Chart");
-	   Label linelbl = new Label("Line Graph");
+	   //Label linelbl = new Label("Line Graph");
 	   Label monthlylbl = new Label("Monthly");
 	   Label yearlylbl = new Label("Yearly");
 	   
@@ -72,12 +72,12 @@ public class Charts {
 	   
 	   //setup labels
 	   pielbl.setTextFill(Color.WHITE);
-	   linelbl.setTextFill(Color.WHITE);
+	   //linelbl.setTextFill(Color.WHITE);
 	   monthlylbl.setTextFill(Color.WHITE);
 	   yearlylbl.setTextFill(Color.WHITE);
 	  
 	   pielbl.setFont(font);
-	   linelbl.setFont(font);
+	   //linelbl.setFont(font);
 	   monthlylbl.setFont(font);
 	   yearlylbl.setFont(font);
 	   
@@ -91,8 +91,8 @@ public class Charts {
 	   //add nodes to layout
 	   top.add(pielbl, 0, 0);
 	   top.add(pie, 1, 0);
-	   top.add(linelbl, 0, 1);
-	   top.add(line, 1, 1);
+	   //top.add(linelbl, 0, 1);
+	   //top.add(line, 1, 1);
 	   
 	   //center
 	   GridPane center = new GridPane();
@@ -245,9 +245,8 @@ public class Charts {
 		   
 		   //get grand total
 		   double total = Charts.getMonthlySales(currentMonth, currentYear);
-		   
 		   //deduct taxes
-		   total -= Receipt.setPrecision(total * (Double.parseDouble(Configs.getProperty("TaxRate"))/100));
+		   total = total - Receipt.setPrecision(total * (Double.parseDouble(Configs.getProperty("TaxRate"))/100));
 		   
 		   //add items
 		   data.add(new PieChart.Data("Books", booksTotal/total));
@@ -313,7 +312,7 @@ public class Charts {
 		   //process the result set
 		   while(rs.next())
 		   {
-			  result = rs.getDouble(1);   
+			  result = rs.getDouble(1) * -1;   
 		   }	
 		   
 		   conn.close();

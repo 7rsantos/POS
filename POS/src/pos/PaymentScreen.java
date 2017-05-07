@@ -63,9 +63,12 @@ private static String ticketNo;
 	{ 
 		
 		//set the size of the window
-        window.setWidth(1010);
-        window.setHeight(555);
+        window.setMinWidth(1010);
         window.setResizable(true);
+        
+        //set icon
+	    window.getIcons().add(new Image(PaymentScreen.class.getResourceAsStream("/res/FASSlogo.jpg")));
+
         
         //position stage at the center of the screen
         Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();

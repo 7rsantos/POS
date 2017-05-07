@@ -27,7 +27,7 @@ public class Loading {
 	   
 	   //imageview
 	   ImageView picture = new ImageView();
-	   picture.setImage(new Image(Loading.class.getResourceAsStream("/res/pos.jpg")));
+	   picture.setImage(new Image(Loading.class.getResourceAsStream("/res/FASSlogo.jpg")));
 	   picture.setFitHeight(400);
 	   picture.setFitWidth(400);
 	   
@@ -58,6 +58,9 @@ public class Loading {
 	   //get style sheets
 	   root.getStylesheets().add(Loading.class.getResource("MainScreen.css").toExternalForm());
 	   
+	   //set icon
+	   stage.getIcons().add(new Image(Loading.class.getResourceAsStream("/res/FASSlogo.jpg")));
+	   
 	   //setup stage
 	   stage.setTitle("FASS Nova");
 	   stage.initStyle(StageStyle.UNDECORATED);
@@ -71,7 +74,7 @@ public class Loading {
 	   //show
 	   stage.show();
 	   
-		KeyFrame key = new KeyFrame(Duration.millis(4000), new EventHandler<ActionEvent>() {
+		KeyFrame key = new KeyFrame(Duration.millis(5000), new EventHandler<ActionEvent>() {
 
 			@Override
 			public void handle(ActionEvent event) {
@@ -85,7 +88,7 @@ public class Loading {
 					   
 		});	
 	
-		//setup timer to show main screen after 4 seconds
+		//setup timer to show main screen after 5 seconds
 	   Timeline timeline = new Timeline(key);
 	   timeline.play();	
 	}

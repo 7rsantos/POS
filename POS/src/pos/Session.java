@@ -37,7 +37,9 @@ public class Session {
 	{ 
  	   Connection myConn;
 	   try {
+		   
 		 myConn = DriverManager.getConnection(Configs.getProperty("DatabaseURL"));
+		 
 	     return myConn;
 	   } catch (SQLException e) {
 		   
@@ -403,7 +405,6 @@ public class Session {
 		
 		String query = "SELECT Photo FROM Employee WHERE Employee.Username = ?"
 				+ " AND employeeStoreCode = ?";
-		
 		try
 		{ 
 		   Connection conn = Session.openDatabase();

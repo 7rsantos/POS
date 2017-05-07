@@ -101,7 +101,11 @@ public class MainScreen {
         window.setWidth(1010);
         window.setHeight(555);
         window.setResizable(true);
-                
+        
+        //set logo
+		window.getIcons().add(new Image(MainScreen.class.getResourceAsStream("/res/FASSlogo.jpg")));
+
+        
         window.setTitle("FASS Nova - Main Screen");
         
         //position stage at the center of the screen
@@ -643,6 +647,9 @@ public class MainScreen {
        }	   
     }
     
+    /*
+     * Go to the payment screen
+     */
     public static void pay()
     { 
        //get the items from the table	
@@ -654,6 +661,14 @@ public class MainScreen {
        { 
           discount = Double.parseDouble(Discount.getText().substring(0, Discount.getText().length()-1));
        }	   	   
+       
+       //set the customer
+       if(customer.getText().equals("Customer"))
+       {
+    	  //set id to 0 
+           Configs.saveTempValue("customerID", "0");	  
+           //Configs.saveTempValue("customerName", null);
+       }	   
        
        //close the window display payment screen
        window.close();

@@ -1,7 +1,9 @@
 package pos;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -10,14 +12,15 @@ public class Configs {
 	public static Properties prop = new Properties();
 	public static Properties prop2 = new Properties();
 	
-	public static void saveProperty(String title, String value)
+
+	public static void saveProperty(String title, String value)  
 	{ 
 	   try  {
 		  
 		  //save property on external file
 	      prop.setProperty(title, value);
-	      prop.store(new FileOutputStream("configuration.txt"), null);
-		   
+	      prop.store(new FileOutputStream("config.properties"), null);
+	      
 	   }
 	   catch(Exception e)
 	   { 
@@ -31,8 +34,9 @@ public class Configs {
 		String value = "";
 		try
 		{ 
-			prop.load(new FileInputStream("configuration.txt"));
+			prop.load(new FileInputStream("config.properties"));
 		    value = prop.getProperty(title);	
+		    
 		}
 		catch(Exception e)
 		{ 

@@ -264,7 +264,20 @@ public class Customers {
 	    select.setDisable(true);
 	    
 	    //implement actions
-	    cancel.setOnAction(e -> cancel());
+	    cancel.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				
+				//close
+				stage.close();
+				
+				// display loading
+				Loading.displayLoadingScreen();
+							
+			}
+	    	
+	    });
 	    
 	    //add listener
 	    table.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Person>() {
@@ -276,27 +289,22 @@ public class Customers {
 				select.setDisable(false);
 				
 				if(table.getSelectionModel().getSelectedItem() != null)
-				{	
+				{
+				   //update the image
+				   Image image = loadCustomerPhoto(table.getSelectionModel().getSelectedItem().getId());
+					
 				   //load basic info
 				   ObservableList<String> data = FXCollections.observableArrayList(); 
 				   data = loadBasicCustomerInfo(table.getSelectionModel().getSelectedItem().getId());
 				
 				   //set values
 				   phone.setText(data.get(0));
-				
-				   if(data.get(1).equals(1))
-				   {	
-				      check.setText("Yes");			  
-				   }   
-				   else
-				   { 
-				      check.setText("No");	
-				   }	
+				   check.setText("No");
 				   record.setText(data.get(1));
+				   
+				   //set image
+				   imageview.setImage(image);	
 				
-				  //update the image
-				  Image image = loadCustomerPhoto(table.getSelectionModel().getSelectedItem().getId());
-				  imageview.setImage(image);
 			  }	  
 			}
 	    	
@@ -652,10 +660,10 @@ public class Customers {
 		Button select = new Button("Select Image");
 		Button add = new Button("Add", new ImageView(new Image(Customers.class.getResourceAsStream("/res/Create.png"))));
 		Button cancel = new Button("Cancel", new ImageView(new Image(Customers.class.getResourceAsStream("/res/Cancel.png"))));
-		Button takePicture = new Button("Take Picture", new ImageView(new Image(Customers.class.getResourceAsStream("/res/camera.png"))));
+		//Button takePicture = new Button("Take Picture", new ImageView(new Image(Customers.class.getResourceAsStream("/res/camera.png"))));
 		
 		//set on action
-		takePicture.setOnAction(e -> PhotoScreen.displayPhotoScreen(3));
+		//takePicture.setOnAction(e -> PhotoScreen.displayPhotoScreen(3));
 		cancel.setOnAction(e -> stage.close());
 		select.setOnAction(e -> selectImageFile(url, imageView));
 		add.setOnAction(new EventHandler<ActionEvent>()  {
@@ -696,7 +704,8 @@ public class Customers {
 		right.setSpacing(5);
 		right.setAlignment(Pos.CENTER);
 		right.setPadding(new Insets(10, 10, 10, 10));
-		right.getChildren().addAll(imageView, takePicture, pictureLayout);
+		//right.getChildren().addAll(imageView, takePicture, pictureLayout);
+		right.getChildren().addAll(imageView, pictureLayout);
 		
 		//left layout
 		GridPane left = new GridPane();
@@ -820,7 +829,7 @@ public class Customers {
 		//data
 	   ObservableList<String> data = FXCollections.observableArrayList();	
 	   
-	   String query = "Select phoneNumber, dateCreated, allowedToCashCheck FROM Customer WHERE Customer.ID = ?";
+	   String query = "SELECT phoneNumber, dateCreated, allowedToCashCheck FROM Customer WHERE Customer.ID = ?";
 	   try
 	   { 
 		   Connection conn = Session.openDatabase();

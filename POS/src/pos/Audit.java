@@ -1615,7 +1615,7 @@ public class Audit {
 	   //set text
 	   actual.setText(total.getText());
 	   expected.setText(Double.toString(expectedCash));
-	   balance.setText(Double.toString(Double.parseDouble(total.getText()) - expectedCash));
+	   balance.setText(Double.toString(Receipt.setPrecision(Double.parseDouble(total.getText()) - expectedCash)));
 	   
 	   //text area
 	   TextArea notes = new TextArea();

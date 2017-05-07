@@ -10,6 +10,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Reflection;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -126,6 +127,9 @@ public static Stage window;
 		  window.setWidth(400);
 		  window.setHeight(250);
 		  
+		  //set icon
+		  window.getIcons().add(new Image(Login.class.getResourceAsStream("/res/FASSlogo.jpg")));
+		  
 		  //show the window
 		  window.show();
 	   }
@@ -156,11 +160,11 @@ public static Stage window;
                     	 //close the stage
                     	 stage.close();
                     	 
-                         //loading screen
-                    	 Loading.displayLoadingScreen();
-                    	 
                     	 //set current user
                     	 Configs.saveProperty("CurrentUser", username);
+                  
+                         //loading screen
+                    	 Loading.displayLoadingScreen();
                     	 
                     	 //set priority level
                     	 Session.getPrivilegeLevel();

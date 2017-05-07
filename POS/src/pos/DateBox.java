@@ -11,10 +11,15 @@ import java.time.LocalDate;
 import java.util.Date;
 public class DateBox {
 
+	/*
+	 * Create layout containing a date picker
+	 */
 	public static VBox createDateBox()
 	{ 
 		DatePicker current_date = new DatePicker();
+		
 	    current_date.setValue(LocalDate.now());
+	    
 	     Callback<DatePicker, DateCell> dayCellFactory = new Callback<DatePicker, DateCell>() {
 	      @Override
 	      public DateCell call(final DatePicker datePicker) {
@@ -31,6 +36,7 @@ public class DateBox {
 	        };
 	      } 
 	     };
+	     
 	     Label date = new Label("Date:");
 	     VBox layout = new VBox();
 	     layout.getChildren().addAll(date, current_date);
