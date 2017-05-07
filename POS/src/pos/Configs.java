@@ -33,7 +33,9 @@ public class Configs {
 		
 		String value = "";
 		try
+		
 		{ 
+			//get the property
 			prop.load(new FileInputStream("config.properties"));
 		    value = prop.getProperty(title);	
 		    
