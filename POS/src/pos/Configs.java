@@ -32,6 +32,8 @@ public class Configs {
 	{ 
 		
 		String value = "";
+		
+		//if file exists
 		try
 		
 		{ 
