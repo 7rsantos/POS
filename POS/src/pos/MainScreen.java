@@ -370,6 +370,12 @@ public class MainScreen {
 		Label total =new Label("Total");
 		Label discount = new Label("Discount");
 		
+		//set label colors
+		subtotal.setTextFill(Color.WHITE);
+		tax.setTextFill(Color.WHITE);
+		total.setTextFill(Color.WHITE);
+		discount.setTextFill(Color.WHITE);
+		
 		VBox date = DateBox.createDateBox();
 		
 		//create text fields and set editable to false
@@ -490,7 +496,7 @@ public class MainScreen {
 		customer = new Label("Customer");
 		//Label check = new Label("Check Cashing");
 		Label productSearch = new Label("Product Search");
-		Label money = new Label("Money Wire");
+		Label money = new Label("Money Bogus");
 		
 		//change label color
 		customer.setTextFill(Color.WHITE);
