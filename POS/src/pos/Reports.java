@@ -429,6 +429,8 @@ public class Reports {
 	   Text cashlbl = new Text("New Cash Total");
 	   Text cash = new Text(Double.toString(RegisterUtilities.getExpectedCash()));
 	   
+	   System.out.println(RegisterUtilities.getExpectedCash());
+	   
 	   //setup text
 	   cashlbl.setFont(font);
 	   cash.setFont(font);

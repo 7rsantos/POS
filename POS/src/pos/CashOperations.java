@@ -821,7 +821,7 @@ public class CashOperations {
 	 */
 	private static void createCashWD(String reason, double total, String ticketNo, String c, int caller, String notes)
 	{
-	   String query = "CALL createcashWD(?,?,?,?,?,?)";	
+	   String query = "CALL createcashWD(?,?,?,?,?)";	
 	   try
 	   {
 		  Connection conn = Session.openDatabase();
@@ -833,7 +833,7 @@ public class CashOperations {
 		  ps.setString(3, Session.getUserFirstName());
 		  ps.setString(4, ticketNo);
 		  ps.setString(5, c);
-		  ps.setString(6, notes);
+		  //ps.setString(6, notes);
 		  
 		  //execute query
 		  ps.execute();

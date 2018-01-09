@@ -12,6 +12,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
@@ -28,6 +29,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class SalesHistory {
@@ -303,8 +305,16 @@ public class SalesHistory {
 		//setup the stage
 		stage.setTitle("FASS Nova - Sales History");
 		
+		//set the size of the window
+		Screen screen = Screen.getPrimary(); 
+		Rectangle2D bounds = screen.getVisualBounds(); 
+
+		stage.setX(bounds.getMinX()); 
+		stage.setY(bounds.getMinY()); 
+		stage.setMinHeight(bounds.getHeight()); 
+		stage.setMinWidth(bounds.getWidth()); 
+		
 		stage.centerOnScreen();
-		stage.setMinWidth(500);
 		stage.setScene(scene);
 		
 		//show the stage

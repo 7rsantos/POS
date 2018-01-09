@@ -497,6 +497,8 @@ private static String ticketNo;
 		{
 		   cash = new Label("Cash Received");
 		   
+		   System.out.println("Receipt total " + receiptTotal);
+		   
 		   //increase actual cash
 		   RegisterUtilities.increaseCash(receiptTotal);
 	    }
@@ -613,6 +615,8 @@ private static String ticketNo;
                 
 				//reset product list
 				MainScreen.resetProductList();
+				
+				//increase cash
 				
 			    backToMainScreen(stage, 0);
 			} 		

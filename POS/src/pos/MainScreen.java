@@ -32,6 +32,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -98,9 +99,13 @@ public class MainScreen {
 		window = stage;
 		
 		//set the size of the window
-        window.setWidth(1010);
-        window.setHeight(555);
-        window.setResizable(true);
+		Screen screen = Screen.getPrimary(); 
+		Rectangle2D bounds = screen.getVisualBounds(); 
+
+		window.setX(bounds.getMinX()); 
+		window.setY(bounds.getMinY()); 
+		window.setMinHeight(bounds.getHeight()); 
+		window.setMinWidth(bounds.getWidth());
         
         //set logo
 		window.getIcons().add(new Image(MainScreen.class.getResourceAsStream("/res/FASSlogo.jpg")));
@@ -108,14 +113,6 @@ public class MainScreen {
         
         window.setTitle("FASS Nova - Main Screen");
         
-        //position stage at the center of the screen
-        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-        window.setX((primScreenBounds.getWidth() - stage.getWidth()) / 2);
-        window.setY((primScreenBounds.getHeight() - stage.getHeight()) / 2);
-        
-        //set minimum sizes
-        window.setMinHeight(525);
-        window.setMinWidth(750);    
         
         return window;
 	}
@@ -136,17 +133,29 @@ public class MainScreen {
 		BorderPane left = new BorderPane();
 
 		
-		left.setPadding(new Insets(0, 80, 10, 7));
+		left.setPadding(new Insets(10, 20, 20, 0));
 		border.setLeft(left);
-
-		//create a gridpane that will hold the table
-		GridPane root = new GridPane();
-		root.setPadding(new Insets(3,5, 10, 30));
-		root.setVgap(8);
-
+		
+		//center
+		FlowPane center = new FlowPane();
+		
+		//set size
+		center.setPrefSize(300, 300);
+		
 		//create table
 		table = createTable();
 		
+		table.prefHeightProperty().bind(center.heightProperty().subtract(50));
+        table.prefWidthProperty().bind(center.widthProperty().subtract(100));
+        
+        //setup center
+		center.setHgap(5);
+		center.setVgap(5);
+		
+		center.setAlignment(Pos.CENTER);
+		center.setPadding(new Insets(10, 10, 10, 10));
+		
+		center.getChildren().add(table);
 		
 		//create menu bar and added to the border layout
 		MenuBar menuBar = CustomMenu.createMenu();
@@ -163,20 +172,27 @@ public class MainScreen {
 		border.setTop(top);
 		
 		//create a box and add it to root
-		GridPane bottom = createSouthArea();
+		GridPane totals = createSouthArea();
 		
 		
-		bottom.setPadding(new Insets(0, 5, 5, 5));
-		bottom.setAlignment(Pos.BOTTOM_LEFT);
+		//bottom.setPadding(new Insets(0, 5, 5, 5));
+		VBox date = DateBox.createDateBox();
+		//bottom.setAlignment(Pos.BOTTOM_CENTER);
 		
+		HBox bottom = new HBox();
 		
-		//add table to the center of the border layout
-		root.setAlignment(Pos.TOP_CENTER);
-		root.getChildren().add(table);
-		border.setCenter(root);
+		//get buttons on the bottom right
+		FlowPane bottomRight = getButtons();
+		
+		bottom.getChildren().addAll(date, totals, bottomRight);
+	
+		
+		//set center
+		border.setCenter(center);
 		
 		//add box to border
 		border.setBottom(bottom);
+		//border.setRight(bottomRight);
 		
 		//create a tool bar for the actions
 		ToolBar actions = ActionsTable.createActionsTable();
@@ -190,7 +206,7 @@ public class MainScreen {
 		
 		//set ids
 		border.setId("border");
-		root.setId("root");
+		//root.setId("root");
 		bottom.setId("box");
 		actions.setId("actions");
 		left.setId("id");
@@ -298,6 +314,7 @@ public class MainScreen {
 			  do
 			  { 
 			     name = rs.getString(1);
+			     System.out.println("the name of the product: " + rs.getString(1));
 			     unitSize = rs.getString(2);
 			     unitPrice = Double.parseDouble(rs.getString(3));
 			     
@@ -376,8 +393,6 @@ public class MainScreen {
 		total.setTextFill(Color.WHITE);
 		discount.setTextFill(Color.WHITE);
 		
-		VBox date = DateBox.createDateBox();
-		
 		//create text fields and set editable to false
 		Discount = new TextField();
 		Discount.setEditable(false);
@@ -392,36 +407,30 @@ public class MainScreen {
 		Total = new TextField();
 		Total.setEditable(false);
 		
-		//create pay, cancel, and remove buttons and set their icons
-		Image payIcon = new Image(MainScreen.class.getResourceAsStream("/res/Buy.png"));
-		pay = new Button("Pay", new ImageView(payIcon));
-		pay.setDisable(true);
-		
-		Image cancelIcon = new Image(MainScreen.class.getResourceAsStream("/res/Cancel.png"));		
-		Button cancel = new Button("Cancel", new ImageView(cancelIcon));
-		
 		Image removeIcon = new Image(MainScreen.class.getResourceAsStream("/res/Erase.png"));				
 		remove = new Button("Remove Item", new ImageView(removeIcon));
 		remove.setDisable(true);
 		
 		//implement actions
-		cancel.setOnAction(e -> AlertBox.displayOptionDialog("FASS Nova", "Do you want to cancel ticket?"));
+		//cancel.setOnAction(e -> AlertBox.displayOptionDialog("FASS Nova", "Do you want to cancel ticket?"));
 	    remove.setOnAction(e -> deleteItem());
-	    pay.setOnAction(e -> pay());
+	    //pay.setOnAction(e -> pay());
 		
 		//change size of pay button
-		pay.setMaxWidth(75);
+		//pay.setMaxWidth(75);
 		
 		//create grid pane and set vgaps and hgaps 
 		GridPane grid = new GridPane();
 		grid.setVgap(2);
 		grid.setHgap(12);
+		grid.setPadding(new Insets(20, 50, 20, 0));
+		grid.setAlignment(Pos.BOTTOM_CENTER);
 		
 		//add nodes to the grid pane
-		grid.add(date, 0, 1);
+		//grid.add(date, 0, 1);
 		grid.add(remove, 4, 1);
-		grid.add(pay, 13, 1);
-		grid.add(cancel, 12, 1);
+		//grid.add(pay, 13, 1);
+		//grid.add(cancel, 12, 1);
 		grid.add(discount, 6, 0);
 		grid.add(Discount, 7, 0);
 		grid.add(subtotal, 6, 1);
@@ -435,6 +444,40 @@ public class MainScreen {
 		Discount.setText("0.00%");
 		
 		return grid;
+	}
+	
+	/*
+	 * Build bottom right
+	 * 
+	 */
+	public static FlowPane getButtons()
+	{
+	   FlowPane buttons = new FlowPane();
+	   
+	   buttons.setAlignment(Pos.BOTTOM_RIGHT);
+	   
+	   //set layout
+	   buttons.setHgap(5);
+	   buttons.setPadding(new Insets(20, 0, 20, 5));
+	   
+		//create pay, cancel, and remove buttons and set their icons
+		Image payIcon = new Image(MainScreen.class.getResourceAsStream("/res/Buy.png"));
+		pay = new Button("Pay", new ImageView(payIcon));
+		pay.setDisable(true);
+		
+		Image cancelIcon = new Image(MainScreen.class.getResourceAsStream("/res/Cancel.png"));		
+		Button cancel = new Button("Cancel", new ImageView(cancelIcon));
+		
+		//implement actions
+		cancel.setOnAction(e -> AlertBox.displayOptionDialog("FASS Nova", "Do you want to cancel ticket?"));
+	    pay.setOnAction(e -> pay());
+	    
+	    //add children
+	    buttons.getChildren().addAll(cancel, pay);
+		
+		return buttons;
+	   
+	   
 	}
 	
 	public static GridPane createOptionSection()
@@ -496,7 +539,7 @@ public class MainScreen {
 		customer = new Label("Customer");
 		//Label check = new Label("Check Cashing");
 		Label productSearch = new Label("Product Search");
-		Label money = new Label("Money Bogus");
+		Label money = new Label("Money Wire");
 		
 		//change label color
 		customer.setTextFill(Color.WHITE);
@@ -522,7 +565,7 @@ public class MainScreen {
 	
         options.setHgap(15); 
 		options.setAlignment(Pos.CENTER);
-		options.setPadding(new Insets(8, 30, 3, 30));
+		options.setPadding(new Insets(8, 30, 3, 10));
 		
 		return options;
 	}
@@ -578,11 +621,11 @@ public class MainScreen {
 		});
 		
 		//set sizes
-		Name.setPrefWidth(350);
-		unitSize.setPrefWidth(70);
-		quantity.setPrefWidth(55);
-		salesPrice.setPrefWidth(110);
-		price.setPrefWidth(140);
+		Name.setPrefWidth(600);
+		unitSize.setPrefWidth(100);
+		quantity.setPrefWidth(100);
+		salesPrice.setPrefWidth(150);
+		price.setPrefWidth(220);
 		
 		
 		//add columns to the table view

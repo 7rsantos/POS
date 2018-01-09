@@ -335,7 +335,9 @@ private static ChoiceBox<String> storeLocations;
         		  ps.setString(10, storeCode);
         		  
         		  //execute the query
-        		  ps.executeQuery();
+        		  ps.execute();
+        		  
+        		  System.out.println("INFO: " + ps.getUpdateCount());
         		  
         		  //report success
         		  AlertBox.display("FASS Nova", "User created successfully!");

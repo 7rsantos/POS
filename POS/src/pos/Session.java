@@ -38,14 +38,15 @@ public class Session {
  	   Connection myConn;
 	   try {
 		   
-		 myConn = DriverManager.getConnection(Configs.getProperty("DatabaseURL"));
-		 
+		 myConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/pos?autoReconnect=true&rewriteBatchedStatements=true&useSSL=false&user=root&password=tienda1228");
+		 //System.out.println(myConn.getWarnings());
 	     return myConn;
+	     
 	   } catch (SQLException e) {
 		   
 		  e.printStackTrace();
 	   }
-	  
+	   System.out.println("Connection is null");
  	   return null;
 	}
 
@@ -438,7 +439,7 @@ public class Session {
 		ImageView profilePicture = new ImageView(image);
 		
 		//set fit width and height
-		profilePicture.setFitHeight(50);
+		profilePicture.setFitHeight(70);
 		profilePicture.setFitWidth(70);
 		
 		return profilePicture;

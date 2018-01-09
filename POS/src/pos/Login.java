@@ -19,6 +19,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import java.io.InputStreamReader;
 import java.sql.*;
 import java.sql.Connection;
 
@@ -72,7 +74,7 @@ public static Stage window;
 		  
 		  //debugging
 		  username.setText("admin");
-		  password.setText("changeme");
+		  password.setText("cGFzc3dvcmQ=");
 		  
 		  
 		  //set action listener
@@ -145,20 +147,31 @@ public static Stage window;
 				  Connection myConn = Session.openDatabase();
 				  
 				  //Create a statement
-				  CallableStatement myStmt = myConn.prepareCall("SELECT Login(" + "'" + username + "'" + "," + "'" + Session.encrypt(password) + 
-						  "'" + ", " + "'" + Configs.getProperty("StoreCode") + "'" + ")");				  				  
+				  PreparedStatement ps = myConn.prepareCall("CALL loginUser(?,?,?)");			  				  
+				  
+				  ps.setString(1, username);
+				  ps.setString(2, password);
+				  ps.setString(3, Configs.getProperty("StoreCode"));
 				  
 				  //create a result set
-				  ResultSet rs = myStmt.executeQuery();
+				  ResultSet rs = ps.executeQuery();
 				  
+				  
+				  System.out.print("After execution");
 				  //process the result set
 				  while (rs.next())
-				  {	  
+				  {	 
+						 
+					 System.out.println("Inside while loop");
+					 boolean result = rs.getBoolean(1); 
+					 System.out.println("Result is: " + result);
 					  
-                     if(rs.getString(1).equals("1"))
+                     if(result)
                      {
                     	 //close the stage
                     	 stage.close();
+                    	 
+                    	 
                     	 
                     	 //set current user
                     	 Configs.saveProperty("CurrentUser", username);
@@ -173,7 +186,11 @@ public static Stage window;
                      { 
                 	    AlertBox.display("Login Error", "Wrong username or password");
                      }
-				  }  
+				  } 
+				  
+				  //close
+				  ps.close();
+				  myConn.close();
 				  
 			  }
 			  catch(Exception e)

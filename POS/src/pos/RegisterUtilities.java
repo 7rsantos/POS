@@ -31,6 +31,10 @@ public class RegisterUtilities {
 	{ 
 	   String query1 = "CALL updateExpectedCash(?,?)";
 	   double oldAmount = getExpectedCash();
+	   System.out.println("Old Amount "+ oldAmount);
+	   
+	 //debug
+       System.out.println(Configs.getProperty("Register"));
 	   
 	   try
 	   { 
@@ -78,7 +82,10 @@ public class RegisterUtilities {
 		      
 		   while(rs.next())
 		   { 
-		      expected = rs.getDouble(1); 	  
+			   System.out.println("Expected Cash get: " + expected); 
+			   
+		      expected = rs.getDouble(1);
+		      
 		   }
 		   
 		   ps.close();
