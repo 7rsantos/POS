@@ -3,6 +3,9 @@ package pos;
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.apache.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
@@ -42,6 +45,7 @@ public class CashOperations {
 	private static TextField searchField;
 	private static NumericTextField amount;
 	private static ListView<String> vendorList;
+	private static Logger logger = Logger.getLogger(CashOperations.class);
 	
 	/*
 	 * Build and display the screen for cash withdrawals and deposits from register
@@ -283,12 +287,14 @@ public class CashOperations {
 		  }	  
 		  
 		  //close the connection
+		  ps.close();
+		  rs.close();
 		  conn.close();
 		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Reason could not be selected", e);   
 	   }
 	   
 	   
@@ -314,12 +320,13 @@ public class CashOperations {
 		  ps.execute();
 		  
 		  //close the connection
+		  ps.close();
 		  conn.close();
 			  
 		}
 	    catch(Exception e)
 		{
-		   e.printStackTrace();   
+		   logger.error("Could not create reason", e);   
 		}		
 	}	
 	
@@ -346,11 +353,12 @@ public class CashOperations {
 		   ps.executeQuery();
 		   
 		   //close the connection
+		   ps.close();
 		   conn.close();
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Vendor was not created, an error has occurred", e);   
 	   }
 	}
 	
@@ -377,12 +385,15 @@ public class CashOperations {
 		  while(rs.next())
 		  {
 		     result.add(rs.getString(1));  
-		  }	  
+		  }	
+		  ps.close();
+		  conn.close();
+		  
 		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("There was an error getting vendors", e);  
 	   }
 	   
 	   return result;
@@ -839,6 +850,7 @@ public class CashOperations {
 		  ps.execute();
 		  
 		  //close the connection
+		  ps.close();
 		  conn.close();
 		  
 		  //go to the next screen
@@ -846,7 +858,7 @@ public class CashOperations {
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace(); 
+		  logger.error("Cash withdrawal/deposit was not created", e); 
 	   }
 	}
 	
@@ -1081,6 +1093,7 @@ public class CashOperations {
 	   
 	   stage.setTitle("FASS Nova - Transfer Cash");
 	   stage.setMinWidth(350);
+	   stage.setResizable(false);
 	   stage.initModality(Modality.APPLICATION_MODAL);
 	   stage.centerOnScreen();
 	   
@@ -1127,7 +1140,7 @@ public class CashOperations {
 		}
 		catch(Exception e)
 		{ 
-		   e.printStackTrace();
+		   logger.error("Could not list registers", e);
 		}
 		
 		return registers;

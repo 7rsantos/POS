@@ -3,13 +3,14 @@ package pos;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
+
+import org.apache.log4j.Logger;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -54,6 +55,7 @@ public class ProductList {
     private static TextField productField;
 	public static Date start;
 	public static Date end;
+	private static Logger logger = Logger.getLogger(ProductList.class);
     
 	/*
 	 * Create a border pane layout for the product list
@@ -569,10 +571,16 @@ public class ProductList {
 		     productList.add(p);	  
 		  	 
 		  } 
+		  
+		  rs.close();
+		  ps.close();		  
+		  conn.close();
+		  
+		  logger.info("Product list loaded succesfully");
 	   }
 	   catch(Exception e)
-	   { 
-	      e.printStackTrace();	   
+	   {
+	      logger.error("Could not retrieve product list", e);	   
 	   }
 	   
 	   return productList;
@@ -606,12 +614,20 @@ public class ProductList {
 		     data.add(rs.getString(3));
 		     data.add(rs.getString(4));
 		     data.add(rs.getString(5));
-		  }	  
+		  }	
+		  
+		  //close
+		  rs.close();
+		  ps.close();
+		  conn.close();
+		  
+		  //logger
+		  logger.info("list retrieved successfully");
 				  
 	   }
 	   catch(Exception e)
 	   { 
-		  e.printStackTrace();   
+		  logger.error("Could not load basic product info", e);   
 	   }
 	   
 	   return data;
@@ -650,11 +666,14 @@ public class ProductList {
 	          BufferedImage bufferedImage = ImageIO.read(in);    	  
 	          image = SwingFXUtils.toFXImage(bufferedImage, null);
 	    	  
+	          in.close();
+	          rs.close();
+	          ps.close();
 	    	  conn.close();
 	       }
 	       catch(Exception e)
 	       { 
-	          e.printStackTrace();	   
+	          logger.error("Could not load product picture", e);	   
 	       }	
 	    
 	    return image;

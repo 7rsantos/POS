@@ -2,6 +2,8 @@ package pos;
 
 import java.sql.*;
 
+import org.apache.log4j.Logger;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -17,7 +19,6 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -26,12 +27,14 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class User {
+	
+	private static Logger logger = Logger.getLogger(User.class);
 
 	public static ObservableList<Employee> listEmployees()
 	{ 
 		String query = "CALL listEmployees(?)";
 		ObservableList<Employee> employees = FXCollections.observableArrayList();
-		int i = 1;
+		//int i = 1;
 		
 		if(Integer.parseInt(Configs.getProperty("Privilege")) >= 2)
 		{	
@@ -51,11 +54,16 @@ public class User {
 			      employees.add(new Employee(rs.getString(1), rs.getString(2), 
 			    		  rs.getString(3), rs.getString(4), rs.getString(5),
 			    		  rs.getString(6), rs.getString(7)));
-			   }	   		
+			   }
+			   
+			   //close
+			   rs.close();
+			   ps.close();
+			   conn.close();
 		   }
 		   catch(Exception e)
 		   { 
-			   e.printStackTrace();
+			  logger.error("Could not list employees", e);   
 		   }
 	    }   
 		else
@@ -182,6 +190,7 @@ public class User {
 		//setup stage
 		window.setTitle("FASS Nova - " + Configs.getProperty("StoreName") + " Employee List");
 		window.setMinWidth(600);
+		window.centerOnScreen();
 		window.initModality(Modality.APPLICATION_MODAL);
 		window.setResizable(false);
 		window.centerOnScreen();
@@ -276,6 +285,7 @@ public class User {
 	   //setup stage
 	   stage.setTitle("FASS Nova - Update Privilege Level");
 	   stage.setMinWidth(300);
+	   stage.setResizable(false);
 	   stage.centerOnScreen();
 	   stage.initModality(Modality.APPLICATION_MODAL);
 	   
@@ -305,15 +315,19 @@ public class User {
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 		  //update locally
 		  Configs.saveProperty("Privilege", Integer.toString(privilege));
 		  
+		  //log
+		  logger.info("Privilege updated");
+		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Error promoting user", e);  
 	   }
 	}
 	
@@ -337,11 +351,15 @@ public class User {
 	      ps.execute();
 	      
 	      //close
+	      ps.close();
 	      conn.close();
+	      
+	      //log
+	      logger.info("Could not delete user");
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Coudl not delete user", e);  
 	   }
 	}
 }

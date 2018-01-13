@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 
 public class AlertBox {
 
-private static boolean perform;
+//private static boolean perform;
 	
 	public static void display(String title, String message)
 	{ 
@@ -64,7 +64,7 @@ private static boolean perform;
 
 		@Override
 		public void handle(ActionEvent event) {
-			// TODO Auto-generated method stub
+			
 			MainScreen.cancelTicket(false);
 			window.close();
 		}});
@@ -73,7 +73,7 @@ private static boolean perform;
 
 			@Override
 			public void handle(ActionEvent event) {
-				// TODO Auto-generated method stub
+				
 				MainScreen.cancelTicket(true);
 				window.close();
 			} 

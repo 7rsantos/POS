@@ -2,11 +2,12 @@ package pos;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+
+import org.apache.log4j.Logger;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -53,6 +54,7 @@ private static ChoiceBox<Integer> dayChoice;
 private static ChoiceBox<Integer> monthChoice;
 private static ChoiceBox<Integer> yearChoice;
 private static ChoiceBox<String> storeLocations;
+private static Logger logger = Logger.getLogger(UserDisplay.class);
 
    /**
     * Display the window to create a new user
@@ -74,7 +76,7 @@ private static ChoiceBox<String> storeLocations;
 		//create images
 		Image cancelIcon = new Image(Inventory.class.getResourceAsStream("/res/Cancel.png"));
 		Image addUser = new Image(Inventory.class.getResourceAsStream("/res/Create.png"));
-		Image cameraIcon = new Image(Inventory.class.getResourceAsStream("/res/camera.png"));
+		//Image cameraIcon = new Image(Inventory.class.getResourceAsStream("/res/camera.png"));
 		
 	  	//create buttons
 	  	Button add = new Button("Add", new ImageView(addUser));
@@ -283,7 +285,7 @@ private static ChoiceBox<String> storeLocations;
 	  	
 	  	//set icon
 		window.getIcons().add(new Image(Login.class.getResourceAsStream("/res/FASSlogo.jpg")));
-
+        window.setResizable(false);
 	  	
 		//load resources
 		scene.getStylesheets().add(Inventory.class.getResource("AddInventory.css").toExternalForm());
@@ -337,10 +339,11 @@ private static ChoiceBox<String> storeLocations;
         		  //execute the query
         		  ps.execute();
         		  
-        		  System.out.println("INFO: " + ps.getUpdateCount());
-        		  
         		  //report success
         		  AlertBox.display("FASS Nova", "User created successfully!");
+        		  
+        		  //info
+        		  logger.info("User created succesfulyl");
         		  
         		  //close the window
         		  window.close();
@@ -348,7 +351,7 @@ private static ChoiceBox<String> storeLocations;
         	   }
         	   catch (Exception e)
         	   { 
-        		  e.printStackTrace();   
+        		  logger.error("Could not create user", e);  
         	   }
             } 	 
             else
@@ -392,11 +395,16 @@ private static ChoiceBox<String> storeLocations;
 	        {
 	           exists = true;	
 	        } 	
-	     } 	 
+	     }
+	     
+	     rs.close();
+	     pst.close();
+	     conn.close();
+	     
 	  }
 	  catch(Exception e)
 	  {
-	     e.printStackTrace();	  
+	     logger.error("Could not verify user existence", e);	  
 	  }
 			 
       return exists;
@@ -431,7 +439,7 @@ private static ChoiceBox<String> storeLocations;
 		      
 		   } catch (MalformedURLException e) {
 			  AlertBox.display("FASS NOVA - Error", "Could not select image");
-			  e.printStackTrace();
+			  logger.error("Could nto upload image", e);
 		   }
 		   
 		   //set image view dimensions
@@ -460,7 +468,7 @@ private static ChoiceBox<String> storeLocations;
 	   catch(MalformedURLException e)
 	   { 
 		   AlertBox.display("FASS Nova - Error", "Could not upload image");
-		   e.printStackTrace();
+		   logger.error("Coudl not upload image", e);
 	   }
 	   userPicture.setFitHeight(250);
 	   userPicture.setFitWidth(200);
@@ -586,11 +594,12 @@ private static ChoiceBox<String> storeLocations;
 		   }
 		   
 		   //close the connection
+		   ps.close();
 		   conn.close();
 		}
 		catch(Exception e)
 		{ 
-		   e.printStackTrace();
+		   logger.error("Could not get store codes", e);
 		}
 		
 		return stores;
@@ -871,6 +880,7 @@ private static ChoiceBox<String> storeLocations;
 	   stage.setTitle("FASS Nova - Update User Info");
 	   stage.initModality(Modality.APPLICATION_MODAL);
 	   stage.setMinWidth(350);
+	   stage.setResizable(false);
 	   stage.centerOnScreen();
 	   
 	   //set scene
@@ -901,12 +911,13 @@ private static ChoiceBox<String> storeLocations;
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not update first name", e);   
 	   }
 	}
 	
@@ -931,12 +942,13 @@ private static ChoiceBox<String> storeLocations;
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Coudl not update last name", e); 
 	   }
 	}
 	
@@ -961,12 +973,13 @@ private static ChoiceBox<String> storeLocations;
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not update email", e);   
 	   }
 	}
 	
@@ -991,12 +1004,13 @@ private static ChoiceBox<String> storeLocations;
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not update phone number", e);  
 	   }
 	}
 	
@@ -1019,7 +1033,9 @@ private static ChoiceBox<String> storeLocations;
 		  ps.setString(3, Configs.getProperty("StoreCode"));
 		  
 		  //execute
+		  input.close();
 		  ps.executeUpdate();
+		  conn.close();
 		  
 		  //close
 		  conn.close();
@@ -1027,7 +1043,7 @@ private static ChoiceBox<String> storeLocations;
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Coudl not update photo", e);   
 	   }
 	}
 	
@@ -1061,12 +1077,14 @@ private static ChoiceBox<String> storeLocations;
 		  }	  
 		  
 		  //close
+		  rs.close();
+		  ps.close();
 		  conn.close();
 		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not load basic info", e);  
 	   }
 	   
 	   return result;

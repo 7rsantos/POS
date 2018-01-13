@@ -3,6 +3,9 @@ package pos;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.Collections;
+
+import org.apache.log4j.Logger;
+
 import java.sql.PreparedStatement;
 
 import javafx.collections.FXCollections;
@@ -38,6 +41,7 @@ public class Returns {
    private static NumericTextField total;
    private static String ticket;
    private static String ticketNo;
+   private static Logger logger = Logger.getLogger(Returns.class);
    
 	/*
 	 *  Display the search ticket window
@@ -182,6 +186,11 @@ public class Returns {
 			   
 			   //go to next screen
 			   displayTicketContents();
+			   
+			   //close
+			   rs.close();
+			   ps.close();
+			   conn.close();
 		  }
 		  else
 		  { 
@@ -191,7 +200,7 @@ public class Returns {
 	   catch(Exception e)
 	   { 
 		  AlertBox.display("FASS Nova", "Could not find product");   
-		  e.printStackTrace();
+		  logger.error("Error searching for sales ticket in the database", e);
 	   }
 	   
 	}
@@ -435,6 +444,7 @@ public class Returns {
 	   stage.setTitle("FASS Nova - Returns");
 	   stage.initModality(Modality.APPLICATION_MODAL);
 	   stage.setMinWidth(300);
+	   stage.setResizable(false);
 	   stage.centerOnScreen();
 	   
 	   //show the scene
@@ -504,6 +514,7 @@ public class Returns {
 		  }	  
 		  
 		  //close the connection
+		  ps.close();
 		  conn.close();
 		  
 		  //update items
@@ -521,7 +532,7 @@ public class Returns {
 	   }
 	   catch(Exception e)
 	   { 
-		  e.printStackTrace();   
+		  logger.error("Error modifying sales ticket", e);  
 	   }
 	}
 
@@ -611,11 +622,13 @@ public class Returns {
 		  }
 		  
 		  //close
+		  rs.close();
+		  ps.close();
 		  conn.close();
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Error verifying if cash payment", e);   
 	   }
 	   
 	   return isCash;
@@ -670,11 +683,13 @@ public class Returns {
 		   }
 		   
 		   //close the connection
+		   ps.close();
+		   pst.close();
 		   conn.close();
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Error deleteing refunded items", e);   
 	   }
 	}
 	
@@ -809,6 +824,7 @@ public class Returns {
 	   //setup stage
 	   stage.setTitle("FASS Nova");
 	   stage.setMinWidth(350);
+	   stage.setResizable(false);
 	   stage.centerOnScreen();
 	   
 	   

@@ -1,7 +1,6 @@
 package pos;
 
-import javafx.application.Platform;
-import javafx.beans.property.Property;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -817,6 +816,7 @@ public class Audit {
 	   
 	   //setup stage
 	   stage.centerOnScreen();
+	   stage.setResizable(false);
 	   stage.setMinWidth(550);
 	   stage.initModality(Modality.APPLICATION_MODAL);
 	   stage.setTitle("FASS Nova - Audit Cash");

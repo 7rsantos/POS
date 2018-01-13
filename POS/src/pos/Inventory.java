@@ -2,12 +2,12 @@ package pos;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+
+import org.apache.log4j.Logger;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -48,6 +48,7 @@ private static TextField originalPrice;
 private static TextField salesPrice;
 private static File f;
 private static Stage window;
+private static Logger logger = Logger.getLogger(Inventory.class);
 
 	public static void displayAddInventory()
 	{ 
@@ -55,7 +56,8 @@ private static Stage window;
 		   
 		   window.setTitle("FASS Nova - Register New Product");
 		   window.initModality(Modality.APPLICATION_MODAL);
-		   window.setMinWidth(250);
+		   window.centerOnScreen();
+		   window.setMinWidth(300);
 		   window.setWidth(650);
 		   window.setHeight(500);
 		   window.setResizable(false);	
@@ -114,7 +116,7 @@ private static Stage window;
 		   //create images
 		   Image cancelIcon = new Image(Inventory.class.getResourceAsStream("/res/Cancel.png"));
 		   Image addProduct = new Image(Inventory.class.getResourceAsStream("/res/Create.png"));
-		   Image cameraIcon = new Image(Inventory.class.getResourceAsStream("/res/camera.png"));
+		   //Image cameraIcon = new Image(Inventory.class.getResourceAsStream("/res/camera.png"));
 		   
 		   //create add and cancel buttons
 		   Button cancel = new Button("Cancel", new ImageView(cancelIcon));
@@ -252,8 +254,15 @@ private static Stage window;
 		   //report success
 		   AlertBox.display("FASS Nova", "Product registered succesfully!");
 		   
+		   //log success
+		   logger.info("Product was registered successfully");
+		   
 		   //close the window
 		   window.close();
+		   
+		   //close
+		   ps.close();
+		   myConn.close();
 		}
 		catch(Exception e)
 		{ 
@@ -315,7 +324,7 @@ private static Stage window;
 	   catch(MalformedURLException e)
 	   { 
 		   AlertBox.display("FASS Nova - Error", "Could not upload image");
-		   e.printStackTrace();
+		   logger.error("Could not upload inventory image", e);
 	   }
 	   productPicture.setFitHeight(250);
 	   productPicture.setFitWidth(200);
@@ -667,6 +676,7 @@ private static Stage window;
 	   stage.setTitle("FASS Nova - Update Product Info");
 	   stage.initModality(Modality.APPLICATION_MODAL);
 	   stage.setMinWidth(350);
+	   stage.setResizable(false);
 	   stage.centerOnScreen();
 	   
 	   //set scene
@@ -697,12 +707,13 @@ private static Stage window;
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not update product name " + name, e);   
 	   }
 	}
 
@@ -726,13 +737,17 @@ private static Stage window;
 		  //execute
 		  ps.executeUpdate();
 		  
+		  //log success
+		  logger.info("Barcode updated succesfully");
+		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Barcode was not updated", e);   
 	   }
 	}
 	
@@ -757,12 +772,13 @@ private static Stage window;
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not update unit size", e);   
 	   }
 	}
 	
@@ -787,12 +803,13 @@ private static Stage window;
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not update product brand", e);  
 	   }
 	}
 	
@@ -817,12 +834,13 @@ private static Stage window;
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not update product category", e);   
 	   }
 	}
 	
@@ -847,12 +865,13 @@ private static Stage window;
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not update sales price", e);   
 	   }
 	}
 	
@@ -877,12 +896,13 @@ private static Stage window;
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not update original price", e);  
 	   }
 	}
 	
@@ -908,12 +928,14 @@ private static Stage window;
 		  ps.executeUpdate();
 		  
 		  //close
+		  input.close();
+		  ps.close();
 		  conn.close();
 		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not update product photo ", e); 
 	   }
 	}
 	
@@ -950,12 +972,14 @@ private static Stage window;
 		  }	  
 		  
 		  //close
+		  rs.close();
+		  ps.close();
 		  conn.close();
 		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not list products", e);  
 	   }
 	   
 	   return result;
@@ -1096,6 +1120,7 @@ private static Stage window;
 	   stage.setTitle("FASS Nova - Update Number of Units Available");
 	   stage.initModality(Modality.APPLICATION_MODAL);
 	   stage.setMinWidth(300);
+	   stage.setResizable(false);
 	   stage.centerOnScreen();
 	   
 	   
@@ -1131,11 +1156,12 @@ private static Stage window;
 	      ps.executeUpdate();
 	      
 	      //close
+	      ps.close();
 	      conn.close();
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not increase product quantity", e);   
 	   }
 	}
 	

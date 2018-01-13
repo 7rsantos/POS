@@ -1,10 +1,8 @@
 package pos;
 
-import java.io.File;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.InputStream;
 import java.util.Properties;
 
 public class Configs {

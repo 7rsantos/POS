@@ -9,10 +9,11 @@ import java.net.MalformedURLException;
 import java.sql.Connection; 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.imageio.ImageIO;
+
+import org.apache.log4j.Logger;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -63,6 +64,7 @@ public class Customers {
 	private static ImageView imageView;
 	public static Date start;
 	public static Date end;
+	private static Logger logger = Logger.getLogger(Customers.class);
 	
 	public static void displayCustomerList(Stage primary, ObservableList<Product> products, int caller)
 	{ 
@@ -299,7 +301,7 @@ public class Customers {
 				
 				   //set values
 				   phone.setText(data.get(0));
-				   check.setText("No");
+				   //check.setText("No");
 				   record.setText(data.get(1));
 				   
 				   //set image
@@ -399,6 +401,7 @@ public class Customers {
 	/*
 	 * Close the customer list
 	 */
+	@SuppressWarnings("unused")
 	private static void cancel() {
 	    
 		//close the stage
@@ -450,12 +453,17 @@ public class Customers {
 	       while(rs.next())
 	       { 
 	    	  list.add((new Person(rs.getString(1), rs.getString(2), rs.getInt(3))));
-	       }	   
+	       }
+	       
+	       //close
+	       rs.close();
+	       ps.close();
+	       conn.close();
 		}
 		
 	    catch(Exception e)
 		{ 
-	    	e.printStackTrace();
+	    	logger.error("Could not load customer list", e);
 	    	AlertBox.display("FASS Nova - Error", "Could not load customer list");
 		}
 		
@@ -500,12 +508,12 @@ public class Customers {
         
         //position stage at the center of the screen
         Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-        window.setX((primScreenBounds.getWidth() - window.getWidth()) / 2);
-        window.setY((primScreenBounds.getHeight() - window.getHeight()) / 2);
+        window.setX(primScreenBounds.getMinX()); 
+		window.setY(primScreenBounds.getMinY()); 
         
         //set minimum sizes
-        window.setMinHeight(525);
-        window.setMinWidth(750);    
+        window.setMinHeight(primScreenBounds.getHeight());
+        window.setMinWidth(primScreenBounds.getWidth());    
         
         return window;
 	}		
@@ -593,11 +601,15 @@ public class Customers {
           BufferedImage bufferedImage = ImageIO.read(in);    	  
           image = SwingFXUtils.toFXImage(bufferedImage, null);
     	  
+          //close
+          in.close();
+          rs.close();
+          ps.close();
     	  conn.close();		  
 	   }
 	   catch(Exception e)
 	   { 
-		  e.printStackTrace();   
+		  logger.error("Could not get customer picture", e);   
 	   }
 	   
 	   
@@ -782,7 +794,7 @@ public class Customers {
 			  
 		   } catch (MalformedURLException e) {
 			   AlertBox.display("FASS NOVA - Error", "Could not select image");
-			   e.printStackTrace();
+			   logger.error("Could not select image", e);
 		   }
 		   Image image = new Image(imageUrl);
 		   
@@ -815,7 +827,7 @@ public class Customers {
 	   catch(MalformedURLException e)
 	   { 
 		   AlertBox.display("FASS Nova - Error", "Could not upload image");
-		   e.printStackTrace();
+		   logger.error("Image was not uploaded", e);
 	   }
 	   imageView.setFitHeight(250);
 	   imageView.setFitWidth(200);
@@ -849,12 +861,14 @@ public class Customers {
 			  data.add(rs.getString(3));
 		   }	   
 		   
+		   rs.close();
+		   ps.close();
 		   conn.close();
 		   
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not load customer info", e);   
 	   }
 	   
 	   return data;
@@ -889,6 +903,7 @@ public class Customers {
 	      AlertBox.display("FASS Nova", "Customer added successfully");
 	      
 	      //close
+	      ps.close();
 	      conn.close();
 	      
 	      //close window
@@ -897,7 +912,7 @@ public class Customers {
 	   catch(Exception e)
 	   {
 		   AlertBox.display("FASS Nova Error", "Could not add customer");
-		   e.printStackTrace();
+		   logger.error("Could not add customer", e);
 		   
 	   }
 	}
@@ -991,11 +1006,12 @@ public class Customers {
 	      ps.execute();
 	      
 	      //close
+	      ps.close();
 	      conn.close();
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not delete customer", e);   
 	   }
 	}
 }

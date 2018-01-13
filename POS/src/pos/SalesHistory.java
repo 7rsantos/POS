@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -33,6 +35,8 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class SalesHistory {
+	
+	private static Logger logger = Logger.getLogger(SalesHistory.class);
 
 	/*
 	 * Search for all sales that occurred on a given date
@@ -63,11 +67,13 @@ public class SalesHistory {
 		  }	   
 		  
 		  //close the connection
+		  rs.close();
+		  ps.close();
 		  conn.close();
 	   }
 	   catch(Exception e)
 	   { 
-		  e.printStackTrace(); 
+	      logger.error("Could not search history", e);	   
 	   }
 	   
 	   return result;
@@ -203,10 +209,15 @@ public class SalesHistory {
 				       //refresh tables
 				       details.refresh();
 				       
+				       //close
+				       rs.close();
+				       ps.close();
+				       conn.close();
+				       
 				    }
 				    catch(Exception e)
 				    { 
-				       e.printStackTrace();	
+				       logger.error("Could not load sales history", e);	
 				    }
 				}	
 
@@ -214,25 +225,27 @@ public class SalesHistory {
 			
 		});
 		
-		//left layout
-		FlowPane left = new FlowPane();
-		left.setPadding(new Insets(10, 0, 10, 10));
-		left.setAlignment(Pos.BOTTOM_LEFT);
+		//center
+		HBox center = new HBox();
 		
-		//add nodes
-		left.getChildren().addAll(table);
+		//set center
+		center.setAlignment(Pos.CENTER);
+		center.setSpacing(5);
 		
-		//right layout
-		FlowPane right = new FlowPane();
-		right.setAlignment(Pos.TOP_RIGHT);
-		right.setPadding(new Insets(13, 10, 10, 3));
+		//add nodes to center
+		center.getChildren().addAll(table, details);
 		
-		//add nodes to right layout
-		right.getChildren().addAll(details);
+		//set table properties
+		table.prefHeightProperty().bind(center.heightProperty());
+        table.prefWidthProperty().bind(center.widthProperty());
+        
+		//set details table properties
+		details.prefHeightProperty().bind(center.heightProperty());
+        details.prefWidthProperty().bind(center.widthProperty());
 		
 		//bottom layout
 		FlowPane bottom = new FlowPane();
-		bottom.setAlignment(Pos.TOP_RIGHT);
+		bottom.setAlignment(Pos.BOTTOM_RIGHT);
 		bottom.setPadding(new Insets(10, 10, 10, 10));
 		
 		//add nodes
@@ -240,8 +253,9 @@ public class SalesHistory {
 		
 		//setup root
 		root.setTop(top);
-		root.setLeft(left);
-		root.setRight(right);
+		//root.setLeft(left);
+		//root.setRight(right);
+		root.setCenter(center);
 		root.setBottom(bottom);
 		
 		//implement actions
@@ -313,7 +327,7 @@ public class SalesHistory {
 		stage.setY(bounds.getMinY()); 
 		stage.setMinHeight(bounds.getHeight()); 
 		stage.setMinWidth(bounds.getWidth()); 
-		
+		stage.setResizable(false);
 		stage.centerOnScreen();
 		stage.setScene(scene);
 		
@@ -370,10 +384,10 @@ public class SalesHistory {
 		price.setCellValueFactory(new PropertyValueFactory<>("price"));
 		
 		//set sizes
-		name.setPrefWidth(180);
-		unitSize.setPrefWidth(70);
-		quantity.setPrefWidth(70);
-		price.setPrefWidth(120);		
+		name.setPrefWidth(275);
+		unitSize.setPrefWidth(100);
+		quantity.setPrefWidth(100);
+		price.setPrefWidth(160);		
 		
 		//add columns to the table view
         table.getColumns().addAll(name, unitSize, quantity, price);	

@@ -7,6 +7,8 @@ import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -30,7 +32,9 @@ import javafx.geometry.Insets;
 public class ProductUtilities {
 
 	private static ObservableList<Product> products;
+	@SuppressWarnings("unused")
 	private static ArrayList<String> list;
+	private static Logger logger = Logger.getLogger(ProductUtilities.class);
 	
 	/*
 	 * Display transfer cash screen
@@ -155,19 +159,23 @@ public class ProductUtilities {
 		  //execute query
 		  ResultSet rs = ps.executeQuery();
 		  
-		  //close
-		  conn.close();
-		  
 		  //process
 		  if(rs.next())
 		  {
 		     return true;	  
-		  }	  
+		  }
+		  
+		  //close
+		  rs.close();
+		  ps.close();
+		  conn.close();
+		  
+		  
 		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Error occurred while searching for product in the database", e);   
 	   }
 	   
 	   return false;
@@ -233,12 +241,16 @@ public class ProductUtilities {
 		  ps.execute();
 		  
 		  //close the connection
+		  ps.close();
+		  input.close();
 		  conn.close();
+		  
+		  logger.info("Product created succesfully " + p.getName());
 				  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Error creating product" + p.getName());
 	   }
 	}
 	
@@ -285,6 +297,10 @@ public class ProductUtilities {
 		    	
 		    	//display success
 		    	AlertBox.display("FASS Nova", "Products transferred successfully");
+		    	
+		    	ps.close();
+		    	pst.close();
+		    	conn.close();
 		     }	 
 		     else
 		     {
@@ -295,7 +311,7 @@ public class ProductUtilities {
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not transfer products", e);   
 	   }
 	}
 	

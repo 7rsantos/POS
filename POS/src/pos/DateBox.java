@@ -10,12 +10,12 @@ import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
 import java.time.LocalDate;
-import java.util.Date;
 public class DateBox {
 
 	/*
 	 * Create layout containing a date picker
 	 */
+	@SuppressWarnings("unused")
 	public static VBox createDateBox()
 	{ 
 		DatePicker current_date = new DatePicker();

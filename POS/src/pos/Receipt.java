@@ -5,9 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.apache.log4j.Logger;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,13 +22,14 @@ import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class Receipt {
+	
+	private static Logger logger = Logger.getLogger(Receipt.class);
 	
 	/*
 	 * Build the receipt, compute totals
@@ -164,7 +166,7 @@ public class Receipt {
 	   }
 	   catch(Exception e)
 	   { 
-		  e.printStackTrace();   
+		  logger.error("Could not get sales history", e);
 	   }
 	   
 	   return false;
@@ -263,14 +265,17 @@ public class Receipt {
 			
 			//execute query
 			rs = ps2.executeQuery();
-			
+			ps2.close();
+			ps.close();
 			conn.close();
 
 		}
 		catch(Exception e)
 		{ 
+			logger.error("Could not create receipt", e);
+			
 			AlertBox.display("FASS Nova", "An error has occurred");
-			e.printStackTrace();
+			
 		}
 		
 		//return ticket number
@@ -321,8 +326,18 @@ public class Receipt {
         	 }
         	 else
         	 {
+        		//money wire
+        		 String wireno = Configs.getTempValue("temp20");
+        		 
+        		 if(wireno.isEmpty() || wireno == null)
+        		 {
+        		    wireno = "00001";
+        		    
+        		    logger.info("Got here " + wireno);
+        		 }		 
+        		 
         	    //store money wires in the database	 
-        		MoneyWire.createMoneyWireService(Integer.parseInt(Configs.getTempValue("temp20")), Configs.getTempValue("temp25"), Configs.getTempValue("temp22"), 
+        		MoneyWire.createMoneyWireService(Integer.parseInt(wireno), Configs.getTempValue("temp25"), Configs.getTempValue("temp22"), 
         				Configs.getTempValue("temp21"), Double.parseDouble(Configs.getTempValue("temp23")), ticketno, Configs.getTempValue("temp24"), Configs.getTempValue("temp26")); 
         	 }		 
           }  
@@ -337,7 +352,7 @@ public class Receipt {
        }
        catch(SQLException e)
        { 
-    	   e.printStackTrace();   
+    	   logger.error("Could not save items to the database", e);  
        }
     }
     
@@ -362,12 +377,12 @@ public class Receipt {
         } 	
 		
 		//print the header
-		printerService.printString(Configs.getProperty("Printer"), " \n \n \n \t \t" + "   " + Configs.getProperty("StoreName") 
-		+ "\n \t \t" + "   " + "Store # " + Configs.getProperty("StoreNumber") 
-		+ " \n \t \t" + "" +  Configs.getProperty("StreetAddress")
-		+ " \n \t " +  "     " + Configs.getProperty("City") + " " +
+		printerService.printString(Configs.getProperty("Printer"), " \t \t" + "          " + Configs.getProperty("StoreName") 
+		+ " \n              " + " " + "Store # " + Configs.getProperty("StoreNumber") 
+		+ " \n        " + "" +  Configs.getProperty("StreetAddress")
+		+ " \n           " +  "" + Configs.getProperty("City") + " " +
 		    Configs.getProperty("State") + " " + Configs.getProperty("ZipCode")
-		+ " \n \t \t" + " (" + Configs.getProperty("PhoneNumber").substring(0,3) + ")" + Configs.getProperty("PhoneNumber").substring(3,6) + "-" 
+		+ " \n             " + "(" + Configs.getProperty("PhoneNumber").substring(0,3) + ")" + Configs.getProperty("PhoneNumber").substring(3,6) + "-" 
 		+ Configs.getProperty("PhoneNumber").substring(6)  + 
 		"\n\n\n");
 		
@@ -380,8 +395,8 @@ public class Receipt {
 		+ " \n" + "Customer: " + "\t\t" + customer + " \n\n"
 		
         //print items header
-		+ "\t" + "Item" + "\t\t\t" + "Item Total \n" 
-		+ "************************************************" + "\n");
+		+ "\t" + "Item" + "                          " + "Item Total \n" 
+		+ "*****************************************" + "\n");
 
 		//print items
 		for(Product p : products)
@@ -445,11 +460,11 @@ public class Receipt {
 		//sub-totals, tax, and total
 		printerService.printString(Configs.getProperty("Printer"), "\n\t\t" + "Subtotal: " + "\t $" + subtotal + " \n"
 		+ "\t\t" + "Tax " + Configs.getProperty("TaxRate") + "%:" + "\t $" + setPrecision(taxDollars) + "\n"
-		+"\t\t" + "Total:  " + "\t $" + total
+		+"\t\t" + "Total:  " + "   $" + total
 
         //payment method and change
 		+ "\n\n\t\t" + "Amount Paid " + "\t " + cashReceived + " \n"
-		+ "\t\t" + "Change: " + "\t " + change + " \n");		
+		+ "\t\t" + "Change: " + "     " + change + " \n");		
 		
 		//items sold
 		printerService.printString(Configs.getProperty("Printer"), "\n\t\t" + "Items Sold: " + "\t" + count + "\n");
@@ -462,8 +477,8 @@ public class Receipt {
 		}	
 				
         //display greeting		
-		printerService.printString(Configs.getProperty("Printer"), "\n\t\t" + Configs.getProperty("Slogan") + "\n"		
-		+ "\n\t" + "     " + Configs.getProperty("Greeting") + "\n\n\n\n");
+		printerService.printString(Configs.getProperty("Printer"), "     " + Configs.getProperty("Slogan") + "\n"		
+		+ "\n\t" + "       " + Configs.getProperty("Greeting") + "\n\n\n\n");
 		
 		// cut the paper
 		byte[] cut = new byte[]  {0x1b, 0x69};
@@ -500,12 +515,13 @@ public class Receipt {
 	    double taxDollars = Double.parseDouble(total) - Double.parseDouble(subtotal);
 	    
 		//print the header
-		printerService.printString(Configs.getProperty("Printer"), " \n \n \n \t \t" + "   " + Configs.getProperty("StoreName") 
-		+ "\n \t \t" + "   " + "Store # " + Configs.getProperty("StoreNumber") 
-		+ " \n \t \t" + "" +  Configs.getProperty("StreetAddress")
-		+ " \n \t " +  "     " + Configs.getProperty("City") + " " +
+		printerService.printString(Configs.getProperty("Printer"), "           " + 
+		"              " + Configs.getProperty("StoreName") 
+		+ "            " + "              " + "Store # " + Configs.getProperty("StoreNumber") 
+		+ "            " + "              " +  Configs.getProperty("StreetAddress")
+		+ "            " +  "             " + Configs.getProperty("City") + " " +
 		    Configs.getProperty("State") + " " + Configs.getProperty("ZipCode")
-		+ " \n \t \t" + " (" + Configs.getProperty("PhoneNumber").substring(0,3) + ")" + Configs.getProperty("PhoneNumber").substring(3)  + "\n\n\n");
+		+ "            " + "              (" + Configs.getProperty("PhoneNumber").substring(0,3) + ")" + Configs.getProperty("PhoneNumber").substring(3)  + "\n\n\n");
 		
 		//print cashier, sales ticket and date info
 		printerService.printString(Configs.getProperty("Printer"), "Transaction Number #: " + "\t" + ticketno
@@ -517,7 +533,7 @@ public class Receipt {
 
 		
         //print items header
-		"\t" + "Item" + "\t\t\t" + "Item Total \n" 
+		"\t" + "Item" + "                                               " + "Item Total \n" 
 		+ "************************************************" + "\n");
 
 		//print items
@@ -596,7 +612,8 @@ public class Receipt {
 		+ "\n\t\t" + "" + Configs.getProperty("Greeting") + "\n\n\n\n");
 		
 		// cut the paper
-		byte[] cut = new byte[]  {0x1b, 0x69};
+		//byte[] cut = new byte[]  {0x1b, 0x69};
+		byte[] cut = new byte[] {0x1B, 0x64, 0x33};
 		
 		//open the cash drawer
 		//byte[] openP = new byte[] {0x1B, 0x70, 0x30, 0x37, 0x79};
@@ -633,11 +650,12 @@ public class Receipt {
 		  ps.executeUpdate();
 		  
 		  //close the connection
+		  ps.close();
 		  conn.close();
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not update sales ticket", e);  
 	   }
 	}
 	
@@ -659,12 +677,13 @@ public class Receipt {
 		  ps.executeQuery();
 		  
 		  //close the connection
+		  ps.close();
 		  conn.close();
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
-	   }
+		  logger.error("Could not delete items from database", e);   
+	   }  
 	}
 	
 	/*
@@ -688,10 +707,14 @@ public class Receipt {
     	  MainScreen.resetProductList();
   
     	  AlertBox.display("FASS Nova", "On-hold ticket created successfully");   
+    	  
+    	  logger.info("On hold ticket created successfully");
        }	
        else
        {
-    	  AlertBox.display("FASS Nova", "Could not create on-hold ticket");   
+    	  AlertBox.display("FASS Nova", "Could not create on-hold ticket");
+    	  
+    	  logger.debug("On-hold ticket was not created, something went wrong");
        }	   
 
 	}
@@ -722,9 +745,9 @@ public class Receipt {
 		     result.add(new SalesTicket(rs.getString(1), rs.getString(2), rs.getDouble(3), "Pending", "On-hold"));	  
 		  }	  
 	   }
-	   catch(Exception e)
+	   catch(Exception lee)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not retrieve on hold tickets", lee);  
 	   }
 	   
 	   return result;
@@ -792,11 +815,13 @@ public class Receipt {
 		    	   MainScreen.ticketNo = table.getSelectionModel().getSelectedItem().getTicketno();
 		    
 		    	   //close the stage
+		    	   rs.close();
+		    	   ps.close();
 		    	   stage.close();
 		       }
 		       catch(Exception e)
 		       {
-		    	  e.printStackTrace();   
+		    	  logger.error("Could not display on-hold tickets", e); 
 		       }
 		    }	
 		    else
@@ -843,6 +868,7 @@ public class Receipt {
 	   
 	   //setup stage
 	   stage.setTitle("FASS Nova - On-hold tickets");
+	   stage.setResizable(false);
 	   stage.setMinWidth(350);
 	   stage.centerOnScreen();
 	   stage.initModality(Modality.APPLICATION_MODAL);

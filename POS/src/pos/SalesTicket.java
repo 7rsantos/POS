@@ -100,10 +100,10 @@ public class SalesTicket {
 		status.setCellValueFactory(new PropertyValueFactory<>("status"));
 		
 		//set sizes
-		time.setPrefWidth(90);
-		ticket.setPrefWidth(120);
-		total.setPrefWidth(100);
-		payment.setPrefWidth(110);		
+		time.setPrefWidth(100);
+		ticket.setPrefWidth(200);
+		total.setPrefWidth(120);
+		payment.setPrefWidth(120);		
 		status.setPrefWidth(100);
 		
 		//add columns to the table view

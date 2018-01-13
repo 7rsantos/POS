@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -25,6 +27,8 @@ import javafx.stage.Stage;
 
 public class DamagedInventory {
 
+   private static Logger logger = Logger.getLogger(DamagedInventory.class);	
+	
    public static void displayDamagedInventory(String name, String unit)
    {
 	   //stage
@@ -220,11 +224,12 @@ public class DamagedInventory {
          ps.executeQuery();
          
          //close
+         ps.close();
          conn.close();
       }
       catch(Exception e)
       {
-         e.printStackTrace();	  
+         logger.error("Could not update damaged inventory", e);	  
       }
    }
 }

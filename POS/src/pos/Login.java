@@ -20,15 +20,17 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import java.io.InputStreamReader;
 import java.sql.*;
 import java.sql.Connection;
+
+import org.apache.log4j.Logger;
 
 import pos.Session;
 
 public class Login {
 
 public static Stage window;	
+private static Logger logger = Logger.getLogger(Login.class);
 	
 	   public static void displayLogin()
 	   {
@@ -73,12 +75,11 @@ public static Stage window;
 		  root.insetsProperty();
 		  
 		  //debugging
-		  username.setText("admin");
-		  password.setText("cGFzc3dvcmQ=");
+		  username.setText(Configs.getProperty("LastLoginUser"));
 		  
 		  
 		  //set action listener
-		  loginButton.setOnAction(e -> login(username.getText(), password.getText(), window));
+		  loginButton.setOnAction(e -> login(username.getText(), Session.encrypt(password.getText()), window));
 		  clear.setOnAction(new EventHandler<ActionEvent>() { 
 			@Override
 			public void handle(ActionEvent event) {
@@ -156,28 +157,25 @@ public static Stage window;
 				  //create a result set
 				  ResultSet rs = ps.executeQuery();
 				  
-				  
-				  System.out.print("After execution");
 				  //process the result set
 				  while (rs.next())
 				  {	 
 						 
-					 System.out.println("Inside while loop");
-					 boolean result = rs.getBoolean(1); 
-					 System.out.println("Result is: " + result);
+					 boolean result = rs.getBoolean(1);
 					  
                      if(result)
                      {
                     	 //close the stage
                     	 stage.close();
                     	 
-                    	 
-                    	 
                     	 //set current user
                     	 Configs.saveProperty("CurrentUser", username);
                   
                          //loading screen
                     	 Loading.displayLoadingScreen();
+                    	 
+                    	 //login successful
+                    	 logger.info("Login successful");
                     	 
                     	 //set priority level
                     	 Session.getPrivilegeLevel();
@@ -189,13 +187,14 @@ public static Stage window;
 				  } 
 				  
 				  //close
+				  rs.close();
 				  ps.close();
 				  myConn.close();
 				  
 			  }
 			  catch(Exception e)
 			  { 
-				  e.printStackTrace();
+				  logger.error("Error connecting to database", e);
 				  AlertBox.display("Connection Error", "Could not connect to the database, check your connection settings.");
 			  }
 			   

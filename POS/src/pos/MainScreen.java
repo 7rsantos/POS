@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.SimpleStringProperty;
@@ -48,15 +50,17 @@ public class MainScreen {
 	static Stage window;
 	public static TableView<Product> table;
 	public static ImageView carnetIcon;
-    private static Button checkCashing;
+    //private static Button checkCashing;
     private static Button customers;
     private static Button moneyWire;
 	private static Button search;
+	private static Button phoneOptions;
 	
 	static Label customer;
-	
+	private static boolean isFoodStamp =false; 
 	private static String barcode = "";
 	private static boolean active = false;
+	private static Button food;
 	
 	public static ObservableList<Product> products = FXCollections.observableArrayList();
 	public static ArrayList<String> productList = new ArrayList<String>();
@@ -70,6 +74,7 @@ public class MainScreen {
 	public static double discount;
 	public static String status;
 	public static String ticketNo;
+	private static Logger logger = Logger.getLogger(MainScreen.class);
 	
 	/*
 	 * get total of receipt
@@ -331,6 +336,9 @@ public class MainScreen {
 			     //put items in the table
 			     table.setItems(products);
 			     
+			     //activate food stamp
+			     food.setDisable(false);
+			     
 			     //activate pay button
 			     pay.setDisable(false);
 			     
@@ -468,18 +476,49 @@ public class MainScreen {
 		Image cancelIcon = new Image(MainScreen.class.getResourceAsStream("/res/Cancel.png"));		
 		Button cancel = new Button("Cancel", new ImageView(cancelIcon));
 		
+		//fooddstamps
+		food = new Button("Food stamps",new ImageView(new Image(MainScreen.class.getResourceAsStream("/res/ebt.png"))));
+		
+		//set disbake
+		food.setDisable(true);
+		
 		//implement actions
 		cancel.setOnAction(e -> AlertBox.displayOptionDialog("FASS Nova", "Do you want to cancel ticket?"));
 	    pay.setOnAction(e -> pay());
+	    food.setOnAction(e -> calculateFoodStamps());
 	    
 	    //add children
-	    buttons.getChildren().addAll(cancel, pay);
+	    buttons.getChildren().addAll(food, cancel, pay);
 		
 		return buttons;
 	   
 	   
 	}
 	
+	/*
+	 * Calculate new total
+	 */
+	private static void calculateFoodStamps() {
+	
+		if(!isFoodStamp)
+		{	
+		   //calculate new total
+		   Total.setText(Double.toString(Receipt.setPrecision((Product.computeTotal(subTotal.getText(), null)))));
+		   
+		   //set to true
+		   isFoodStamp = true;		   
+		   
+		}
+		else
+		{
+		   //calculate total
+		   Product.computeTotal(subTotal.getText(), Configs.getProperty("taxRate"));
+		   
+		   //set to false
+		   isFoodStamp = false;
+		}	
+	}
+
 	public static GridPane createOptionSection()
 	{ 
 		//layout for options section
@@ -490,6 +529,7 @@ public class MainScreen {
 	    moneyWire = Icon.createButtonIcon("Money Wire", "/res/moneyWire.png");
 		//checkCashing = Icon.createButtonIcon("Check Cashing", "/res/check.PNG");
 		customers = Icon.createButtonIcon("Customer", "/res/customer.png");
+		phoneOptions = Icon.createButtonIcon("Recargas/Tarjetas", "/res/android.png");
 		
 		//create user icon
 		carnetIcon = new ImageView();
@@ -529,6 +569,10 @@ public class MainScreen {
 			}
 			 
 		 });
+		 
+		 //display other services
+		 phoneOptions.setOnAction(e-> MainScreen.displayOtherServices());
+		 
 	     //add context menu to the image
 	     contextMenu.getItems().add(item1);
 	     
@@ -540,6 +584,7 @@ public class MainScreen {
 		//Label check = new Label("Check Cashing");
 		Label productSearch = new Label("Product Search");
 		Label money = new Label("Money Wire");
+		Label optionslbl = new Label("Other services");
 		
 		//change label color
 		customer.setTextFill(Color.WHITE);
@@ -548,6 +593,7 @@ public class MainScreen {
 		money.setTextFill(Color.WHITE);
 		cashier.setTextFill(Color.WHITE);
 		cashierName.setTextFill(Color.WHITE);
+		optionslbl.setTextFill(Color.WHITE);
 		
 		
 		//add nodes to the grid pane
@@ -560,8 +606,8 @@ public class MainScreen {
 		options.add(productSearch, 18, 2);
 		options.add(moneyWire, 20, 1);
 		options.add(money, 20, 2);
-		//options.add(checkCashing, 22, 1);
-		//options.add(check, 22, 2);	
+		options.add(phoneOptions, 22, 1);
+		options.add(optionslbl, 22, 2);	
 	
         options.setHgap(15); 
 		options.setAlignment(Pos.CENTER);
@@ -639,7 +685,8 @@ public class MainScreen {
 	 */
     public static void deleteItem()
     { 
-        ObservableList<Product> productSelected, allProducts = FXCollections.observableArrayList();
+        @SuppressWarnings("unused")
+		ObservableList<Product> productSelected, allProducts = FXCollections.observableArrayList();
         
         //get items
         allProducts = table.getItems();
@@ -672,6 +719,7 @@ public class MainScreen {
            //disable buttons
            pay.setDisable(true);
            remove.setDisable(true);
+           food.setDisable(true);
         }
     }
     
@@ -690,6 +738,9 @@ public class MainScreen {
     	   
     	   //recompute total
     	   Total.setText("0.00");
+    	   
+    	   //log
+    	   logger.info("About to logout");
     	   
     	   //logout 
     	   Session.logout(window);   
@@ -729,10 +780,11 @@ public class MainScreen {
     //set table items
     public static void setTableItems(ObservableList<Product> allProducts)
     { 
-       table.setItems(allProducts); 
        
        //copy items of all products to products
        products = allProducts;
+       
+       table.setItems(products); 
        
        //populate product list array
        for(Product p : products)
@@ -752,7 +804,41 @@ public class MainScreen {
 	   //enable pay and remove buttons
 	   pay.setDisable(false);
 	   remove.setDisable(false);
+	   food.setDisable(false);
     }
+    
+    
+    /*
+     *  Calculate subtotal and total for non tax itemas
+     */
+    public static void setTableItemsforNonTaxItems(ObservableList<Product> allProducts)
+    { 
+       table.setItems(allProducts); 
+       
+       //copy items of all products to products
+       products = allProducts;
+       
+       //populate product list array
+       for(Product p : products)
+       { 
+            productList.add(p.getName());	   
+       }	   
+       
+	   //create decimal format
+	   //DecimalFormat df = new DecimalFormat("#.##");
+	   
+	   //compute subtotal 
+	   //subTotal.setText(df.format(Product.computeSubTotal(products, Discount.getText())));
+	   
+	   //compute total
+	   //Total.setText(df.format(Product.computeTotal(subTotal.getText(), null)));
+	   
+	   //enable pay and remove buttons
+	   pay.setDisable(false);
+	   remove.setDisable(false);
+	   //food.setDisable();
+    }
+    
     
     /*
      * Reset the observable list containing the list of products
@@ -761,6 +847,10 @@ public class MainScreen {
     { 
        productList.clear();
        products.clear();
+       
+       //set to false
+       isFoodStamp = false;
+       food.setDisable(true);
        
        //set status to incomplete
        status = "Incomplete";
@@ -854,6 +944,7 @@ public class MainScreen {
 		
 		
 		//enable buttons
+		food.setDisable(false);
 		pay.setDisable(false);
 		remove.setDisable(false);
     }
@@ -1017,6 +1108,204 @@ public class MainScreen {
        SimpleStringProperty property = new SimpleStringProperty(name);
        customer.textProperty().unbind();
        customer.textProperty().bind(property);
+       
+    }
+    
+    /*
+     * Set recharge/ phone card
+     */
+    private static void displayOtherServices()
+    {
+       FlowPane root = new FlowPane();
+       
+       //setuo
+       root.setVgap(7);
+       root.setHgap(7);
+       root.setPrefWrapLength(210);
+       
+       //recharges
+       Button sevenPhone = Icon.createPaymentButtonIcon("$7 Phone Card", "/res/tigo.JPG");
+       Button tenPhone = Icon.createPaymentButtonIcon("$10 Phone Card", "/res/claro.jpg");
+       Button twoPhone = Icon.createPaymentButtonIcon("$2 Card", "/res/boss.jpg");
+       Button boss = Icon.createPaymentButtonIcon("Boss Revolution", "/res/boss1.png");
+       Button ml = Icon.createPaymentButtonIcon("Mi Llamada", "/res/millamada.png");
+       Button payxchange = Icon.createPaymentButtonIcon("Payxchange", "/res/payxchange.jpg");
+       
+       //stage
+       Stage stage = new Stage();
+       
+       //set on action
+       tenPhone.setOnAction(new EventHandler<ActionEvent>(){
+
+		@Override
+		public void handle(ActionEvent event) {
+			
+			//close
+			stage.close();
+			
+			//process
+			BillPayment.processPhoneCards(products, 10);
+			
+		}
+    	   
+       });
+       //set on action
+       sevenPhone.setOnAction(new EventHandler<ActionEvent>(){
+
+		@Override
+		public void handle(ActionEvent event) {
+			
+			//close
+			stage.close();
+			
+			//process
+			BillPayment.processPhoneCards(products, 7);
+			
+		}
+    	   
+       });
+       //set on action
+       twoPhone.setOnAction(new EventHandler<ActionEvent>(){
+
+		@Override
+		public void handle(ActionEvent event) {
+			
+			//close
+			stage.close();
+			
+			//process
+			BillPayment.processPhoneCards(products, 2);
+			
+		}
+    	   
+       });
+       
+       //set on action
+       boss.setOnAction(new EventHandler<ActionEvent>(){
+
+		@Override
+		public void handle(ActionEvent event) {
+			
+			//close
+			stage.close();
+			
+			//process
+			BillPayment.processBillPayment(products, 2);
+			
+		}
+    	   
+       });
+       
+       payxchange.setOnAction(new EventHandler<ActionEvent>(){
+
+		@Override
+		public void handle(ActionEvent event) {
+			
+			//close
+			stage.close();
+			
+			//process
+			BillPayment.processBillPayment(products, 1);
+			
+		}
+    	   
+       });
+       
+       ml.setOnAction(new EventHandler<ActionEvent>(){
+
+		@Override
+		public void handle(ActionEvent event) {
+			
+			//close
+			stage.close();
+			
+			//process
+			BillPayment.processBillPayment(products, 4);
+			
+		}
+    	   
+       });
+       
+		//create labels
+		Label cashText = new Label("$7 Phone Card");
+		Label visaText = new Label("$10 Phone Card");
+		Label masterText = new Label("$2 Phone Card");
+		Label amexText = new Label("Boss Revolution");
+		Label discoverText = new Label("Mi Llamada");
+		Label foodText = new Label("Payxchange");
+		
+		
+		//set label text fill color
+		cashText.setTextFill(Color.WHITE);
+		visaText.setTextFill(Color.WHITE);
+		masterText.setTextFill(Color.WHITE);
+		amexText.setTextFill(Color.WHITE);
+		discoverText.setTextFill(Color.WHITE);
+		foodText.setTextFill(Color.WHITE);
+		
+		//create layouts to hold options
+		VBox sevenOption = new VBox();
+		VBox tenOption = new VBox();
+		VBox twoOption = new VBox();
+		VBox bossOption = new VBox();
+		VBox payOption = new VBox();
+		VBox miOption = new VBox();
+		
+		//set alignment of layouts
+		sevenOption.setAlignment(Pos.CENTER);
+		tenOption.setAlignment(Pos.CENTER);
+		twoOption.setAlignment(Pos.CENTER);
+		bossOption.setAlignment(Pos.CENTER);
+		payOption.setAlignment(Pos.CENTER);
+		miOption.setAlignment(Pos.CENTER);
+
+		//create layout to hold buttons
+		HBox methods = new HBox();
+		
+		//add icons to layout
+		sevenOption.getChildren().addAll(sevenPhone, cashText);
+		tenOption.getChildren().addAll(tenPhone, visaText);
+		twoOption.getChildren().addAll(twoPhone, masterText);
+		bossOption.getChildren().addAll(boss, amexText);
+		payOption.getChildren().addAll(payxchange, foodText);
+		miOption.getChildren().addAll(ml, discoverText);
+		
+		
+		//add all layout options to layout
+		methods.getChildren().addAll(tenOption, sevenOption, twoOption, bossOption, 
+				                     payOption, miOption);
+		//set spacing
+		methods.setSpacing(7);
+		
+		//set insets of grid layout
+		methods.setPadding(new Insets(5, 10, 5, 30));
+       
+       //add nodes to root
+       root.getChildren().addAll(methods);
+       
+       //set id
+       root.setId("border");
+       
+       //load stylesheets
+       root.getStylesheets().add(MainScreen.class.getResource("MainScreen.css").toExternalForm());
+       
+       //scene
+       Scene scene = new Scene(root);
+       
+       //set stage
+       stage.setTitle("Other services");
+       //stage.setMinWidth(300);
+       //stage.setMaxWidth(550);
+       stage.setResizable(false);
+       stage.initModality(Modality.APPLICATION_MODAL);
+       stage.centerOnScreen();
+       
+       //set scene
+       stage.setScene(scene);
+       
+       //show
+       stage.show();
+       
        
     }
     

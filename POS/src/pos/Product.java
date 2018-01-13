@@ -1,12 +1,10 @@
 package pos;
 
-import java.beans.*;
+
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
 
-import com.mysql.jdbc.Connection;
+import org.apache.log4j.Logger;
 
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class Product {		
@@ -14,8 +12,10 @@ public class Product {
     private String name;
     private Double unitPrice;
     private int quantity;
-    private double price;
+    @SuppressWarnings("unused")
+	private double price;
     private String unitSize;
+    private static Logger logger = Logger.getLogger(Product.class);
     
     public Product()
     { 
@@ -89,15 +89,29 @@ public class Product {
     } 
     
     public static double computeTotal(String s, String t)
-    { 
-    	//get the tax rate
-    	t = t.substring(0, t.length()-1);
+    {
+    	try
+    	{
     	
-    	//convert to doubles
-    	double subtotal = Double.parseDouble(s);
-    	double tax = Double.parseDouble(t); 	
+    	   //convert to doubles
+    	   double subtotal = Double.parseDouble(s);
+    	   double tax = 0.0; 
+    	   
+    	   if(t != null)
+    	   {
+    		 //get the tax rate
+        	 t = t.substring(0, t.length()-1); 
+    	     tax = Double.parseDouble(t); 	
+    	      
+    	   }
+    	   return subtotal += subtotal * (tax / 100);
+    	}
+    	catch(Exception e)
+    	{
+    	   logger.error("Could not compute total", e);	
+    	}
     	
-    	return subtotal += subtotal * (tax / 100);
+    	return 0;
     }
     
     public static double computeSubTotal(ObservableList<Product> products, String d)

@@ -2,8 +2,8 @@ package pos;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+
+import org.apache.log4j.Logger;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -24,6 +24,8 @@ import java.sql.Connection;
 
 public class RegisterUtilities {
 
+	private static Logger logger = Logger.getLogger(RegisterUtilities.class);
+	
 	/*
 	 *  Increase cash after each cash sale
 	 */
@@ -31,11 +33,7 @@ public class RegisterUtilities {
 	{ 
 	   String query1 = "CALL updateExpectedCash(?,?)";
 	   double oldAmount = getExpectedCash();
-	   System.out.println("Old Amount "+ oldAmount);
-	   
-	 //debug
-       System.out.println(Configs.getProperty("Register"));
-	   
+	   	   
 	   try
 	   { 
 	       java.sql.Connection conn = Session.openDatabase();
@@ -50,12 +48,17 @@ public class RegisterUtilities {
 	       ps.executeUpdate();
 	       	       
 	       //close the connection
+	       ps.close();
 	       conn.close();
+	       
+	       double expected = amount + oldAmount;
+	       
+	       logger.info(" New Expected cash " + amount + " + " + oldAmount + " =" + expected);
 	       
 	   }
 	   catch(Exception e)
 	   { 
-		  e.printStackTrace();   
+		  logger.error("Could not update expected cash");  
 	   }
 	}
 	
@@ -82,17 +85,20 @@ public class RegisterUtilities {
 		      
 		   while(rs.next())
 		   { 
-			   System.out.println("Expected Cash get: " + expected); 
+
 			   
 		      expected = rs.getDouble(1);
 		      
 		   }
 		   
+		   rs.close();
 		   ps.close();
+		   conn.close();
+		   
 		}
 	    catch(Exception e)
 	    { 
-	       e.printStackTrace();	
+	       logger.error("Could not get expected cash ", e);	
 	    }
 	    	    
 	    return expected;
@@ -130,10 +136,13 @@ public class RegisterUtilities {
 	      
 	      //close the connection
 	      ps.close();
+	      conn.close();
+	      
+	      logger.info("Audit saved to the database");
 	   }
 	   catch(Exception e)
 	   { 
-		  e.printStackTrace();   
+		  logger.error("Could not create audit in the database", e);   
 	   }
 	}
 	
@@ -161,12 +170,13 @@ public class RegisterUtilities {
 	       ps.executeUpdate();
 	       	       
 	       //close the connection
+	       ps.close();
 	       conn.close();
 	       
 	   }
 	   catch(Exception e)
 	   { 
-		  e.printStackTrace();   
+		  logger.error("Could not transfer cash", e);   
 	   }
 	}
 	
@@ -291,15 +301,19 @@ public class RegisterUtilities {
 	      ps.executeUpdate();
 	      
 	      //close
+	      ps.close();
 	      conn.close();
 	      
 	      //save locally
 	      Configs.saveProperty("TaxRate", tax);
 	      
+	      //log
+	      logger.info("Tax rate was updated sucessfully");
+	      
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Tax could not be updated", e);   
 	   }
 	}
 }

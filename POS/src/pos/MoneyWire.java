@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 
 import javax.imageio.ImageIO;
 
+import org.apache.log4j.Logger;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -50,6 +51,7 @@ public class MoneyWire {
    private String amount;
    private String type;
    private String wireNo;
+   private static Logger logger = Logger.getLogger(MoneyWire.class);
    
    //type
    public MoneyWire(String company, String wireNo, String amount, String type)
@@ -139,6 +141,7 @@ public class MoneyWire {
 	  //setup stage
 	  stage.setTitle("FASS Nova - Money Wire");
 	  stage.setMinWidth(300);
+	  stage.setResizable(false);
 	  stage.initModality(Modality.APPLICATION_MODAL);
 	  stage.centerOnScreen();
 	  
@@ -184,11 +187,15 @@ public class MoneyWire {
 	     MoneyWire.displayMoneyWireCompanies(caller);
 	     
 	     //close 
+	     ps.close();
 	     conn.close();
+	     
+	     //log
+	     logger.info("Money wire company created successfully");
 	  }
 	  catch(Exception e)
 	  {
-	     e.printStackTrace();	  
+	     logger.error("Could not create money wire company", e);	  
 	  }
    }
    
@@ -204,7 +211,7 @@ public class MoneyWire {
 	     Connection conn = Session.openDatabase();
 	     PreparedStatement ps = conn.prepareStatement(query);
 	     
-	     System.out.println(serviceType);
+	     //System.out.println(serviceType);
 	     
 	     //set parameters
 	     ps.setInt(1, wireNo);
@@ -220,11 +227,12 @@ public class MoneyWire {
 	     ps.executeQuery();
 	     
 	     //close
+	     ps.close();
 	     conn.close();
 	  }
 	  catch(Exception e)
 	  {
-	     e.printStackTrace();	  
+	     logger.error("Could not create money wire service", e);	  
 	  }
    }
    
@@ -234,7 +242,7 @@ public class MoneyWire {
    public static ObservableList<String> getCompanyNames()
    {
 	  ObservableList<String> result = FXCollections.observableArrayList();
-	  String query = "CALL listSRCompany(?)";
+	  String query = "CALL listSRCompany()";
 	  
 	  try
 	  {
@@ -242,7 +250,7 @@ public class MoneyWire {
 	     PreparedStatement ps = conn.prepareStatement(query);
 	     
 	     //set parameters
-	     ps.setString(1, Configs.getProperty("StoreCode"));
+	     //ps.setString(1, Configs.getProperty("StoreCode"));
 	     
 	     //execute query
 	     ResultSet rs = ps.executeQuery();
@@ -254,11 +262,13 @@ public class MoneyWire {
 	     } 	 
 	     
 	     //connection
+	     rs.close();
+	     ps.close();
 	     conn.close();
 	  }
 	  catch(Exception e)
 	  {
-	     e.printStackTrace();	  
+	     logger.error("Could not list money wire companies", e);	  
 	  }
 	  
 	  return result;
@@ -296,11 +306,14 @@ public class MoneyWire {
 		     image = SwingFXUtils.toFXImage(bufferedImage, null);
 		     
 		     //connection
+		     in.close();
+		     rs.close();
+		     ps.close();
 		     conn.close();
 		  }
 		  catch(Exception e)
 		  {
-		     e.printStackTrace();	  
+		     logger.error("Could not load company logo", e);	  
 		  }
 		  		  
 		  return image;	   
@@ -344,7 +357,8 @@ public class MoneyWire {
 	  amountlbl.setFont(new Font("Courier Sans", 12));
 	  destinationlbl.setFont(new Font("Courier Sans", 12));
 	  
-	  String transactionType = "S";
+	  @SuppressWarnings("unused")
+	String transactionType = "S";
 	  
 	  if(caller == 2)
 	  {
@@ -378,13 +392,10 @@ public class MoneyWire {
 			if(Integer.parseInt(Configs.getProperty("Privilege")) >= 1)
 			{
 			   //check amount
-			   if(wireno.getText() != null && !wireno.getText().isEmpty() &&
-					   wireno.getText() != null && !wireno.getText().isEmpty()
-					   && Double.parseDouble(amount.getText()) > 750 && Double.parseDouble(amount.getText()) > 10)	
+			   if(Double.parseDouble(amount.getText()) > 750 && Double.parseDouble(amount.getText()) > 10)	
 			   {
 				  if (sender.getText() != null && !sender.getText().isEmpty()
 					  && receiver.getText() != null && !receiver.getText().isEmpty()
-					  && wireno.getText() != null && !wireno.getText().isEmpty()
 					  && amount.getText() != null && !amount.getText().isEmpty())
 				  {
 					  //type
@@ -427,8 +438,7 @@ public class MoneyWire {
 				  }	  
 			   }
 			   else if(amount.getText() != null && !amount.getText().isEmpty()
-						  && Double.parseDouble(amount.getText()) < 750 && Double.parseDouble(amount.getText()) > 10
-						  && wireno.getText() != null && !wireno.getText().isEmpty())
+						  && Double.parseDouble(amount.getText()) < 750 && Double.parseDouble(amount.getText()) > 10)
 			   {
 		  	      //type
 				  String serviceType = "send";
@@ -535,7 +545,9 @@ public class MoneyWire {
 	  }	  
 	  
 	  stage.setMinWidth(300);
+	  stage.setResizable(false);
 	  stage.centerOnScreen();
+	  stage.setResizable(false);
 	  
 	  //set scene
 	  stage.setScene(scene);
@@ -605,6 +617,8 @@ public class MoneyWire {
 		  Image image = getMoneyWireCompanyLogo(companyNames.get(i));
 		  ImageView imageView = new ImageView(image);
 		  
+		  logger.info("display money wire companies " + companyNames.get(i));
+		  
 		  //set fit
 		  imageView.setFitHeight(150);
 		  imageView.setFitWidth(150);
@@ -649,6 +663,7 @@ public class MoneyWire {
 	  //setup stage
 	  stage.setMinWidth(330);
 	  stage.setMinHeight(200);
+	  stage.setResizable(false);
 	  stage.initModality(Modality.APPLICATION_MODAL);
 	  stage.centerOnScreen();
 	  
@@ -777,7 +792,9 @@ public class MoneyWire {
 			     //create money wire company
 				 MoneyWire.createMoneyWireCompany(name.getText(), address.getText(), city.getText(), 
 						                          state.getText(), country.getText(), Integer.parseInt(zip.getText()), 
-						                          manager.getText(), phone.getText(), Configs.getProperty("CurrentUser"), caller); 
+						                          manager.getText(), phone.getText(), Configs.getProperty("CurrentUser"), caller);
+				 
+				 stage.close();
 			  }	  
 			  else
 			  {
@@ -865,6 +882,7 @@ public class MoneyWire {
 	  
 	  //setup stage
 	  stage.setTitle("Create Money Wire Company");
+	  stage.setResizable(false);
 	  stage.setMinWidth(300);
 	  stage.initModality(Modality.APPLICATION_MODAL);
 	  stage.centerOnScreen();
@@ -904,7 +922,7 @@ public class MoneyWire {
 		      
 		   } catch (MalformedURLException e) {
 			  AlertBox.display("FASS NOVA - Error", "Could not select image");
-			  e.printStackTrace();
+			  logger.error("Money wire, could not select image");
 		   }
 		   
 		   //set image view dimensions

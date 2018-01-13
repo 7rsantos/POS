@@ -1,8 +1,5 @@
 package pos;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -11,7 +8,6 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 
@@ -512,9 +508,9 @@ public class CustomMenu {
 		MenuItem version = new MenuItem("Version");
 		
 		//create info message
-		Date date = new Date();
-		DateFormat df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
-		String message = "Created by: Ricardo Santos " + df.format(date);
+		//Date date = new Date();
+		//DateFormat df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
+		String message = "Created by: Ricardo Santos 2018-01-11";
 		
 		version.setOnAction(e -> AlertBox.display(" FASS Nova Version 1.0", 
 				message));

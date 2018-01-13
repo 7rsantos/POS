@@ -2,6 +2,7 @@ package pos;
 
 import java.text.DecimalFormat;
 
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -20,6 +21,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -68,16 +70,18 @@ private static String ticketNo;
         
         //set icon
 	    window.getIcons().add(new Image(PaymentScreen.class.getResourceAsStream("/res/FASSlogo.jpg")));
+        
+	    //center
+	    window.centerOnScreen();
+ 
+		//set the size of the window
+		Screen screen = Screen.getPrimary(); 
+		Rectangle2D bounds = screen.getVisualBounds(); 
 
-        
-        //position stage at the center of the screen
-        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-        window.setX((primScreenBounds.getWidth() - window.getWidth()) / 2);
-        window.setY((primScreenBounds.getHeight() - window.getHeight()) / 2);
-        
-        //set minimum sizes
-        window.setMinHeight(525);
-        window.setMinWidth(750);    
+		window.setX(bounds.getMinX()); 
+		window.setY(bounds.getMinY()); 
+		window.setMinHeight(bounds.getHeight()); 
+		window.setMinWidth(bounds.getWidth()); 
         
         return window;
 	}	
@@ -140,6 +144,7 @@ private static String ticketNo;
 		Button mastercard = Icon.createPaymentButtonIcon("MasterCard", "/res/mastercard.png");
 		Button amex = Icon.createPaymentButtonIcon("Amex", "/res/amex.png");
 		Button discover = Icon.createPaymentButtonIcon("Discover", "/res/discover.jpeg");
+		Button food = Icon.createPaymentButtonIcon("Food stamp", "/res/ebtcard.jpg");
 		
 		//implement actions
 		cash.setOnAction(e -> cashPayment());
@@ -147,6 +152,7 @@ private static String ticketNo;
 		mastercard.setOnAction(e-> cardPayment("MasterCard"));
 		amex.setOnAction(e-> cardPayment("American Express"));
 		discover.setOnAction(e-> cardPayment("Discover"));
+		food.setOnAction(e -> cardPayment("Food Stamp"));
 		
 		//create labels
 		Label cashText = new Label("Cash");
@@ -154,6 +160,7 @@ private static String ticketNo;
 		Label masterText = new Label("MasterCard");
 		Label amexText = new Label("American Express");
 		Label discoverText = new Label("Discover");
+		Label foodText = new Label("Food stamp");
 		
 		
 		//set label text fill color
@@ -162,6 +169,7 @@ private static String ticketNo;
 		masterText.setTextFill(Color.WHITE);
 		amexText.setTextFill(Color.WHITE);
 		discoverText.setTextFill(Color.WHITE);
+		foodText.setTextFill(Color.WHITE);
 		
 		//create layouts to hold options
 		VBox cashOption = new VBox();
@@ -169,6 +177,7 @@ private static String ticketNo;
 		VBox masterOption = new VBox();
 		VBox amexOption = new VBox();
 		VBox discoverOption = new VBox();
+		VBox foodOption = new VBox();
 		
 		//set alignment of layouts
 		cashOption.setAlignment(Pos.CENTER);
@@ -176,10 +185,22 @@ private static String ticketNo;
 		masterOption.setAlignment(Pos.CENTER);
 		amexOption.setAlignment(Pos.CENTER);
 		discoverOption.setAlignment(Pos.CENTER);
+		foodOption.setAlignment(Pos.CENTER);
 
+		//total display
+		FlowPane centerTop = new FlowPane();
+		centerTop.setAlignment(Pos.TOP_LEFT);
+		
+		centerTop.getChildren().add(selectPayment);
+		
+		//center
+		VBox center = new VBox();
+		
+		//setup center
+		center.setSpacing(7);
 		
 		//create layout to hold buttons
-		GridPane methods = new GridPane();
+		HBox methods = new HBox();
 		
 		//add icons to layout
 		cashOption.getChildren().addAll(cash, cashText);
@@ -187,24 +208,23 @@ private static String ticketNo;
 		masterOption.getChildren().addAll(mastercard, masterText);
 		amexOption.getChildren().addAll(amex, amexText);
 		discoverOption.getChildren().addAll(discover, discoverText);
+		foodOption.getChildren().addAll(food, foodText);
+		
 		
 		//add all layout options to layout
-		methods.add(selectPayment, 0, 0);
-		methods.add(cashOption, 0, 1);
-		methods.add(visaOption, 1, 1);
-		methods.add(masterOption, 2, 1);
-		methods.add(amexOption, 3, 1);
-		methods.add(discoverOption, 0, 2);
-		
+		methods.getChildren().addAll(cashOption, visaOption, masterOption, amexOption, 
+				                     discoverOption, foodOption);
 		//set spacing
-		methods.setHgap(10);
-		methods.setVgap(10);
+		methods.setSpacing(7);
 		
 		//set insets of grid layout
 		methods.setPadding(new Insets(5, 10, 5, 30));
-				
+		
+		//add nodes to center
+		center.getChildren().addAll(centerTop, methods);
+		
 		//set center
-		root.setCenter(methods);
+		root.setCenter(center);
 		
 		//create image
 		Image image = new Image(PaymentScreen.class.getResourceAsStream("/res/Previous.png"));
@@ -496,8 +516,6 @@ private static String ticketNo;
 		if (cashPayment)
 		{
 		   cash = new Label("Cash Received");
-		   
-		   System.out.println("Receipt total " + receiptTotal);
 		   
 		   //increase actual cash
 		   RegisterUtilities.increaseCash(receiptTotal);

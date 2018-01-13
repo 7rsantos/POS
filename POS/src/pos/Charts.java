@@ -9,6 +9,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import org.apache.log4j.Logger;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -29,7 +31,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
@@ -37,6 +38,8 @@ import javafx.stage.Stage;
 
 public class Charts {
 
+	private static Logger logger = Logger.getLogger(Charts.class);
+	
    /*
     * Display menu options	
     */
@@ -188,8 +191,8 @@ public class Charts {
 	   //calendar
 	   Calendar calendar = Calendar.getInstance();
 	   String month = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
-	   String year = calendar.getDisplayName(Calendar.YEAR, Calendar.LONG, Locale.getDefault());
-	   String day = calendar.getDisplayName(Calendar.DAY_OF_MONTH, Calendar.LONG, Locale.getDefault());
+	   //String year = calendar.getDisplayName(Calendar.YEAR, Calendar.LONG, Locale.getDefault());
+	   //String day = calendar.getDisplayName(Calendar.DAY_OF_MONTH, Calendar.LONG, Locale.getDefault());
 	   calendar.add(Calendar.YEAR, -1);
 	   
 	   //monthly sales 
@@ -315,11 +318,12 @@ public class Charts {
 			  result = rs.getDouble(1) * -1;   
 		   }	
 		   
+		   ps.close();
 		   conn.close();
 	   }
 	   catch(Exception e)
 	   {
-	      e.printStackTrace();  	   
+	      logger.error("Could not get monthly sales", e); 	   
 	   }
 	   
 	   return result;
@@ -356,11 +360,13 @@ public class Charts {
 	      }	  
 	      
 	      //close
+	      rs.close();
+	      ps.close();
 	      conn.close();
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not get sales by category", e);   
 	   }
 	   
 	   return result;
@@ -394,11 +400,13 @@ public class Charts {
 	      }	  
 	      
 	      //close
+	      ps.close();
+	      rs.close();
 	      conn.close();
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Error getting Category yearly sales", e);   
 	   }
 	   
 	   return result;
@@ -436,11 +444,13 @@ public class Charts {
 			  result = rs.getDouble(1);   
 		   }	
 		   
+		   rs.close();
+		   ps.close();
 		   conn.close();
 	   }
 	   catch(Exception e)
 	   {
-	      e.printStackTrace();  	   
+	      logger.error("Could not get yearly sales", e);  	   
 	   }
 	   
 	   return result;

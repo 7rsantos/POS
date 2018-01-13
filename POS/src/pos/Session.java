@@ -25,28 +25,36 @@ import javafx.stage.Stage;
 import javafx.scene.image.*;
 import javax.crypto.*;
 import javax.imageio.ImageIO;
-import javax.security.*;
+
+
+import org.apache.log4j.Logger;
+
 import java.util.Base64;
 
 public class Session {
 
+	@SuppressWarnings("unused")
 	private static Cipher ecipher;
+	@SuppressWarnings("unused")
 	private static Cipher dcipher;
+	private static Logger logger = Logger.getLogger(Session.class);
 	
 	public static Connection openDatabase()
 	{ 
  	   Connection myConn;
 	   try {
 		   
-		 myConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/pos?autoReconnect=true&rewriteBatchedStatements=true&useSSL=false&user=root&password=tienda1228");
+		 myConn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/pos?autoReconnect=true&rewriteBatchedStatements=true&useSSL=false&user=root&password=tienda1228");
 		 //System.out.println(myConn.getWarnings());
 	     return myConn;
 	     
 	   } catch (SQLException e) {
 		   
-		  e.printStackTrace();
+		  logger.error("Could not connect to database", e);
 	   }
-	   System.out.println("Connection is null");
+	   
+	   logger.info("Connection is null");
+	   
  	   return null;
 	}
 
@@ -124,7 +132,6 @@ public class Session {
 
 			@Override
 			public void handle(ActionEvent event) {
-				// TODO Auto-generated method stub
 				
 				//close the stage
 				stage.close();
@@ -170,11 +177,14 @@ public class Session {
 			   else
 			   { 
 			       AlertBox.display("FASS Nova - Error", "An error has occurred, please try again!");	   
-			   }	   
+			   }
+			   
+			   ps.close();
+			   conn.close();
 		   }
 		   catch(Exception e)
 		   { 
-			   e.printStackTrace();
+			   logger.error("Could not update password", e);
 			   AlertBox.display("FASS Nova - Error", "Could not connect to database");
 		   }
 		   	   
@@ -253,7 +263,7 @@ public class Session {
 				
 				
 				//validate input
-				String query = "SELECT Login(?,?,?)";
+				String query = "CALL loginUser(?,?,?)";
 				
 				try
 				{ 
@@ -262,7 +272,7 @@ public class Session {
 				    
 				    //set parameters
 				    ps.setString(1, userName);
-				    ps.setString(2, Session.encrypt(passWord));
+				    ps.setString(2, encrypt(passWord));
 				    ps.setString(3, Configs.getProperty("StoreCode"));
 				    
 				    //execute query
@@ -270,7 +280,8 @@ public class Session {
 				    
 				    while(rs.next())
 				    {	
-				       if(rs.getString(1).equals("1"))
+				       boolean userExists = rs.getBoolean(1);	
+				       if(userExists)
 				       { 
 				    	   //close current screen
 				    	   stage.close();
@@ -308,10 +319,10 @@ public class Session {
 				    	
 				       }	
 				   }
-				}    
+				}
 				catch(Exception e)
 				{ 
-				   e.printStackTrace();
+				   logger.error("Could not validate password", e);
 				   
 				   AlertBox.display("FASS Nova - Error", "An error has occurred");	
 
@@ -349,11 +360,15 @@ public class Session {
 		   while(rs.next())
 		   { 
 			   Configs.saveProperty("Privilege", rs.getString(1));   
-		   }	   
+		   }
+		   
+		   rs.close();
+		   ps.close();
+		   conn.close();
 		}		
 		catch(Exception e)
 		{ 
-			e.printStackTrace();
+			logger.error("Could not get privilege level", e);
 		}
 	}
 	
@@ -370,7 +385,7 @@ public class Session {
 	   }
 	   catch(Exception e)
 	   { 
-		  e.printStackTrace();  
+		  logger.error("Could not encrypt password", e);  
 	   }
 	   
 	   return null;
@@ -389,7 +404,7 @@ public class Session {
 	   }
 	   catch(Exception e)
 	   { 
-	      e.printStackTrace();	   
+	      logger.error("Could not decrypt password", e);	   
 	   }
 	   return null;	
 	}
@@ -428,12 +443,15 @@ public class Session {
 	       InputStream in = new ByteArrayInputStream(imageArray);    	  
 	       BufferedImage bufferedImage = ImageIO.read(in);    	  
 	       image = SwingFXUtils.toFXImage(bufferedImage, null);
-		   
+	       
+	       ps.close();
+	       rs.close();
 		   conn.close();
+		   
 		}
 		catch(Exception e)
 		{ 
-		   e.printStackTrace();  	
+		   logger.error("Could not get user picture", e); 	
 		}
 		
 		ImageView profilePicture = new ImageView(image);
@@ -471,11 +489,16 @@ public class Session {
 		   while(rs.next())
 		   { 
 			  result = rs.getString(1) + "  " + rs.getString(2).substring(0, 1) + ".";   
-		   }	   
+		   }
+		   
+		   rs.close();
+		   ps.close();
+		   conn.close();
+		   
 		}
 		catch(Exception e)
 		{ 
-		   e.printStackTrace();	
+		   logger.error("Could not get first name", e);	
 		}
 		
 		return result;
@@ -489,10 +512,11 @@ public class Session {
 	   if(Integer.parseInt(Configs.getProperty("Privilege")) >= 2)
 	   { 
 	      //bytes to open cash drawer
-		  byte[] open = new byte[] {0x1B, 0x70, 0x30, 0x37, 0x79};	 
+		  //byte[] open = new byte[] {0x1B, 0x70, 0x30, 0x37, 0x79};
+		  byte[] openStar = new byte[] {0x1B, 0x7, 0xA, 0x32, 0x7};
 		  
 		  //open the cash drawer
-		  PrinterService.printBytes(Configs.getProperty("Printer"), open);
+		  PrinterService.printBytes(Configs.getProperty("Printer"), openStar);
 	   }
 	   else
 	   { 

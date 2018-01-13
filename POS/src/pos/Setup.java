@@ -2,21 +2,20 @@ package pos;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
+
 import java.sql.PreparedStatement;
 
 import javax.imageio.ImageIO;
 
+import org.apache.log4j.Logger;
 
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.sql.CallableStatement;
+
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -41,7 +40,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -49,6 +47,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class Setup {
+	
+	private static Logger logger = Logger.getLogger(Setup.class);
 
 	public static void initSetup()
 	{ 
@@ -63,7 +63,8 @@ public class Setup {
 	{ 
 	   Stage stage = new Stage();	
 		
-	   String url = "";
+	   @SuppressWarnings("unused")
+	String url = "";
 	   Text text = new Text("Welcome to FASS Nova");
 	   
 	   text.setFont(new Font("Courier", 28));
@@ -507,18 +508,24 @@ public class Setup {
     	   }	   
     	   
     	   if(count > 0)
-    	   { 
+    	   {
+        	   ps.close();
+        	   conn.close(); 
+    		   
     	      return true;	   
     	   }
     	   else
-    	   { 
+    	   {
+        	   ps.close();
+        	   conn.close(); 
+    		   
     		  return false; 
-    	   }	   
+    	   }
     	   
     	}
     	catch(Exception e)
     	{ 
-    	   e.printStackTrace(); 	
+  		    logger.error("Error seacrhing for store during setup", e); 	
     	}
     	
     	return true;
@@ -632,15 +639,19 @@ public class Setup {
 			     ps.executeQuery();
 			     
 			     //close
+			     ps.close();
 			     conn.close();
 			     
 			     //display success
 			     AlertBox.display("FASS Nova", "Store has been created successfully");
 			     
+			     //log succcess
+			     logger.info("Store created successfully");
+			     
 			  }
 			  catch(Exception e)
 			  { 
-			     e.printStackTrace();
+			     logger.error("store could not be created", e);
 			  }
 			 
 			  stage.close();
@@ -677,12 +688,12 @@ public class Setup {
 		 			  logoPicture.setImage(image);
 		 			  
 		 			  //set the file
-		 			  File file = selectedFile;
+					//File file = selectedFile;
 		 		      
 		 		   } catch (MalformedURLException e) {
 		 		 
 		 			  AlertBox.display("FASS NOVA - Error", "Could not select image");
-		 			  e.printStackTrace();
+		 			  logger.error("Could not select image", e);
 		 		   }
 		 		   
 		 		   //set image view dimensions
@@ -775,6 +786,7 @@ public class Setup {
     	//setup stage
     	stage.setMinHeight(500);
     	stage.setMinWidth(400);
+    	stage.setResizable(false);
 		stage.getIcons().add(new Image(Setup.class.getResourceAsStream("/res/FASSlogo.jpg")));
     	
     	stage.setTitle("FASS Nova - Setup Store Info");
@@ -869,6 +881,8 @@ public class Setup {
 					//display success
 					AlertBox.display("FASS Nova", "Register setup successfully!");
 					
+					logger.info("Register was setup successfully");
+					
 					//close current stage
 					stage.close();
 					
@@ -878,7 +892,7 @@ public class Setup {
 				catch(Exception e)
 				{ 
 				   AlertBox.display("FASS Nova", "An error has occurred!");	
-				   e.printStackTrace();	
+				   logger.error("Could not setup register", e);
 				}
 			} 
     		
@@ -914,6 +928,7 @@ public class Setup {
     	//setup stage
     	stage.setTitle("FASS Nova - Setup Register");
     	stage.setMinWidth(300);
+    	stage.setResizable(false);
     	stage.centerOnScreen();
     	stage.setScene(scene);
     	stage.show();
@@ -937,6 +952,8 @@ public class Setup {
        Text subtitle = new Text("Thank you for purchasing and installing FASS Nova");
        subtitle.setFont(new Font("Courier Sans", 22));
        subtitle.setFill(Color.WHITE);
+       
+       logger.info("Setup was succesful");
        
        //set image view
        ImageView imageview = new ImageView(Setup.getLogo());
@@ -979,6 +996,7 @@ public class Setup {
        stage.setMinWidth(310);
        stage.setTitle("FASS Nova - Setup Complete");
        stage.centerOnScreen();
+       stage.setResizable(false);
        stage.setScene(scene);
 	   stage.getIcons().add(new Image(Setup.class.getResourceAsStream("/res/FASSlogo.jpg")));
 
@@ -1405,7 +1423,7 @@ public class Setup {
 		 		   } catch (MalformedURLException e) {
 		 		 
 		 			  AlertBox.display("FASS NOVA - Error", "Could not select image");
-		 			  e.printStackTrace();
+		 			  logger.error("Could not select image", e);
 		 		   }
 		 		   	 		   
 		 		}	   
@@ -1432,7 +1450,10 @@ public class Setup {
 			   Setup.updateLogo(file);	
 			   
 			   //display success
-			   AlertBox.display("FASS Nova", "Update successful!");	
+			   AlertBox.display("FASS Nova", "Update successful!");
+			   
+			   //log
+			   logger.info("Store logo was updated");
 			}	
 			else
 			{
@@ -1533,11 +1554,14 @@ public class Setup {
 	        BufferedImage bufferedImage = ImageIO.read(in);    	  
 	    	image = SwingFXUtils.toFXImage(bufferedImage, null);
 	    	  
+	    	rs.close();
+	    	ps.close();
+	    	in.close();
 	    	conn.close();
 	    }
 	    catch(Exception e)
 	    { 
-	       e.printStackTrace();	   
+	       logger.error("Error retrieving logo", e);	   
         }      		
 	    
 	    return image;
@@ -1563,15 +1587,19 @@ public class Setup {
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 		  //save locally
 		  Configs.saveProperty("StoreName", name);
 		  
+		  //log success
+		  logger.info("Store name updated");
+		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not updated store name", e);   
 	   }
 	}
 	
@@ -1599,6 +1627,7 @@ public class Setup {
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 		  //save values locally
@@ -1607,11 +1636,13 @@ public class Setup {
 		  Configs.saveProperty("State", state);
 		  Configs.saveProperty("Country", country);
 		  Configs.saveProperty("ZipCode", zip);
+		  
+		  logger.info("Store address was updated");
 
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not updated address", e);   
 	   }
 	}
 	
@@ -1635,15 +1666,20 @@ public class Setup {
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 		  //save value locally
 		  Configs.saveProperty("StoreNumber", Integer.toString(number));
 		  
+		  
+		  //log success
+		  logger.info("Store nubmer updated");
+		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not update store number");   
 	   }
 	}	
 	
@@ -1667,15 +1703,18 @@ public class Setup {
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 		  //save value locally
 		  Configs.saveProperty("Manager", manager);
 		  
+		  logger.info("Manager updated");
+		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not update manager", e);  
 	   }
 	}	
 	
@@ -1699,15 +1738,19 @@ public class Setup {
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 		  //save locally
 		  Configs.saveProperty("PhoneNumber", phone);
 		  
+		  //log
+		  logger.info("Phone number updated");
+		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not update phone number");   
 	   }
 	}	
 	
@@ -1731,15 +1774,19 @@ public class Setup {
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 		  //save locally
 		  Configs.saveProperty("Slogan", slogan);
 		  
+		  //info
+		  logger.info("Slogan updated");
+		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Slogan could not be updated", e);   
 	   }
 	}
 	
@@ -1763,15 +1810,19 @@ public class Setup {
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
 		  
 		  //save locally
 		  Configs.saveProperty("Greeting", greeting);
 		  
+		  //info
+		  logger.info("Greeting updated");
+		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not update greeting", e);   
 	   }
 	}
 	
@@ -1796,12 +1847,16 @@ public class Setup {
 		  ps.executeUpdate();
 		  
 		  //close
+		  ps.close();
 		  conn.close();
+		  
+		  //log
+		  logger.info("Logo updated");
 		  
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Coudl not update logo", e);   
 	   }
 	}
 	
@@ -1932,6 +1987,7 @@ public class Setup {
 	      if(rs.next())
 	      {
 		     //close
+	    	  ps.close();
 		     conn.close(); 
 	    	  
 	         return true;	  
@@ -1939,6 +1995,7 @@ public class Setup {
 	      else
 	      {
 		     //close
+	    	  ps.close();
 		     conn.close(); 
 	    	  
 	         return false;	  
@@ -1947,7 +2004,7 @@ public class Setup {
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Error searching for store");  
 	   }
 	   
 	   return false;

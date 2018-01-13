@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -38,6 +40,7 @@ public class Reports {
 
 	private static Date date1;
 	private static Date date2;
+	private static Logger logger = Logger.getLogger(Reports.class);
 	
    /*
     * Display Ranges	
@@ -576,11 +579,13 @@ public class Reports {
 		  }	  
 		  
 		  //close
+		  rs.close();
+		  ps.close();
 		  conn.close();
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not get payment totals", e);   
 	   }
 	   
 	   Text text = new Text(result);
@@ -627,6 +632,8 @@ public class Reports {
 		  }	  
 		  
 		  //close the connection
+		  rs.close();
+		  ps.close();
 		  conn.close();
 		  
 		  //set amount
@@ -634,7 +641,7 @@ public class Reports {
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not get vategory amount", e);   
 	   }
 	   
 	   return result;
@@ -687,11 +694,13 @@ public class Reports {
 		  
 		  
 		  //close
+		  rs.close();
+		  ps.close();
 		  conn.close();
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not get money wire totals", e);   
 	   }
 	   
 	   return result;
@@ -745,11 +754,13 @@ public class Reports {
 		  }	  
 		  
 		  //close
+		  rs.close();
+		  ps.close();
 		  conn.close();
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Error displaying cash withdrawal/deposit ", e);   
 	   }
 	   
 	   //title
@@ -999,11 +1010,13 @@ public class Reports {
 		  }	  
 		  
 		  //close the connection
+		  rs.close();
+		  ps.close();
 		  conn.close();
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not get product details ", e);  
 	   }
 	   
 	   return result;
@@ -1043,7 +1056,7 @@ public class Reports {
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Could not get customer sales totals ", e);   
 	   }
 	   
 	   return result;
@@ -1080,11 +1093,13 @@ public class Reports {
 		  }	  
 		  
 		  //close the connection
+		  rs.close();
+		  ps.close();
 		  conn.close();
 	   }
 	   catch(Exception e)
 	   {
-		  e.printStackTrace();   
+		  logger.error("Coudl not get customer sales details", e);  
 	   }
 	   return result;
 	}
@@ -1210,6 +1225,7 @@ public class Reports {
 	   stage.initModality(Modality.APPLICATION_MODAL);
 	   stage.setTitle("FASS Nova - Sales Detail For Customer");
 	   stage.setMinWidth(300);
+	   stage.setResizable(false);
 	   stage.centerOnScreen();
 	   
 	   //set scene

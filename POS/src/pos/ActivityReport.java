@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 
-import com.mysql.jdbc.Connection;
+import org.apache.log4j.Logger;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -36,6 +36,8 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class ActivityReport {
+	
+   private static Logger logger = Logger.getLogger(ActivityReport.class);	
 
    public static void displayActivityReport(Date start, Date end, String code, int register)
    {
@@ -197,7 +199,9 @@ public class ActivityReport {
 	   
 	   for(String s : companies)
 	   {
-		  String total = Reports.getMoneyWireTotals(s, start, end, code, register);   
+		  String total = Reports.getMoneyWireTotals(s, start, end, code, register);
+		  
+		  logger.info("Got money wire totals");
 		  
 		  if(total == null)
 		  {
@@ -244,11 +248,13 @@ public class ActivityReport {
 	     }	 
 	     
 	     //close
+	     rs.close();
+	     ps.close();
 	     conn.close();
 	  }
 	  catch(Exception e)
 	  {
-	     e.printStackTrace();	  
+	     logger.error("Money wire transactions were not retrieved", e);	  
 	  }
 	  
 	  return result;
@@ -534,11 +540,13 @@ public class ActivityReport {
          }
          
          //close
+         rs.close();
+         ps.close();
          conn.close();
       }
       catch(Exception e)
       {
-         e.printStackTrace();	  
+         logger.error("Could not get audits", e);	  
       }
       
       return result;

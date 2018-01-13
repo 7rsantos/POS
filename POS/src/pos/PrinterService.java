@@ -18,29 +18,35 @@ import javax.print.SimpleDoc;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 
+import org.apache.log4j.Logger;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
  
    
 public class PrinterService implements Printable {
 	
+	private static Logger logger = Logger.getLogger(PrinterService.class);
 	private static String Name;	
 	
+	@SuppressWarnings("static-access")
 	public PrinterService()
 	{ 
 		this.Name = "";
 	}	
+	@SuppressWarnings("static-access")
 	public PrinterService(String name)
 	{ 
 		this.Name = name;
 	}
 	
+	@SuppressWarnings("static-access")
 	public String getName()
 	{ 
 		return this.Name;
 	}
 	
-	public List<String> getPrinters(){
+	public static List<String> getPrinters(){
 		
 		DocFlavor flavor = DocFlavor.BYTE_ARRAY.AUTOSENSE;
 		PrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
@@ -121,7 +127,7 @@ public class PrinterService implements Printable {
  
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("String cannot be printed", e);
 		}
  
 	}
@@ -134,7 +140,8 @@ public class PrinterService implements Printable {
 		PrintService printService[] = PrintServiceLookup.lookupPrintServices(
 				flavor, pras);
 		PrintService service = findPrintService(printerName, printService);
- 
+				
+        logger.info("Attempting to print using " + service.getName());
 		DocPrintJob job = service.createPrintJob();
  
 		try {
@@ -144,7 +151,7 @@ public class PrinterService implements Printable {
 			job.print(doc, null);
  
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("cannot print bytes", e);
 		}
 	}
 	
@@ -155,7 +162,9 @@ public class PrinterService implements Printable {
 				return service;
 			}
 		}
- 
+        
+		logger.debug("Printer was not found, returning null");
+		
 		return null;
 	}
 }
