@@ -127,7 +127,7 @@ private static Logger logger = Logger.getLogger(Login.class);
 		  window.setScene(login);
 		  
 		  //set window size
-		  window.setWidth(400);
+		  window.setWidth(450);
 		  window.setHeight(250);
 		  
 		  //set icon

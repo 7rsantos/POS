@@ -301,7 +301,7 @@ public class Audit {
 		   hundredlbl.textProperty().bind(property);
 		   
 		   //update the array at position 5 if not empty;
-		   if(hundred.getText() != null || !hundred.getText().isEmpty())
+		   if(!hundred.getText().isEmpty()  || hundred.getText() != null)
 		   {	   
 		     totalArray[5] = Double.parseDouble(hundredlbl.getText().substring(1));
 		   }
@@ -967,7 +967,7 @@ public class Audit {
 		   pennylbl.textProperty().bind(property);
 		   
 		   //update the array at position 13 if not empty;
-		   if(!penny.getText().isEmpty() && penny.getText() != null)
+		   if(penny.getText() != null && !penny.getText().isEmpty())
 		   {	   
 		     totalArray[13] = Receipt.setPrecision(Double.parseDouble(pennylbl.getText().substring(1)));
 		   }
@@ -990,7 +990,7 @@ public class Audit {
 		   nickellbl.textProperty().bind(property);
 		   
 		   //update the array at position 13 if not empty;
-		   if(!nickel.getText().isEmpty() && nickel.getText() != null)
+		   if(nickel.getText() != null && !nickel.getText().isEmpty())
 		   {	   
 		     totalArray[14] = Receipt.setPrecision(Double.parseDouble(nickellbl.getText().substring(1)));
 		   }
@@ -1013,7 +1013,7 @@ public class Audit {
 		   dimelbl.textProperty().bind(property);
 		   
 		   //update the array at position 13 if not empty;
-		   if(!dime.getText().isEmpty() && dime.getText() != null)
+		   if(dime.getText() != null && !dime.getText().isEmpty())
 		   {	   
 		     totalArray[15] = Receipt.setPrecision(Double.parseDouble(dimelbl.getText().substring(1)));
 		   }
@@ -1036,7 +1036,7 @@ public class Audit {
 		   quarterlbl.textProperty().bind(property);
 		   
 		   //update the array at position 13 if not empty;
-		   if(!quarter.getText().isEmpty() && quarter.getText() != null)
+		   if(quarter.getText() != null && !quarter.getText().isEmpty())
 		   {	   
 		     totalArray[16] = Receipt.setPrecision(Double.parseDouble(quarterlbl.getText().substring(1)));
 		   }
@@ -1196,7 +1196,7 @@ public class Audit {
 	private static String computeWrappedCoinsSubtotal(String number, int amount)
 	{ 
 	   double n = 0;	
-	   if(!number.isEmpty() && number != null)	
+	   if(number != null && !number.isEmpty())	
 	   {
 		   n = Double.parseDouble(number);
 	   }	   

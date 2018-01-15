@@ -1130,6 +1130,7 @@ public class MainScreen {
        Button boss = Icon.createPaymentButtonIcon("Boss Revolution", "/res/boss1.png");
        Button ml = Icon.createPaymentButtonIcon("Mi Llamada", "/res/millamada.png");
        Button payxchange = Icon.createPaymentButtonIcon("Payxchange", "/res/payxchange.jpg");
+       Button fivePhone = Icon.createPaymentButtonIcon("$5 Phone Card", "/res/boss2.jpg");
        
        //stage
        Stage stage = new Stage();
@@ -1160,6 +1161,20 @@ public class MainScreen {
 			
 			//process
 			BillPayment.processPhoneCards(products, 7);
+			
+		}
+    	   
+       });
+       fivePhone.setOnAction(new EventHandler<ActionEvent>(){
+
+		@Override
+		public void handle(ActionEvent event) {
+			
+			//close
+			stage.close();
+			
+			//process
+			BillPayment.processPhoneCards(products, 5);
 			
 		}
     	   
@@ -1233,6 +1248,7 @@ public class MainScreen {
 		Label amexText = new Label("Boss Revolution");
 		Label discoverText = new Label("Mi Llamada");
 		Label foodText = new Label("Payxchange");
+		Label fiveText = new Label("$5 phone card");
 		
 		
 		//set label text fill color
@@ -1242,11 +1258,13 @@ public class MainScreen {
 		amexText.setTextFill(Color.WHITE);
 		discoverText.setTextFill(Color.WHITE);
 		foodText.setTextFill(Color.WHITE);
+		fiveText.setTextFill(Color.WHITE);
 		
 		//create layouts to hold options
 		VBox sevenOption = new VBox();
 		VBox tenOption = new VBox();
 		VBox twoOption = new VBox();
+		VBox fiveOption = new VBox();
 		VBox bossOption = new VBox();
 		VBox payOption = new VBox();
 		VBox miOption = new VBox();
@@ -1254,6 +1272,7 @@ public class MainScreen {
 		//set alignment of layouts
 		sevenOption.setAlignment(Pos.CENTER);
 		tenOption.setAlignment(Pos.CENTER);
+		fiveOption.setAlignment(Pos.CENTER);
 		twoOption.setAlignment(Pos.CENTER);
 		bossOption.setAlignment(Pos.CENTER);
 		payOption.setAlignment(Pos.CENTER);
@@ -1265,6 +1284,7 @@ public class MainScreen {
 		//add icons to layout
 		sevenOption.getChildren().addAll(sevenPhone, cashText);
 		tenOption.getChildren().addAll(tenPhone, visaText);
+		fiveOption.getChildren().addAll(fivePhone, fiveText);
 		twoOption.getChildren().addAll(twoPhone, masterText);
 		bossOption.getChildren().addAll(boss, amexText);
 		payOption.getChildren().addAll(payxchange, foodText);
@@ -1272,7 +1292,7 @@ public class MainScreen {
 		
 		
 		//add all layout options to layout
-		methods.getChildren().addAll(tenOption, sevenOption, twoOption, bossOption, 
+		methods.getChildren().addAll(tenOption, sevenOption, fiveOption, twoOption, bossOption, 
 				                     payOption, miOption);
 		//set spacing
 		methods.setSpacing(7);
@@ -1286,7 +1306,7 @@ public class MainScreen {
        //set id
        root.setId("border");
        
-       //load stylesheets
+       //load style sheets
        root.getStylesheets().add(MainScreen.class.getResource("MainScreen.css").toExternalForm());
        
        //scene

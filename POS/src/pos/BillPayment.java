@@ -41,6 +41,18 @@ public class BillPayment {
 				  
 			  //go back to main screen
 			  backToMainScreen(products);			   
+		   }
+		   else if(option == 5)
+		   {
+			  //create product
+			  Product p = new Product("$5 Phone Card", " ", 1, 5);
+				  
+			  //add product to lists
+			  products.add(p);
+				  
+				  
+			  //go back to main screen
+			  backToMainScreen(products);			   
 		   }	
 		   else
 		   {
